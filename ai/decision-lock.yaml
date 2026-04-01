@@ -6,6 +6,7 @@ approved_exceptions:
   - "Browser UUID may be used as a temporary userId fallback only if Google OAuth is deferred during PoC setup"
 approved_decisions:
   - "Use a full TypeScript stack: Nuxt 4 for UI plus server routes and AWS CDK in TypeScript"
+  - "Target a monorepo baseline with a root workspace package manager setup, shared TypeScript config, and app code rooted at apps/web plus infra/cdk"
   - "Do not introduce a separate API service; backend logic stays in Nuxt server/api routes"
   - "Deploy the same application image per tenant with TENANT_ID injected by environment configuration"
   - "Use Aurora PostgreSQL Serverless v2 as the shared cluster with separate tenant vector schemas"
@@ -13,4 +14,4 @@ approved_decisions:
   - "Target AWS deployment on ECS Fargate with secrets stored in Secrets Manager"
   - "PoC auth path is Google OAuth, with no-auth/browser UUID only as a fallback if explicitly deferred"
   - "Normalize the repo layout to a root workspace with apps/web for the Nuxt application and infra/cdk for the CDK application"
-  - "ITEM-0001 is scaffold-only: create minimal workspace/config/runtime entrypoints and placeholder stack wiring, but defer chat, uploads, Aurora integration, and Bedrock integration"
+  - "ITEM-0001 is scaffold-only: create minimal workspace/config/runtime entrypoints and placeholder stack wiring, but defer chat, uploads, Aurora integration, Bedrock integration, and any production-grade infra implementation details"
