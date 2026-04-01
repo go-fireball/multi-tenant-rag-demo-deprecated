@@ -10,6 +10,9 @@ items:
       - Repo currently contains only baton/planning assets; no apps/ or infra/ implementation exists yet
       - Baseline must follow the explicit goal stack, not the generic defaults in ai/judgment.yaml
       - Keep initial scaffold lean but production-shaped enough for follow-on API, chat, upload, and CDK work
+      - Normalize the repo layout to apps/web for the Nuxt 4 app and infra/cdk for the TypeScript CDK app
+      - Limit this item to workspace scaffolding, shared config, minimal runtime entrypoints, and placeholder stack/app wiring
+      - Defer real chat routes, Aurora persistence, Bedrock integration, and upload handling to later items
   - id: ITEM-0002
     title: Implement tenant-scoped chat sessions and streaming response route
     goal: Provide the core chat experience with persisted sessions/messages and streamed assistant responses

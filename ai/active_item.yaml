@@ -1,20 +1,21 @@
 id: ITEM-0001
 title: Scaffold the Nuxt and CDK baseline for the multi-tenant RAG platform
-goal: Establish the initial apps/ and infra/ structure for the PoC using the explicit goal stack so implementation can start on a real codebase
+goal: Establish a lean monorepo baseline with apps/web for Nuxt 4 and infra/cdk for AWS CDK so feature implementation can start on a real codebase
 status: ready_for_judgment
 owner_role: SENIOR_JUDGMENTAL_ENGINEER
 related_files:
   - ai/goal.yaml
   - ai/prd.yaml
-  - ai/judgment.yaml
-  - ai/requirements.md
-  - apps/
-  - infra/
+  - ai/backlog.yaml
+  - ai/decision-lock.yaml
+  - ai/next_agent.md
 acceptance_criteria:
   - The active item scope is confirmed to use Nuxt 4 plus Nitro server routes and TypeScript CDK on AWS, overriding generic template defaults
-  - The next engineering step is a lean scaffold that creates the repo structure needed for app and infra implementation without introducing extra services
-  - Handoff guidance is specific enough for ENGINEER to create the baseline in apps/ and infra/ with no further planning ambiguity
+  - Repo layout is explicitly normalized to apps/web for the application and infra/cdk for infrastructure, with a root workspace package manager setup
+  - The first engineering slice is limited to workspace scaffolding, shared TypeScript/config setup, minimal Nuxt entrypoints, and placeholder CDK stack wiring only
+  - No separate backend service, Lambda-based app logic, chat implementation, upload flow, Aurora integration, or Bedrock integration is included in this item
+  - Handoff guidance is specific enough for ENGINEER to scaffold the baseline with no further planning ambiguity
 done_definition:
-  - Decision locks capture the approved stack and architecture assumptions from ai/goal.yaml and ai/prd.yaml
-  - Backlog contains sequenced follow-on items for chat, uploads, infrastructure, and validation
+  - Decision locks capture the approved stack, repo layout, and first-slice boundaries from ai/goal.yaml and ai/prd.yaml
+  - Backlog keeps ITEM-0001 in progress and preserves sequenced follow-on items for chat, uploads, infrastructure, and validation
   - ai/next_agent.md tells the next role exactly what to validate and simplify before implementation

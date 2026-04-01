@@ -12,3 +12,5 @@ approved_decisions:
   - "Provision one Bedrock Agent and one Bedrock Knowledge Base per tenant for hard isolation"
   - "Target AWS deployment on ECS Fargate with secrets stored in Secrets Manager"
   - "PoC auth path is Google OAuth, with no-auth/browser UUID only as a fallback if explicitly deferred"
+  - "Normalize the repo layout to a root workspace with apps/web for the Nuxt application and infra/cdk for the CDK application"
+  - "ITEM-0001 is scaffold-only: create minimal workspace/config/runtime entrypoints and placeholder stack wiring, but defer chat, uploads, Aurora integration, and Bedrock integration"
