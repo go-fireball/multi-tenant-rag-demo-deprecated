@@ -1,0 +1,7 @@
+next_role: <ROLE>
+handoff_notes: |
+  <short baton context>
+return_to: <ROLE>  # optional; non-HUMAN role to resume to after HUMAN handoff
+escalated_by: <ROLE>  # optional
+escalation_reason: |
+  <short escalation reason>
