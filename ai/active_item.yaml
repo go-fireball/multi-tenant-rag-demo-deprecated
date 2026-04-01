@@ -1,8 +1,20 @@
-id: null
-title: null
-goal: null
-status: idle
-owner_role: null
-related_files: []
-acceptance_criteria: []
-done_definition: []
+id: ITEM-0001
+title: Scaffold the Nuxt and CDK baseline for the multi-tenant RAG platform
+goal: Establish the initial apps/ and infra/ structure for the PoC using the explicit goal stack so implementation can start on a real codebase
+status: ready_for_judgment
+owner_role: SENIOR_JUDGMENTAL_ENGINEER
+related_files:
+  - ai/goal.yaml
+  - ai/prd.yaml
+  - ai/judgment.yaml
+  - ai/requirements.md
+  - apps/
+  - infra/
+acceptance_criteria:
+  - The active item scope is confirmed to use Nuxt 4 plus Nitro server routes and TypeScript CDK on AWS, overriding generic template defaults
+  - The next engineering step is a lean scaffold that creates the repo structure needed for app and infra implementation without introducing extra services
+  - Handoff guidance is specific enough for ENGINEER to create the baseline in apps/ and infra/ with no further planning ambiguity
+done_definition:
+  - Decision locks capture the approved stack and architecture assumptions from ai/goal.yaml and ai/prd.yaml
+  - Backlog contains sequenced follow-on items for chat, uploads, infrastructure, and validation
+  - ai/next_agent.md tells the next role exactly what to validate and simplify before implementation

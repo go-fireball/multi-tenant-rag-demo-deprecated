@@ -1,4 +1,61 @@
-items: []
+items:
+  - id: ITEM-0001
+    title: Scaffold the Nuxt and CDK baseline for the multi-tenant RAG platform
+    goal: Establish the application and infrastructure workspace so feature work can proceed in-repo
+    type: feature
+    status: in_progress
+    priority: high
+    dependencies: []
+    notes:
+      - Repo currently contains only baton/planning assets; no apps/ or infra/ implementation exists yet
+      - Baseline must follow the explicit goal stack, not the generic defaults in ai/judgment.yaml
+      - Keep initial scaffold lean but production-shaped enough for follow-on API, chat, upload, and CDK work
+  - id: ITEM-0002
+    title: Implement tenant-scoped chat sessions and streaming response route
+    goal: Provide the core chat experience with persisted sessions/messages and streamed assistant responses
+    type: feature
+    status: todo
+    priority: high
+    dependencies:
+      - ITEM-0001
+    notes:
+      - Implement in Nuxt server routes only
+      - Session history must load from Aurora-compatible persistence contracts
+  - id: ITEM-0003
+    title: Add session file upload flow with S3-backed metadata and limits
+    goal: Allow PDF, DOCX, and TXT files to be attached to a chat session under the stated guardrails
+    type: feature
+    status: todo
+    priority: high
+    dependencies:
+      - ITEM-0001
+      - ITEM-0002
+    notes:
+      - Enforce max file count, per-file size, and MIME validation server-side
+      - Store metadata for subsequent Bedrock reference in-session
+  - id: ITEM-0004
+    title: Provision shared and tenant AWS infrastructure with CDK
+    goal: Define SharedStack, TenantStack, and UIStack for deployable PoC infrastructure
+    type: feature
+    status: todo
+    priority: high
+    dependencies:
+      - ITEM-0001
+    notes:
+      - Must include Aurora, ECS/Fargate, Secrets Manager, tenant S3 buckets, and Bedrock resources
+      - cdk deploy --all should be the intended deployment path
+  - id: ITEM-0005
+    title: Validate tenant isolation, grounding behavior, and end-to-end acceptance
+    goal: Prove the platform meets the stated PoC success criteria and key guardrails
+    type: validation
+    status: todo
+    priority: medium
+    dependencies:
+      - ITEM-0002
+      - ITEM-0003
+      - ITEM-0004
+    notes:
+      - Include no-relevant-content behavior and cross-tenant isolation checks
 # Example format — PLANNER creates and curates concrete items from ai/goal.yaml:
 #  - id: ITEM-0001
 #    title: Build user authentication

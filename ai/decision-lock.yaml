@@ -1,5 +1,14 @@
-confirmed_by_user: false
+confirmed_by_user: true
 blocked_on_user: false
-last_user_decision: null
-approved_exceptions: []
-approved_decisions: []
+last_user_decision: "Project goal and PRD established on 2026-04-01 as the authoritative stack and scope source"
+approved_exceptions:
+  - "Direct Aurora access is allowed only in dev/PoC environments under DEC-009 guardrails"
+  - "Browser UUID may be used as a temporary userId fallback only if Google OAuth is deferred during PoC setup"
+approved_decisions:
+  - "Use a full TypeScript stack: Nuxt 4 for UI plus server routes and AWS CDK in TypeScript"
+  - "Do not introduce a separate API service; backend logic stays in Nuxt server/api routes"
+  - "Deploy the same application image per tenant with TENANT_ID injected by environment configuration"
+  - "Use Aurora PostgreSQL Serverless v2 as the shared cluster with separate tenant vector schemas"
+  - "Provision one Bedrock Agent and one Bedrock Knowledge Base per tenant for hard isolation"
+  - "Target AWS deployment on ECS Fargate with secrets stored in Secrets Manager"
+  - "PoC auth path is Google OAuth, with no-auth/browser UUID only as a fallback if explicitly deferred"

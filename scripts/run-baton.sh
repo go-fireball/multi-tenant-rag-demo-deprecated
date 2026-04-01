@@ -86,7 +86,7 @@ build_exec_cmd() {
   case "$EXECUTOR" in
     codex)
       cmd=("codex" "exec" "--model" "$MODEL")
-      [[ $FULL_AUTO -eq 1 ]] && cmd+=("--full-auto")
+      [[ $FULL_AUTO -eq 1 ]] && cmd+=("--dangerously-bypass-approvals-and-sandbox")
       cmd+=("$prompt")
       ;;
     claude)
@@ -156,6 +156,20 @@ extract_handoff_notes() {
       }
     }
   ' ai/next_agent.yaml
+}
+
+user_questions_waiting_for_role() {
+  local expected_role="$1"
+  [[ -f ai/user-questions.yaml ]] || return 1
+
+  local status return_to question_count
+  status="$(grep '^status:' ai/user-questions.yaml 2>/dev/null | head -1 | sed 's/^status:[[:space:]]*//' | tr -d '[:space:]')"
+  return_to="$(grep '^return_to_role:' ai/user-questions.yaml 2>/dev/null | head -1 | sed 's/^return_to_role:[[:space:]]*//' | tr -d '[:space:]')"
+  question_count="$(grep -cE '^[[:space:]]*-[[:space:]]' ai/user-questions.yaml 2>/dev/null || true)"
+
+  [[ "$status" == "waiting" ]] || return 1
+  [[ "$return_to" == "$expected_role" ]] || return 1
+  [[ "$question_count" -gt 0 ]] || return 1
 }
 
 if ! ./scripts/check-baton.sh; then
@@ -251,6 +265,14 @@ Strict terminal contract (must output exactly one when ending):
   fi
 
   if printf '%s\n' "$recent_nonempty_lines" | grep -Fxq "WAITING FOR USER"; then
+    if ! user_questions_waiting_for_role "$current_role"; then
+      echo "[$end_ts] STEP $step END role=$current_role result=INVALID_WAITING_FOR_USER missing_or_incomplete_user_questions" | tee -a ai/logs/baton.log
+      commit_step "$step" "$current_role (invalid waiting-for-user)"
+      rm -f "$step_log"
+      echo "Agent output requested WAITING FOR USER, but ai/user-questions.yaml was not populated with a waiting question set for $current_role."
+      exit 1
+    fi
+
     ./scripts/generate-next-agent.sh HUMAN \
       --return-to "$current_role" \
       --notes "Blocked on user input from $current_role" \

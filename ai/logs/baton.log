@@ -1,2 +1,14 @@
 # Baton run log
 # Timestamped entries from scripts/run-baton.sh are appended here.
+[2026-04-01T23:31:01Z] STEP 1 START role=PLANNER executor=codex model=gpt-5.4
+[2026-04-01T23:31:22Z] STEP 1 END role=PLANNER result=WAITING_FOR_USER
+[2026-04-01T23:33:54Z] STEP 1 START role=PLANNER executor=codex model=gpt-5.4
+[2026-04-01T23:34:08Z] STEP 1 END role=PLANNER result=WAITING_FOR_USER
+[2026-04-01T23:36:46Z] STEP 1 START role=PLANNER executor=codex model=gpt-5.4
+[2026-04-01T23:37:06Z] STEP 1 END role=PLANNER result=INVALID_WAITING_FOR_USER missing_or_incomplete_user_questions
+[2026-04-01T23:39:44Z] STEP 1 START role=PLANNER executor=codex model=gpt-5.4
+[2026-04-01T23:39:50Z] STEP 1 END role=PLANNER result=INVALID_OUTPUT
+[2026-04-01T23:42:06Z] STEP 1 START role=PLANNER executor=codex model=gpt-5.4
+[2026-04-01T23:42:24Z] STEP 1 END role=PLANNER result=INVALID_WAITING_FOR_USER missing_or_incomplete_user_questions
+[2026-04-01T23:47:10Z] STEP 1 START role=PLANNER executor=codex model=gpt-5.4
+[2026-04-01T23:48:50Z] STEP 1 END role=PLANNER result=INVALID_OUTPUT
