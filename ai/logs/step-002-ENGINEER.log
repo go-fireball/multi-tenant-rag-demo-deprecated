@@ -1,4 +1,4 @@
-Script started on 2026-04-01 20:46:04-05:00 [COMMAND="codex exec --model gpt-5.4 --dangerously-bypass-approvals-and-sandbox --output-last-message /tmp/tmp.Gn6ehKnDfJ $'Current role: ENGINEER\nSource of truth: ai/active_agent.txt\nLoad and follow this role prompt exactly: ai/prompts/02-engineer.md\nDo not route from ai/next_agent.yaml role config.\nStrict terminal contract (must output exactly one when ending):\n- FINISHED: HANDING TO <ROLE>\n- WAITING FOR USER\n- WAITING FOR BATON\n\nHandoff notes:\nHandoff from SENIOR_JUDGMENTAL_ENGINEER at 2026-04-02T01:46:04Z' " TERM="xterm-256color" TTY="/dev/pts/1" COLUMNS="184" LINES="43"]
+Script started on 2026-04-01 21:13:14-05:00 [COMMAND="codex exec --model gpt-5.4 --dangerously-bypass-approvals-and-sandbox --output-last-message /tmp/tmp.86k870outI $'Current role: ENGINEER\nSource of truth: ai/active_agent.txt\nLoad and follow this role prompt exactly: ai/prompts/02-engineer.md\nDo not route from ai/next_agent.yaml role config.\nStrict terminal contract (must output exactly one when ending):\n- FINISHED: HANDING TO <ROLE>\n- WAITING FOR USER\n- WAITING FOR BATON\n\nHandoff notes:\nHandoff from SENIOR_JUDGMENTAL_ENGINEER at 2026-04-02T02:13:14Z' " TERM="xterm-256color" TTY="/dev/pts/1" COLUMNS="184" LINES="43"]
 OpenAI Codex v0.118.0 (research preview)
 --------
 [1mworkdir:[0m /home/sundaram/code/multi-tenant-rag-demo
@@ -8,7 +8,7 @@ OpenAI Codex v0.118.0 (research preview)
 [1msandbox:[0m danger-full-access
 [1mreasoning effort:[0m medium
 [1mreasoning summaries:[0m none
-[1msession id:[0m 019d4bde-7ab8-70a2-9ff5-7c2b26ac186c
+[1msession id:[0m 019d4bf7-5a3a-7731-8f62-adb973424bb4
 --------
 [36muser[0m
 Current role: ENGINEER
@@ -21,13 +21,11 @@ Strict terminal contract (must output exactly one when ending):
 - WAITING FOR BATON
 
 Handoff notes:
-Handoff from SENIOR_JUDGMENTAL_ENGINEER at 2026-04-02T01:46:04Z
+Handoff from SENIOR_JUDGMENTAL_ENGINEER at 2026-04-02T02:13:14Z
 [35m[3mcodex[0m[0m
-Loading the active role prompt from `ai/active_agent.txt` and `ai/prompts/02-engineer.md` first, then I’ll execute strictly within that contract and the handoff context.
+Loading the engineer role prompt from the repo and checking the current baton state before taking any action.
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,200p' ai/active_agent.txt"[0m in /home/sundaram/code/multi-tenant-rag-demo
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,260p' ai/prompts/02-engineer.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc "sed -n '1,220p' ai/prompts/02-engineer.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 # ROLE: ENGINEER
 
@@ -73,13 +71,20 @@ Loading the active role prompt from `ai/active_agent.txt` and `ai/prompts/02-eng
 `FINISHED: HANDING TO VALIDATOR`
 - Stop.
 
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,220p' ai/active_agent.txt"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 ENGINEER
 
-[35m[3mcodex[0m[0m
-The role contract is loaded. I’m gathering the active item, constraints, and the relevant app/infra context before making any edits.
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,220p' ai/goal.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc 'git status --short'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+ M ai/logs/baton.log
+
+[35m[3mcodex[0m[0m
+The baton is with `ENGINEER`. Reading the required planning and repo context files now, then I’ll implement the active item within the allowed paths.
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,240p' ai/goal.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 # Edit this file to define your project goal before running the baton loop.
 #
@@ -159,35 +164,30 @@ constraints:
   - No hardcoded secrets in source code or CDK assets
 
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,220p' ai/active_item.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc "sed -n '1,240p' ai/active_item.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
-id: ITEM-0004
-title: Provision shared and tenant AWS infrastructure with CDK
-goal: Replace the current placeholder infra/cdk stacks with a deployable PoC baseline that provisions shared platform resources plus per-tenant Bedrock and ECS service wiring for the existing Nuxt app, while keeping the same-image-per-tenant contract
+id: ITEM-0005
+title: Validate tenant isolation, grounding behavior, and end-to-end acceptance
+goal: Prove the implemented PoC meets the stated success criteria and guardrails across the accepted Nuxt application slices and CDK infrastructure definitions
 status: ready_for_judgment
 owner_role: SENIOR_JUDGMENTAL_ENGINEER
 related_files:
   - ai/goal.yaml
-  - ai/prd.yaml
   - ai/backlog.yaml
   - ai/decision-lock.yaml
+  - ai/review.md
   - ai/next_agent.md
-  - infra/cdk
   - apps/web
+  - infra/cdk
 acceptance_criteria:
-  - "The item stays inside infra/cdk plus minimal app-local deployment/config files under apps/web if needed for containerization or ECS runtime wiring; no root workspace/bootstrap changes and no separate backend service are introduced"
-  - "SharedStack provisions real CDK resources for the PoC baseline: VPC, ECS cluster, ALB, Aurora Serverless v2, database/admin secret handling in Secrets Manager, ECR repository, shared attachments bucket, and coherent shared logging/parameter outputs instead of placeholder-only stacks"
-  - "The shared Aurora app-schema bootstrap matches the existing Nuxt persistence contract in apps/web: `app.sessions.id`, `app.messages.id`, `app.messages.tenant_id`, `app.messages.user_id`, `app.messages.attached_files`, and `app.session_files.storage_bucket` are present with compatible ownership and reference columns"
-  - "TenantStack provisions one-tenant-per-stack resources and permissions for the locked isolation model: tenant docs bucket, Bedrock Knowledge Base, Bedrock Agent plus alias, tenant schema setup/custom-resource path, scheduler for KB sync, and tenant-scoped IAM/log resources"
-  - "UIStack provisions one ECS/Fargate service per tenant behind the shared ALB, wiring the same application image with deploy-time tenant env vars and secret-backed runtime config for the existing Nuxt SSR app"
-  - "The CDK app includes a concrete tenant configuration source and stack instantiation path for SharedStack, TenantStack, and UIStack so `cdk deploy --all` is the intended local-package workflow"
-  - "The slice preserves the current product constraints: Nuxt server routes remain the only app backend, tenant identity stays deploy-time server config rather than caller input, and no fake shared Bedrock/KB shortcut is introduced"
-  - "The slice may use pragmatic PoC simplifications for difficult AWS edges, but it must not defer the named stack/resource categories into placeholders, manual console steps, or comments-only TODOs"
-  - "This revise pass is limited to schema-contract alignment and verification; it must not reopen the accepted SharedStack/TenantStack/UIStack split, replace the provider-backed ordered-statement Aurora custom resource, or reintroduce a hidden image-push/manual-ingestion prerequisite"
+  - "Judgment treats `ITEM-0005` as locally evidence-complete and does not reopen engineering scope unless a concrete contradiction exists in the accepted validator evidence"
+  - "Judgment confirms the locally proven acceptance surface: runtime-tenant isolation, cross-user/session/file ownership enforcement, limitation-response fallback with `citations: []` when no KB grounding exists, attachment-aware follow-up chat turns, `apps/web` build success, and `infra/cdk` synth success"
+  - "Judgment explicitly distinguishes these locally proven behaviors from still-unproven external success criteria that require deployed AWS and Bedrock resources, including real multi-tenant deployments, real KB grounding/citations, `cdk deploy --all`, and Secrets Manager-backed live infrastructure"
+  - "The next review must report any remaining gaps as external proof gaps rather than as hidden implementation defects, unless the written evidence itself shows a local contract mismatch"
 done_definition:
-  - "Backlog marks ITEM-0003 done and advances ITEM-0004 as the current in-progress slice without disturbing the remaining sequence"
-  - "Decision locks capture the required SharedStack, TenantStack, and UIStack boundaries, the same-image-per-tenant deployment contract, the accepted PoC simplifications for AWS wiring, and the narrowed shared-schema alignment fix"
-  - "ai/next_agent.md tells SENIOR_JUDGMENTAL_ENGINEER to preserve the accepted infra design and route only the shared-schema contract correction plus build/synth re-verification"
+  - "Backlog marks `ITEM-0005` done and does not introduce a new implementation slice without fresh reviewer evidence"
+  - "Decision locks preserve the accepted app and infra contracts while clarifying that the next loop is closeout judgment, not more engineering by default"
+  - "ai/next_agent.md tells `SENIOR_JUDGMENTAL_ENGINEER` to close out the backlog against the validated local evidence and call out external AWS/Bedrock proof gaps precisely"
 
 [35m[3mexec[0m[0m
 [1m/bin/bash -lc "sed -n '1,260p' ai/requirements.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
@@ -216,7 +216,7 @@ done_definition:
 - <testable condition from goal success_criteria>
 
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,220p' ai/judgment.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc "sed -n '1,240p' ai/judgment.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 backend_default: aspnet_core
 frontend_default: react_nextjs
@@ -240,7 +240,7 @@ human_for_high_level_decisions_only: true
 baton_transition_owner: runner_only
 
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,220p' ai/simplification.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc "sed -n '1,240p' ai/simplification.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 # Simplification Guidance
 
@@ -270,9 +270,13 @@ baton_transition_owner: runner_only
 24. For `ITEM-0004`, TenantStack should own hard-isolation resources per tenant: docs bucket, KB, agent plus alias, schema/bootstrap path, scheduler, and tenant IAM/logging.
 25. For `ITEM-0004`, UIStack should consume shared outputs and tenant config to create the per-tenant Fargate service and ALB rule for the same-image-per-tenant deployment model.
 26. For `ITEM-0004`, defer CI/CD, custom domains, production autoscaling polish, and deep operational tooling unless a minimal in-scope resource is required to keep `cdk deploy --all` coherent.
+27. For the `ITEM-0005` revise pass, keep the scope narrow: fix only the assistant fallback/grounding contract and any validation evidence notes required to accept the slice.
+28. For the `ITEM-0005` revise pass, do not reopen the accepted session, upload, tenant-isolation, or CDK architecture work unless the fallback fix exposes a concrete defect there.
+29. For the `ITEM-0005` revise pass, the local assistant seam must stop pretending grounded KB support exists when it does not; if no bounded session/file evidence supports an answer, return a clear limitation message and no synthetic citation.
+30. For the `ITEM-0005` revise pass, preserve the existing POST-streaming contract and persistence shape so the fix is compatible with the later Bedrock adapter rather than another rewrite.
 
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,220p' ai/decision-lock.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc "sed -n '1,240p' ai/decision-lock.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 confirmed_by_user: true
 blocked_on_user: false
@@ -337,38 +341,29 @@ approved_decisions:
   - "For ITEM-0004, the shared `app` schema must align with `apps/web/server/utils/chat-store.ts`: sessions use primary key column `id`; messages use `id`, `tenant_id`, `session_id`, `user_id`, `role`, `content`, `citations`, `attached_files`, and `created_at`; session_files include both `storage_bucket` and `storage_key`"
   - "For ITEM-0004, schema alignment should preserve tenant/user ownership fields and compatible foreign-key references so the current Nuxt persistence records could map onto Aurora without contract translation"
   - "For ITEM-0004, do not use this revise pass to rename the app persistence contract, widen scope into app rewrites, replace the ordered-statement Aurora custom resource, or revisit the already-accepted scheduler/container-asset deploy-path decisions"
+  - "ITEM-0005 is a validation slice: default to proving the accepted implementation against `ai/goal.yaml` success criteria and locked decisions before proposing any new implementation work"
+  - "For ITEM-0005, validation must distinguish between locally proven behavior and external AWS/Bedrock behavior that cannot be exercised in the current environment; unresolved external proof gaps should be reported precisely rather than hand-waved"
+  - "For ITEM-0005, tenant isolation evidence must cover runtime tenant configuration, session/message/file ownership enforcement, and the absence of cross-tenant leakage in persisted metadata or assistant response paths"
+  - "For ITEM-0005, validate the current no-relevant-content assistant behavior against the PoC contract and call out any mismatch between the local stubbed seam and the eventual Bedrock-backed acceptance criterion"
+  - "For ITEM-0005, keep the accepted implementation boundaries intact unless validation finds a concrete defect; do not reopen root workspace changes, auth expansion, separate services, or infra redesign during the validation pass"
+  - "Current ITEM-0005 outcome is a narrow engineering revise pass, not acceptance: the local assistant seam still emits a synthetic grounded-looking stub response and citation instead of a limitation response when no real KB grounding exists"
+  - "For the ITEM-0005 revise pass, preserve the existing tenant-scoped session/upload/message behavior and CDK package state; fix only the assistant fallback contract plus any minimal validation notes needed to prove it"
+  - "For the ITEM-0005 revise pass, do not solve the fallback mismatch by inventing fake citations, widening scope into real Bedrock integration, or weakening the existing POST streaming contract"
+  - "Current ITEM-0005 outcome remains a narrow engineering revise pass, not acceptance: follow-up chat turns in a session with uploaded files currently fail when `fileIds` are omitted, blocking the accepted subsequent-turn attachment path"
+  - "For the current ITEM-0005 revise pass, preserve the fixed limitation-response fallback, runtime tenant derivation, ownership enforcement, and POST streaming contract; fix only the attachment lookup/validation behavior so later turns may omit `fileIds` without being rejected"
+  - "ITEM-0005 is now locally accepted: follow-up chat turns may omit `fileIds` without being rejected, while explicit invalid file ownership checks still fail closed and the ungrounded assistant path still stores `citations: []`"
+  - "Planner should treat ITEM-0005 as evidence-complete for local validation only; AWS deploy-time and Bedrock-grounding success criteria remain external proof gaps unless exercised against real infrastructure"
+  - "Planner has now closed ITEM-0005 in the backlog; the next loop is closeout judgment on the accepted local evidence, not a new implementation slice"
+  - "SENIOR_JUDGMENTAL_ENGINEER should either acknowledge backlog completion with explicit external AWS/Bedrock proof gaps or identify a concrete contradiction in the accepted local validation record"
+  - "Closeout judgment accepts the current repository state as locally complete through ITEM-0005 and does not justify more engineering without a new scoped item or real-environment proof work"
+  - "Any remaining gaps after ITEM-0005 are external proof gaps only: real AWS deployment, real Bedrock grounding/citations, and live managed-service behavior"
 
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,220p' ai/user-questions.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc "sed -n '1,240p' ai/user-questions.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 status: answered
-return_to_role: SENIOR_JUDGMENTAL_ENGINEER
-questions:
-  - id: Q-0001
-    title: Resolve engineer edit-boundary conflict for ITEM-0001
-    context: >
-      ITEM-0001 requires a root npm workspace setup plus shared TypeScript config,
-      but the current ENGINEER role prompt only allows edits under apps/**,
-      infra/**, selected ai/**, and related tests/docs. The repo has no existing
-      root package.json, lockfile, or shared tsconfig, so implementation is blocked
-      by the prompt contract rather than by product ambiguity.
-    options:
-      - value: expand_engineer_contract
-        description: >
-          Update the ENGINEER prompt to allow the minimum required root-level
-          workspace/config files for ITEM-0001, such as package.json, package-lock.json,
-          tsconfig.base.json, .gitignore, and similar baseline metadata.
-      - value: rescope_item_0001
-        description: >
-          Re-scope ITEM-0001 so it fits entirely within the current ENGINEER
-          edit boundary and no longer requires root workspace normalization.
-    answer: rescope_item_0001
-    answer_rationale: >
-      Keep the implementation within the current ENGINEER edit boundary. The
-      app should be created under apps/ and infra code should stay under infra/,
-      without requiring new root-level workspace or shared config files in this
-      item.
-    status: answered
+return_to_role: PLANNER
+questions: []
 
 [35m[3mexec[0m[0m
 [1m/bin/bash -lc "sed -n '1,260p' ai/constitution.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
@@ -394,1591 +389,56 @@ stop_rules:
   - always append an iteration log entry before handoff
 
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,220p' ai/next_agent.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc "sed -n '1,240p' ai/next_agent.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 # Next Agent
 
-`ITEM-0004` remains active as a narrow revise pass for ENGINEER.
+`ENGINEER` should not reopen `ITEM-0005` or start speculative fixes.
 
-- Do not reopen stack design. Preserve the accepted SharedStack/TenantStack/UIStack split, the ordered-statement Aurora custom resource, the scheduler approach, and the container-asset UI deploy path.
-- Fix only the shared Aurora `app` schema in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) so it matches the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
-- Required DDL alignment:
-  - `app.sessions`: primary key column `id`
-  - `app.messages`: `id`, `tenant_id`, `session_id`, `user_id`, `role`, `content`, `citations`, `attached_files`, `created_at`
-  - `app.session_files`: include both `storage_bucket` and `storage_key`
-  - keep compatible foreign keys and tenant/user ownership fields
-- Do not change the app contract in `apps/web` to match the bad DDL.
-- Re-run `cd apps/web && npm run build` and `cd infra/cdk && npm run synth` before handing to `VALIDATOR`.
+- Current repo state is locally accepted through `ITEM-0005`.
+- No concrete implementation defect remains in the written evidence.
+- Remaining gaps are external proof gaps only:
+  - real `cdk deploy --all`
+  - real AWS tenant deployments and Bedrock grounding/citations
+  - live Aurora, S3, Secrets Manager, and Google OAuth behavior
+- If a new baton cycle starts, require a freshly scoped item before making code changes.
 
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "rg --files apps infra context/repo | sed -n '1,260p'"[0m in /home/sundaram/code/multi-tenant-rag-demo
-[32m succeeded in 0ms:[0m
+[1m/bin/bash -lc 'rg --files apps infra context/repo'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[31m exited 2 in 0ms:[0m
 rg: context/repo: No such file or directory (os error 2)
+infra/cdk/lib/ui-stack.ts
+infra/cdk/lib/constructs/aurora-schema.ts
+infra/cdk/lib/shared-stack.ts
+infra/cdk/lib/tenant-stack.ts
+infra/cdk/tsconfig.json
+infra/cdk/bin/app.ts
 apps/web/package-lock.json
 apps/web/nuxt.config.ts
 apps/web/app.vue
+apps/web/app/app.vue
+apps/web/Dockerfile
+apps/web/package.json
+apps/web/tsconfig.json
 apps/web/server/utils/file-storage.ts
 apps/web/server/utils/chat-store.ts
 apps/web/server/utils/tenant.ts
 apps/web/server/utils/chat-assistant.ts
-infra/cdk/lib/ui-stack.ts
 apps/web/server/api/files.post.ts
 apps/web/server/api/health.get.ts
 apps/web/server/api/chat.post.ts
-infra/cdk/lib/constructs/aurora-schema.ts
-apps/web/app/app.vue
-infra/cdk/lib/shared-stack.ts
-infra/cdk/lib/tenant-stack.ts
-apps/web/Dockerfile
-apps/web/package.json
-apps/web/server/api/sessions/index.post.ts
-apps/web/tsconfig.json
-apps/web/server/api/sessions/index.get.ts
-infra/cdk/package.json
 infra/cdk/package-lock.json
 infra/cdk/cdk.json
-infra/cdk/bin/app.ts
-infra/cdk/tsconfig.json
-apps/web/server/api/sessions/[id]/messages.get.ts
+infra/cdk/package.json
+apps/web/server/api/sessions/index.get.ts
+apps/web/server/api/sessions/index.post.ts
 infra/cdk/config/tenants.ts
+apps/web/server/api/sessions/[id]/messages.get.ts
 
 [35m[3mcodex[0m[0m
-`context/repo` doesn’t exist, so I’m using the active `apps/` and `infra/` files directly. Next I’m checking the current schema DDL against the Nuxt persistence contract and the CDK synth path.
+The active item is already closed as locally accepted in the decision locks. I’m checking the validation notes and iteration log format so I can hand off cleanly without reopening engineering scope.
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,260p' apps/web/server/utils/chat-store.ts"[0m in /home/sundaram/code/multi-tenant-rag-demo
-[32m succeeded in 0ms:[0m
-type ChatRole = "user" | "assistant"
-type SessionFileStatus = "ready"
-
-export interface ChatSessionRecord {
-  id: string
-  tenant_id: string
-  user_id: string
-  title: string
-  created_at: string
-  updated_at: string
-}
-
-export interface ChatCitationRecord {
-  id: string
-  label: string
-  uri: string
-}
-
-export interface ChatMessageRecord {
-  id: string
-  tenant_id: string
-  session_id: string
-  user_id: string
-  role: ChatRole
-  content: string
-  citations: ChatCitationRecord[]
-  attached_files: ChatSessionFileRecord[]
-  created_at: string
-}
-
-export interface ChatSessionFileRecord {
-  file_id: string
-  tenant_id: string
-  user_id: string
-  session_id: string
-  original_name: string
-  sanitized_name: string
-  content_type: string
-  size_bytes: number
-  storage_bucket: string
-  storage_key: string
-  status: SessionFileStatus
-  created_at: string
-  updated_at: string
-}
-
-interface SessionCreateInput {
-  tenantId: string
-  userId: string
-  title?: string
-}
-
-interface MessageAppendInput {
-  tenantId: string
-  sessionId: string
-  userId: string
-  role: ChatRole
-  content: string
-  citations?: ChatCitationRecord[]
-  attachedFiles?: ChatSessionFileRecord[]
-}
-
-interface SessionFilesCreateInput {
-  tenantId: string
-  sessionId: string
-  userId: string
-  files: Array<Omit<ChatSessionFileRecord, "tenant_id" | "session_id" | "user_id" | "created_at" | "updated_at">>
-}
-
-interface SessionFilesLookupInput extends SessionLookupInput {
-  fileIds?: string[]
-}
-
-interface SessionLookupInput {
-  tenantId: string
-  sessionId: string
-  userId: string
-}
-
-interface ChatPersistence {
-  createSession(input: SessionCreateInput): ChatSessionRecord
-  listSessions(tenantId: string, userId: string): ChatSessionRecord[]
-  getSession(input: SessionLookupInput): ChatSessionRecord | null
-  listMessages(input: SessionLookupInput): ChatMessageRecord[]
-  appendMessage(input: MessageAppendInput): ChatMessageRecord
-  createSessionFiles(input: SessionFilesCreateInput): ChatSessionFileRecord[]
-  listSessionFiles(input: SessionLookupInput): ChatSessionFileRecord[]
-  getSessionFiles(input: SessionFilesLookupInput): ChatSessionFileRecord[]
-}
-
-class InMemoryChatPersistence implements ChatPersistence {
-  private sessions = new Map<string, ChatSessionRecord>()
-  private sessionOrder = new Map<string, string[]>()
-  private messages = new Map<string, ChatMessageRecord[]>()
-  private sessionFiles = new Map<string, ChatSessionFileRecord[]>()
-
-  createSession(input: SessionCreateInput) {
-    const now = new Date().toISOString()
-    const session: ChatSessionRecord = {
-      id: crypto.randomUUID(),
-      tenant_id: input.tenantId,
-      user_id: input.userId,
-      title: input.title?.trim() || "New chat",
-      created_at: now,
-      updated_at: now,
-    }
-
-    this.sessions.set(session.id, session)
-    this.messages.set(session.id, [])
-    this.sessionFiles.set(session.id, [])
-
-    const scopeKey = this.scopeKey(input.tenantId, input.userId)
-    const scopedSessions = this.sessionOrder.get(scopeKey) ?? []
-    this.sessionOrder.set(scopeKey, [session.id, ...scopedSessions])
-
-    return session
-  }
-
-  listSessions(tenantId: string, userId: string) {
-    const scopeKey = this.scopeKey(tenantId, userId)
-    const sessionIds = this.sessionOrder.get(scopeKey) ?? []
-
-    return sessionIds
-      .map(sessionId => this.sessions.get(sessionId))
-      .filter((session): session is ChatSessionRecord => Boolean(session))
-  }
-
-  getSession(input: SessionLookupInput) {
-    const session = this.sessions.get(input.sessionId)
-
-    if (!session) {
-      return null
-    }
-
-    if (session.tenant_id !== input.tenantId || session.user_id !== input.userId) {
-      return null
-    }
-
-    return session
-  }
-
-  listMessages(input: SessionLookupInput) {
-    if (!this.getSession(input)) {
-      return []
-    }
-
-    return [...(this.messages.get(input.sessionId) ?? [])]
-  }
-
-  appendMessage(input: MessageAppendInput) {
-    const session = this.getSession({
-      tenantId: input.tenantId,
-      sessionId: input.sessionId,
-      userId: input.userId,
-    })
-
-    if (!session) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: "Session not found for tenant and user scope",
-      })
-    }
-
-    const now = new Date().toISOString()
-    const message: ChatMessageRecord = {
-      id: crypto.randomUUID(),
-      tenant_id: input.tenantId,
-      session_id: input.sessionId,
-      user_id: input.userId,
-      role: input.role,
-      content: input.content,
-      citations: input.citations ?? [],
-      attached_files: input.attachedFiles ?? [],
-      created_at: now,
-    }
-
-    const messages = this.messages.get(input.sessionId) ?? []
-    this.messages.set(input.sessionId, [...messages, message])
-
-    const updatedSession = {
-      ...session,
-      title: this.deriveTitle(session.title, input.role, input.content),
-      updated_at: now,
-    }
-
-    this.sessions.set(input.sessionId, updatedSession)
-    this.bumpSessionOrder(updatedSession)
-
-    return message
-  }
-
-  createSessionFiles(input: SessionFilesCreateInput) {
-    const session = this.getSession(input)
-
-    if (!session) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: "Session not found for tenant and user scope",
-      })
-    }
-
-    const now = new Date().toISOString()
-    const existingFiles = this.sessionFiles.get(input.sessionId) ?? []
-    const createdFiles = input.files.map(file => {
-      const record: ChatSessionFileRecord = {
-        ...file,
-        tenant_id: input.tenantId,
-        session_id: input.sessionId,
-        user_id: input.userId,
-        created_at: now,
-        updated_at: now,
-      }
-
-      return record
-    })
-
-    this.sessionFiles.set(input.sessionId, [...existingFiles, ...createdFiles])
-
-    const updatedSession = {
-      ...session,
-      updated_at: now,
-    }
-
-    this.sessions.set(input.sessionId, updatedSession)
-    this.bumpSessionOrder(updatedSession)
-
-    return createdFiles
-  }
-
-  listSessionFiles(input: SessionLookupInput) {
-    if (!this.getSession(input)) {
-      return []
-    }
-
-    return [...(this.sessionFiles.get(input.sessionId) ?? [])]
-  }
-
-  getSessionFiles(input: SessionFilesLookupInput) {
-    const scopedFiles = this.listSessionFiles(input)
-
-    if (!input.fileIds?.length) {
-      return scopedFiles
-    }
-
-    const fileIds = new Set(input.fileIds)
-    return scopedFiles.filter(file => fileIds.has(file.file_id))
-  }
-
-  private deriveTitle(currentTitle: string, role: ChatRole, content: string) {
-    if (currentTitle !== "New chat" || role !== "user") {
-      return currentTitle
-    }
-
-    const trimmed = content.trim()
-
-    if (!trimmed) {
-      return currentTitle
-    }
-
-    return trimmed.slice(0, 60)
-
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,320p' infra/cdk/lib/shared-stack.ts"[0m in /home/sundaram/code/multi-tenant-rag-demo
-[32m succeeded in 0ms:[0m
-import {
-  CfnOutput,
-  Duration,
-  RemovalPolicy,
-  Stack,
-  type StackProps,
-} from "aws-cdk-lib"
-import * as bedrock from "aws-cdk-lib/aws-bedrock"
-import * as ec2 from "aws-cdk-lib/aws-ec2"
-import * as ecr from "aws-cdk-lib/aws-ecr"
-import * as ecs from "aws-cdk-lib/aws-ecs"
-import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2"
-import * as logs from "aws-cdk-lib/aws-logs"
-import * as rds from "aws-cdk-lib/aws-rds"
-import * as s3 from "aws-cdk-lib/aws-s3"
-import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager"
-import * as ssm from "aws-cdk-lib/aws-ssm"
-import { Construct } from "constructs"
-
-import { AuroraSchema } from "./constructs/aurora-schema.js"
-
-export interface SharedStackProps extends StackProps {
-  readonly environmentName: string
-  readonly databaseName: string
-}
-
-const sharedSchemaStatements = [
-  "CREATE SCHEMA IF NOT EXISTS app;",
-  "CREATE EXTENSION IF NOT EXISTS vector;",
-  `
-    CREATE TABLE IF NOT EXISTS app.sessions (
-      session_id uuid PRIMARY KEY,
-      tenant_id text NOT NULL,
-      user_id text NOT NULL,
-      title text NOT NULL DEFAULT 'New chat',
-      created_at timestamptz NOT NULL DEFAULT now(),
-      updated_at timestamptz NOT NULL DEFAULT now()
-    );
-  `,
-  `
-    CREATE TABLE IF NOT EXISTS app.messages (
-      message_id uuid PRIMARY KEY,
-      tenant_id text NOT NULL,
-      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-      role text NOT NULL,
-      content text NOT NULL,
-      citations jsonb NOT NULL DEFAULT '[]'::jsonb,
-      attachment_ids jsonb NOT NULL DEFAULT '[]'::jsonb,
-      created_at timestamptz NOT NULL DEFAULT now()
-    );
-  `,
-  `
-    CREATE TABLE IF NOT EXISTS app.session_files (
-      file_id uuid PRIMARY KEY,
-      tenant_id text NOT NULL,
-      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-      user_id text NOT NULL,
-      original_name text NOT NULL,
-      sanitized_name text NOT NULL,
-      content_type text NOT NULL,
-      size_bytes bigint NOT NULL,
-      storage_key text NOT NULL,
-      status text NOT NULL,
-      created_at timestamptz NOT NULL DEFAULT now(),
-      updated_at timestamptz NOT NULL DEFAULT now()
-    );
-  `,
-].map((statement) => statement.trim())
-
-export class SharedStack extends Stack {
-  public readonly albSecurityGroup: ec2.SecurityGroup
-  public readonly attachmentsBucket: s3.Bucket
-  public readonly cluster: ecs.Cluster
-  public readonly databaseCluster: rds.DatabaseCluster
-  public readonly databaseSecret: secretsmanager.ISecret
-  public readonly databaseSecurityGroup: ec2.SecurityGroup
-  public readonly guardrail: bedrock.CfnGuardrail
-  public readonly guardrailVersion: bedrock.CfnGuardrailVersion
-  public readonly httpListener: elbv2.ApplicationListener
-  public readonly loadBalancer: elbv2.ApplicationLoadBalancer
-  public readonly repository: ecr.Repository
-  public readonly sharedLogGroup: logs.LogGroup
-  public readonly vpc: ec2.Vpc
-
-  constructor(scope: Construct, id: string, props: SharedStackProps) {
-    super(scope, id, props)
-
-    this.vpc = new ec2.Vpc(this, "Vpc", {
-      maxAzs: 2,
-      natGateways: 1,
-      subnetConfiguration: [
-        {
-          cidrMask: 24,
-          name: "public",
-          subnetType: ec2.SubnetType.PUBLIC,
-        },
-        {
-          cidrMask: 24,
-          name: "private",
-          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-        },
-      ],
-    })
-
-    this.sharedLogGroup = new logs.LogGroup(this, "SharedLogGroup", {
-      logGroupName: `/platform/chat/${props.environmentName}/shared`,
-      retention: logs.RetentionDays.ONE_WEEK,
-    })
-
-    this.cluster = new ecs.Cluster(this, "Cluster", {
-      vpc: this.vpc,
-      clusterName: `rag-platform-${props.environmentName}`,
-      containerInsightsV2: ecs.ContainerInsights.ENABLED,
-    })
-
-    this.albSecurityGroup = new ec2.SecurityGroup(this, "AlbSecurityGroup", {
-      vpc: this.vpc,
-      description: "Internet-facing ALB security group",
-      allowAllOutbound: true,
-    })
-    this.albSecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), "Allow public HTTP traffic")
-
-    this.loadBalancer = new elbv2.ApplicationLoadBalancer(this, "LoadBalancer", {
-      vpc: this.vpc,
-      internetFacing: true,
-      securityGroup: this.albSecurityGroup,
-      loadBalancerName: `rag-${props.environmentName}`,
-    })
-
-    this.httpListener = this.loadBalancer.addListener("HttpListener", {
-      port: 80,
-      protocol: elbv2.ApplicationProtocol.HTTP,
-      defaultAction: elbv2.ListenerAction.fixedResponse(404, {
-        contentType: "application/json",
-        messageBody: JSON.stringify({
-          message: "Tenant route not configured",
-        }),
-      }),
-    })
-
-    this.databaseSecurityGroup = new ec2.SecurityGroup(this, "DatabaseSecurityGroup", {
-      vpc: this.vpc,
-      description: "Aurora security group",
-      allowAllOutbound: true,
-    })
-    this.databaseSecurityGroup.addIngressRule(
-      ec2.Peer.ipv4(this.vpc.vpcCidrBlock),
-      ec2.Port.tcp(5432),
-      "Allow Aurora access from private VPC address space",
-    )
-
-    this.databaseCluster = new rds.DatabaseCluster(this, "DatabaseCluster", {
-      clusterIdentifier: `rag-${props.environmentName}`,
-      engine: rds.DatabaseClusterEngine.auroraPostgres({
-        version: rds.AuroraPostgresEngineVersion.VER_16_4,
-      }),
-      defaultDatabaseName: props.databaseName,
-      writer: rds.ClusterInstance.serverlessV2("writer"),
-      readers: [rds.ClusterInstance.serverlessV2("reader", { scaleWithWriter: true })],
-      serverlessV2MinCapacity: 0.5,
-      serverlessV2MaxCapacity: 4,
-      vpc: this.vpc,
-      vpcSubnets: {
-        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-      },
-      securityGroups: [this.databaseSecurityGroup],
-      credentials: rds.Credentials.fromGeneratedSecret("app_admin"),
-      backup: {
-        retention: Duration.days(7),
-      },
-      enableDataApi: true,
-      cloudwatchLogsExports: ["postgresql"],
-      cloudwatchLogsRetention: logs.RetentionDays.ONE_WEEK,
-      deletionProtection: false,
-      removalPolicy: RemovalPolicy.DESTROY,
-    })
-
-    if (!this.databaseCluster.secret) {
-      throw new Error("Expected generated Aurora secret to be available")
-    }
-    this.databaseSecret = this.databaseCluster.secret
-
-    new AuroraSchema(this, "SharedSchema", {
-      clusterArn: this.databaseCluster.clusterArn,
-      secretArn: this.databaseSecret.secretArn,
-      databaseName: props.databaseName,
-      physicalResourceId: `shared-schema-${props.environmentName}`,
-      statements: sharedSchemaStatements,
-    })
-
-    this.repository = new ecr.Repository(this, "Repository", {
-      repositoryName: `chat-platform-${props.environmentName}`,
-      imageScanOnPush: true,
-      removalPolicy: RemovalPolicy.DESTROY,
-      emptyOnDelete: true,
-      lifecycleRules: [
-        {
-          maxImageCount: 25,
-        },
-      ],
-    })
-
-    this.attachmentsBucket = new s3.Bucket(this, "AttachmentsBucket", {
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      encryption: s3.BucketEncryption.S3_MANAGED,
-      enforceSSL: true,
-      versioned: false,
-      lifecycleRules: [
-        {
-          expiration: Duration.days(90),
-        },
-      ],
-      autoDeleteObjects: true,
-      removalPolicy: RemovalPolicy.DESTROY,
-    })
-
-    this.guardrail = new bedrock.CfnGuardrail(this, "Guardrail", {
-      name: `tenant-rag-${props.environmentName}`,
-      blockedInputMessaging: "Your request could not be processed under the current tenant guardrail policy.",
-      blockedOutputsMessaging: "The response was blocked because it was not sufficiently grounded in tenant content.",
-      description: "Shared PoC grounding guardrail for tenant-isolated assistants.",
-    })
-
-    this.guardrailVersion = new bedrock.CfnGuardrailVersion(this, "GuardrailVersion", {
-      guardrailIdentifier: this.guardrail.attrGuardrailId,
-      description: `Published version for ${props.environmentName}`,
-    })
-
-    new ssm.StringParameter(this, "AlbDnsParameter", {
-      parameterName: `/multi-tenant-rag-demo/${props.environmentName}/shared/alb-dns-name`,
-      stringValue: this.loadBalancer.loadBalancerDnsName,
-    })
-
-    new ssm.StringParameter(this, "RepositoryUriParameter", {
-      parameterName: `/multi-tenant-rag-demo/${props.environmentName}/shared/repository-uri`,
-      stringValue: this.repository.repositoryUri,
-    })
-
-    new ssm.StringParameter(this, "AttachmentsBucketParameter", {
-      parameterName: `/multi-tenant-rag-demo/${props.environmentName}/shared/attachments-bucket`,
-      stringValue: this.attachmentsBucket.bucketName,
-    })
-
-    new CfnOutput(this, "EnvironmentName", {
-      value: props.environmentName,
-    })
-
-    new CfnOutput(this, "LoadBalancerDnsName", {
-      value: this.loadBalancer.loadBalancerDnsName,
-    })
-
-    new CfnOutput(this, "SharedAssetsBucketName", {
-      value: this.attachmentsBucket.bucketName,
-      description: "Shared tenant attachments bucket.",
-    })
-
-    new CfnOutput(this, "DatabaseClusterArn", {
-      value: this.databaseCluster.clusterArn,
-    })
-
-    new CfnOutput(this, "DatabaseSecretArn", {
-      value: this.databaseSecret.secretArn,
-    })
-
-    new CfnOutput(this, "RepositoryUri", {
-      value: this.repository.repositoryUri,
-    })
-  }
-}
-
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,260p' infra/cdk/lib/constructs/aurora-schema.ts"[0m in /home/sundaram/code/multi-tenant-rag-demo
-[32m succeeded in 0ms:[0m
-import { Construct } from "constructs"
-import * as cdk from "aws-cdk-lib"
-import * as iam from "aws-cdk-lib/aws-iam"
-import * as lambda from "aws-cdk-lib/aws-lambda"
-import * as cr from "aws-cdk-lib/custom-resources"
-
-export interface AuroraSchemaProps {
-  readonly clusterArn: string
-  readonly secretArn: string
-  readonly databaseName: string
-  readonly statements: string[]
-  readonly physicalResourceId: string
-}
-
-export class AuroraSchema extends Construct {
-  constructor(scope: Construct, id: string, props: AuroraSchemaProps) {
-    super(scope, id)
-
-    const handler = new lambda.Function(this, "Handler", {
-      runtime: lambda.Runtime.NODEJS_20_X,
-      handler: "index.handler",
-      timeout: cdk.Duration.minutes(2),
-      code: lambda.Code.fromInline(`
-const { RDSDataClient, ExecuteStatementCommand } = require("@aws-sdk/client-rds-data");
-
-const client = new RDSDataClient({});
-
-exports.handler = async (event) => {
-  const physicalResourceId =
-    event.ResourceProperties.physicalResourceId ||
-    event.PhysicalResourceId ||
-    event.LogicalResourceId;
-
-  if (event.RequestType === "Delete") {
-    return { PhysicalResourceId: physicalResourceId };
-  }
-
-  const statements = Array.isArray(event.ResourceProperties.statements)
-    ? event.ResourceProperties.statements
-    : [];
-
-  for (const statement of statements) {
-    const sql = typeof statement === "string" ? statement.trim() : "";
-
-    if (!sql) {
-      continue;
-    }
-
-    await client.send(new ExecuteStatementCommand({
-      resourceArn: event.ResourceProperties.clusterArn,
-      secretArn: event.ResourceProperties.secretArn,
-      database: event.ResourceProperties.databaseName,
-      sql,
-    }));
-  }
-
-  return { PhysicalResourceId: physicalResourceId };
-};
-      `),
-    })
-
-    handler.addToRolePolicy(
-      new iam.PolicyStatement({
-        actions: ["rds-data:ExecuteStatement"],
-        resources: [props.clusterArn],
-      }),
-    )
-    handler.addToRolePolicy(
-      new iam.PolicyStatement({
-        actions: ["secretsmanager:GetSecretValue"],
-        resources: [props.secretArn],
-      }),
-    )
-
-    const provider = new cr.Provider(this, "Provider", {
-      onEventHandler: handler,
-    })
-
-    new cdk.CustomResource(this, "Resource", {
-      serviceToken: provider.serviceToken,
-      properties: {
-        clusterArn: props.clusterArn,
-        secretArn: props.secretArn,
-        databaseName: props.databaseName,
-        statements: props.statements,
-        physicalResourceId: props.physicalResourceId,
-      },
-    })
-  }
-}
-
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,260p' infra/cdk/lib/tenant-stack.ts"[0m in /home/sundaram/code/multi-tenant-rag-demo
-[32m succeeded in 0ms:[0m
-import {
-  CfnOutput,
-  Duration,
-  RemovalPolicy,
-  SecretValue,
-  Stack,
-  type StackProps,
-} from "aws-cdk-lib"
-import * as bedrock from "aws-cdk-lib/aws-bedrock"
-import * as iam from "aws-cdk-lib/aws-iam"
-import * as logs from "aws-cdk-lib/aws-logs"
-import * as scheduler from "aws-cdk-lib/aws-scheduler"
-import * as schedulerTargets from "aws-cdk-lib/aws-scheduler-targets"
-import * as s3 from "aws-cdk-lib/aws-s3"
-import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager"
-import { Construct } from "constructs"
-
-import type { TenantDefinition } from "../config/tenants.js"
-import { AuroraSchema } from "./constructs/aurora-schema.js"
-import type { SharedStack } from "./shared-stack.js"
-
-export interface TenantStackProps extends StackProps {
-  readonly environmentName: string
-  readonly databaseName: string
-  readonly tenant: TenantDefinition
-  readonly shared: SharedStack
-}
-
-const kbTableNameForTenant = (tenantId: string): string => `vectors_${tenantId.replace(/-/g, "_")}.bedrock_kb`
-
-const tenantSchemaStatements = (tenantId: string): string[] => {
-  const schemaName = `vectors_${tenantId.replace(/-/g, "_")}`
-  const tableName = kbTableNameForTenant(tenantId)
-  const indexName = `${tenantId.replace(/-/g, "_")}_bedrock_kb_embedding_idx`
-
-  return [
-    `CREATE SCHEMA IF NOT EXISTS ${schemaName};`,
-    "CREATE EXTENSION IF NOT EXISTS vector;",
-    `
-      CREATE TABLE IF NOT EXISTS ${tableName} (
-        id uuid PRIMARY KEY,
-        embedding vector(1024),
-        chunks text NOT NULL,
-        metadata jsonb NOT NULL DEFAULT '{}'::jsonb,
-        custom_metadata jsonb NOT NULL DEFAULT '{}'::jsonb
-      );
-    `,
-    `
-      CREATE INDEX IF NOT EXISTS ${indexName}
-      ON ${tableName} USING hnsw (embedding vector_cosine_ops);
-    `,
-  ].map((statement) => statement.trim())
-}
-
-export class TenantStack extends Stack {
-  public readonly agent: bedrock.CfnAgent
-  public readonly agentAlias: bedrock.CfnAgentAlias
-  public readonly dataSource: bedrock.CfnDataSource
-  public readonly docsBucket: s3.Bucket
-  public readonly knowledgeBase: bedrock.CfnKnowledgeBase
-  public readonly runtimeSecret: secretsmanager.Secret
-
-  constructor(scope: Construct, id: string, props: TenantStackProps) {
-    super(scope, id, props)
-
-    const tenantLogGroup = new logs.LogGroup(this, "TenantLogGroup", {
-      logGroupName: `/platform/tenant/${props.environmentName}/${props.tenant.tenantId}`,
-      retention: logs.RetentionDays.ONE_WEEK,
-    })
-
-    this.docsBucket = new s3.Bucket(this, "DocsBucket", {
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      encryption: s3.BucketEncryption.S3_MANAGED,
-      enforceSSL: true,
-      versioned: false,
-      autoDeleteObjects: true,
-      removalPolicy: RemovalPolicy.DESTROY,
-    })
-
-    const tableName = kbTableNameForTenant(props.tenant.tenantId)
-
-    const tenantSchema = new AuroraSchema(this, "TenantSchema", {
-      clusterArn: props.shared.databaseCluster.clusterArn,
-      secretArn: props.shared.databaseSecret.secretArn,
-      databaseName: props.databaseName,
-      physicalResourceId: `tenant-schema-${props.tenant.tenantId}-${props.environmentName}`,
-      statements: tenantSchemaStatements(props.tenant.tenantId),
-    })
-
-    const knowledgeBaseRole = new iam.Role(this, "KnowledgeBaseRole", {
-      assumedBy: new iam.ServicePrincipal("bedrock.amazonaws.com"),
-      description: `Bedrock knowledge base role for ${props.tenant.tenantId}`,
-    })
-
-    this.docsBucket.grantRead(knowledgeBaseRole)
-    props.shared.databaseSecret.grantRead(knowledgeBaseRole)
-    props.shared.databaseCluster.grantDataApiAccess(knowledgeBaseRole)
-
-    knowledgeBaseRole.addToPolicy(
-      new iam.PolicyStatement({
-        actions: ["bedrock:InvokeModel"],
-        resources: [
-          `arn:${this.partition}:bedrock:${this.region}::foundation-model/amazon.titan-embed-text-v2:0`,
-        ],
-      }),
-    )
-
-    const agentRole = new iam.Role(this, "AgentRole", {
-      assumedBy: new iam.ServicePrincipal("bedrock.amazonaws.com"),
-      description: `Bedrock agent role for ${props.tenant.tenantId}`,
-    })
-
-    props.shared.attachmentsBucket.grantRead(agentRole, `${props.tenant.tenantId}/*`)
-    agentRole.addToPolicy(
-      new iam.PolicyStatement({
-        actions: ["bedrock:Retrieve", "bedrock:RetrieveAndGenerate"],
-        resources: ["*"],
-      }),
-    )
-
-    this.knowledgeBase = new bedrock.CfnKnowledgeBase(this, "KnowledgeBase", {
-      name: `${props.tenant.tenantId}-kb-${props.environmentName}`,
-      description: `Tenant-isolated knowledge base for ${props.tenant.displayName}`,
-      roleArn: knowledgeBaseRole.roleArn,
-      knowledgeBaseConfiguration: {
-        type: "VECTOR",
-        vectorKnowledgeBaseConfiguration: {
-          embeddingModelArn: `arn:${this.partition}:bedrock:${this.region}::foundation-model/amazon.titan-embed-text-v2:0`,
-          embeddingModelConfiguration: {
-            bedrockEmbeddingModelConfiguration: {
-              dimensions: 1024,
-              embeddingDataType: "FLOAT32",
-            },
-          },
-        },
-      },
-      storageConfiguration: {
-        type: "RDS",
-        rdsConfiguration: {
-          credentialsSecretArn: props.shared.databaseSecret.secretArn,
-          databaseName: props.databaseName,
-          resourceArn: props.shared.databaseCluster.clusterArn,
-          tableName,
-          fieldMapping: {
-            primaryKeyField: "id",
-            vectorField: "embedding",
-            textField: "chunks",
-            metadataField: "metadata",
-            customMetadataField: "custom_metadata",
-          },
-        },
-      },
-      tags: {
-        Environment: props.environmentName,
-        TenantId: props.tenant.tenantId,
-      },
-    })
-    this.knowledgeBase.node.addDependency(tenantSchema)
-
-    this.dataSource = new bedrock.CfnDataSource(this, "DataSource", {
-      knowledgeBaseId: this.knowledgeBase.attrKnowledgeBaseId,
-      name: `${props.tenant.tenantId}-docs`,
-      description: `S3 document source for ${props.tenant.displayName}`,
-      dataDeletionPolicy: "RETAIN",
-      dataSourceConfiguration: {
-        type: "S3",
-        s3Configuration: {
-          bucketArn: this.docsBucket.bucketArn,
-          inclusionPrefixes: ["documents/"],
-        },
-      },
-    })
-
-    this.agent = new bedrock.CfnAgent(this, "Agent", {
-      agentName: `${props.tenant.tenantId}-agent-${props.environmentName}`,
-      description: `Tenant-isolated assistant for ${props.tenant.displayName}`,
-      autoPrepare: true,
-      foundationModel: "anthropic.claude-3-haiku-20240307-v1:0",
-      agentResourceRoleArn: agentRole.roleArn,
-      idleSessionTtlInSeconds: 3600,
-      instruction: [
-        `You are the assistant for ${props.tenant.displayName}.`,
-        "Answer using only tenant-approved knowledge-base and uploaded-session content.",
-        "If the tenant knowledge base cannot answer the question, say so directly instead of guessing.",
-      ].join(" "),
-      knowledgeBases: [
-        {
-          description: `Primary knowledge base for ${props.tenant.displayName}`,
-          knowledgeBaseId: this.knowledgeBase.attrKnowledgeBaseId,
-          knowledgeBaseState: "ENABLED",
-        },
-      ],
-      tags: {
-        Environment: props.environmentName,
-        TenantId: props.tenant.tenantId,
-      },
-    })
-
-    this.agentAlias = new bedrock.CfnAgentAlias(this, "AgentAlias", {
-      agentAliasName: `${props.tenant.tenantId}-agent-alias-${props.environmentName}`,
-      agentId: this.agent.attrAgentId,
-      description: `Primary alias for ${props.tenant.displayName}`,
-      routingConfiguration: [
-        {
-          agentVersion: this.agent.attrAgentVersion,
-        },
-      ],
-      tags: {
-        Environment: props.environmentName,
-        TenantId: props.tenant.tenantId,
-      },
-    })
-
-    new scheduler.Schedule(this, "IngestionSchedule", {
-      description: `Daily KB sync for ${props.tenant.tenantId}`,
-      enabled: true,
-      schedule: scheduler.ScheduleExpression.rate(Duration.days(1)),
-      timeWindow: scheduler.TimeWindow.off(),
-      target: new schedulerTargets.Universal({
-        service: "bedrockagent",
-        action: "startIngestionJob",
-        input: scheduler.ScheduleTargetInput.fromObject({
-          knowledgeBaseId: this.knowledgeBase.attrKnowledgeBaseId,
-          dataSourceId: this.dataSource.attrDataSourceId,
-        }),
-        policyStatements: [
-          new iam.PolicyStatement({
-            actions: ["bedrock:StartIngestionJob"],
-            resources: ["*"],
-          }),
-        ],
-      }),
-    })
-
-    this.runtimeSecret = new secretsmanager.Secret(this, "RuntimeSecret", {
-      secretName: `multi-tenant-rag-demo/${props.environmentName}/${props.tenant.tenantId}/runtime`,
-      description: `Tenant runtime config for ${props.tenant.tenantId}`,
-      secretObjectValue: {
-        agentAliasId: SecretValue.unsafePlainText(this.agentAlias.attrAgentAliasId),
-        agentId: SecretValue.unsafePlainText(this.agent.attrAgentId),
-        docsBucketName: SecretValue.unsafePlainText(this.docsBucket.bucketName),
-        guardrailId: SecretValue.unsafePlainText(props.shared.guardrail.attrGuardrailId),
-        guardrailVersion: SecretValue.unsafePlainText(props.shared.guardrailVersion.attrVersion),
-        knowledgeBaseId: SecretValue.unsafePlainText(this.knowledgeBase.attrKnowledgeBaseId),
-        tenantDisplayName: SecretValue.unsafePlainText(props.tenant.displayName),
-        tenantId: SecretValue.unsafePlainText(props.tenant.tenantId),
-      },
-      removalPolicy: RemovalPolicy.DESTROY,
-    })
-
-    new CfnOutput(this, "TenantId", {
-      value: props.tenant.tenantId,
-    })
-
-    new CfnOutput(this, "KnowledgeBaseId", {
-      value: this.knowledgeBase.attrKnowledgeBaseId,
-    })
-
-    new CfnOutput(this, "AgentId", {
-      value: this.agent.attrAgentId,
-
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,260p' infra/cdk/lib/ui-stack.ts"[0m in /home/sundaram/code/multi-tenant-rag-demo
-[32m succeeded in 0ms:[0m
-import {
-  CfnOutput,
-  Duration,
-  Stack,
-  type StackProps,
-} from "aws-cdk-lib"
-import * as ec2 from "aws-cdk-lib/aws-ec2"
-import * as ecs from "aws-cdk-lib/aws-ecs"
-import * as iam from "aws-cdk-lib/aws-iam"
-import * as logs from "aws-cdk-lib/aws-logs"
-import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2"
-import { Construct } from "constructs"
-import { fileURLToPath } from "node:url"
-
-import type { TenantDefinition } from "../config/tenants.js"
-import type { SharedStack } from "./shared-stack.js"
-import type { TenantStack } from "./tenant-stack.js"
-
-export interface UIStackProps extends StackProps {
-  readonly environmentName: string
-  readonly tenant: TenantDefinition
-  readonly shared: SharedStack
-  readonly tenantResources: TenantStack
-}
-
-const webAppDirectory = fileURLToPath(new URL("../../../../apps/web", import.meta.url))
-
-export class UIStack extends Stack {
-  constructor(scope: Construct, id: string, props: UIStackProps) {
-    super(scope, id, props)
-
-    const serviceSecurityGroup = new ec2.SecurityGroup(this, "ServiceSecurityGroup", {
-      vpc: props.shared.vpc,
-      description: `Application security group for ${props.tenant.tenantId}`,
-      allowAllOutbound: true,
-    })
-
-    serviceSecurityGroup.addIngressRule(
-      props.shared.albSecurityGroup,
-      ec2.Port.tcp(3000),
-      `Allow ALB traffic for ${props.tenant.tenantId}`,
-    )
-
-    const logGroup = new logs.LogGroup(this, "UiLogGroup", {
-      logGroupName: `/platform/chat-ui/${props.environmentName}/${props.tenant.tenantId}`,
-      retention: logs.RetentionDays.ONE_WEEK,
-    })
-
-    const taskRole = new iam.Role(this, "TaskRole", {
-      assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
-      description: `Application task role for ${props.tenant.tenantId}`,
-    })
-
-    const executionRole = new iam.Role(this, "ExecutionRole", {
-      assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
-      description: `Execution role for ${props.tenant.tenantId}`,
-      managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AmazonECSTaskExecutionRolePolicy"),
-      ],
-    })
-
-    const taskDefinition = new ecs.FargateTaskDefinition(this, "TaskDefinition", {
-      cpu: 512,
-      memoryLimitMiB: 1024,
-      taskRole,
-      executionRole,
-      runtimePlatform: {
-        operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
-        cpuArchitecture: ecs.CpuArchitecture.X86_64,
-      },
-    })
-
-    props.shared.repository.grantPull(executionRole)
-    props.shared.databaseSecret.grantRead(executionRole)
-    props.tenantResources.runtimeSecret.grantRead(executionRole)
-
-    props.shared.databaseSecret.grantRead(taskRole)
-    props.tenantResources.runtimeSecret.grantRead(taskRole)
-
-    taskDefinition.addContainer("Web", {
-      image: ecs.ContainerImage.fromAsset(webAppDirectory),
-      containerName: "web",
-      logging: ecs.LogDrivers.awsLogs({
-        streamPrefix: props.tenant.tenantId,
-        logGroup,
-      }),
-      portMappings: [
-        {
-          containerPort: 3000,
-          protocol: ecs.Protocol.TCP,
-        },
-      ],
-      environment: {
-        AWS_REGION: this.region,
-        HOST: "0.0.0.0",
-        NODE_ENV: "production",
-        NUXT_PUBLIC_TENANT_ID: props.tenant.tenantId,
-        NUXT_PUBLIC_TENANT_NAME: props.tenant.displayName,
-        NUXT_TENANT_ID: props.tenant.tenantId,
-        PORT: "3000",
-        TENANT_ID: props.tenant.tenantId,
-      },
-      secrets: {
-        BEDROCK_AGENT_ALIAS_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "agentAliasId"),
-        BEDROCK_AGENT_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "agentId"),
-        BEDROCK_GUARDRAIL_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "guardrailId"),
-        BEDROCK_GUARDRAIL_VERSION: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "guardrailVersion"),
-        BEDROCK_KNOWLEDGE_BASE_ID: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "knowledgeBaseId"),
-        DATABASE_HOST: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "host"),
-        DATABASE_NAME: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "dbname"),
-        DATABASE_PASSWORD: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "password"),
-        DATABASE_PORT: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "port"),
-        DATABASE_USER: ecs.Secret.fromSecretsManager(props.shared.databaseSecret, "username"),
-        DOCS_BUCKET_NAME: ecs.Secret.fromSecretsManager(props.tenantResources.runtimeSecret, "docsBucketName"),
-      },
-    })
-
-    const service = new ecs.FargateService(this, "Service", {
-      cluster: props.shared.cluster,
-      taskDefinition,
-      desiredCount: 1,
-      minHealthyPercent: 100,
-      maxHealthyPercent: 200,
-      assignPublicIp: false,
-      vpcSubnets: {
-        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-      },
-      securityGroups: [serviceSecurityGroup],
-      circuitBreaker: {
-        rollback: true,
-      },
-    })
-
-    props.shared.httpListener.addTargets(`TenantTraffic${props.tenant.tenantId}`, {
-      priority: props.tenant.listenerPriority,
-      conditions: [elbv2.ListenerCondition.hostHeaders(props.tenant.hostnames)],
-      port: 3000,
-      protocol: elbv2.ApplicationProtocol.HTTP,
-      targets: [service],
-      healthCheck: {
-        enabled: true,
-        path: "/api/health",
-        healthyHttpCodes: "200",
-        interval: Duration.seconds(30),
-      },
-    })
-
-    new CfnOutput(this, "TenantId", {
-      value: props.tenant.tenantId,
-    })
-
-    new CfnOutput(this, "ServiceName", {
-      value: service.serviceName,
-    })
-
-    new CfnOutput(this, "Hostnames", {
-      value: props.tenant.hostnames.join(","),
-    })
-  }
-}
-
-[35m[3mcodex[0m[0m
-I’ve isolated the narrow mismatch: the shared Aurora DDL still uses `session_id`/`message_id`, omits `messages.user_id`, stores `attachment_ids` instead of `attached_files`, and lacks `session_files.storage_bucket`. I’m patching only that contract surface, then I’ll run the required build and synth checks.
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc 'git status --short'[0m in /home/sundaram/code/multi-tenant-rag-demo
-[32m succeeded in 0ms:[0m
- M ai/logs/baton.log
-
-[35m[3mcodex[0m[0m
-Editing [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) now to align the `app` schema with the existing Nuxt records without changing the accepted stack design.
-[1mapply patch[0m
-[1mpatch:[0m completed
-[2m/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts[0m
-diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
-index 73482a3f9478013768a2f96cb0b871a311ffa7d5..06e7bb11a90033b443f01f81193d0d78dc64584a
---- a/infra/cdk/lib/shared-stack.ts
-+++ b/infra/cdk/lib/shared-stack.ts
-@@ -29,7 +29,7 @@
-   "CREATE EXTENSION IF NOT EXISTS vector;",
-   `
-     CREATE TABLE IF NOT EXISTS app.sessions (
--      session_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
-       user_id text NOT NULL,
-       title text NOT NULL DEFAULT 'New chat',
-@@ -39,13 +39,14 @@
-   `,
-   `
-     CREATE TABLE IF NOT EXISTS app.messages (
--      message_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-+      user_id text NOT NULL,
-       role text NOT NULL,
-       content text NOT NULL,
-       citations jsonb NOT NULL DEFAULT '[]'::jsonb,
--      attachment_ids jsonb NOT NULL DEFAULT '[]'::jsonb,
-+      attached_files jsonb NOT NULL DEFAULT '[]'::jsonb,
-       created_at timestamptz NOT NULL DEFAULT now()
-     );
-   `,
-@@ -53,12 +54,13 @@
-     CREATE TABLE IF NOT EXISTS app.session_files (
-       file_id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-       user_id text NOT NULL,
-       original_name text NOT NULL,
-       sanitized_name text NOT NULL,
-       content_type text NOT NULL,
-       size_bytes bigint NOT NULL,
-+      storage_bucket text NOT NULL,
-       storage_key text NOT NULL,
-       status text NOT NULL,
-       created_at timestamptz NOT NULL DEFAULT now(),
-
-diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
-index 73482a3f9478013768a2f96cb0b871a311ffa7d5..06e7bb11a90033b443f01f81193d0d78dc64584a
---- a/infra/cdk/lib/shared-stack.ts
-+++ b/infra/cdk/lib/shared-stack.ts
-@@ -29,7 +29,7 @@
-   "CREATE EXTENSION IF NOT EXISTS vector;",
-   `
-     CREATE TABLE IF NOT EXISTS app.sessions (
--      session_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
-       user_id text NOT NULL,
-       title text NOT NULL DEFAULT 'New chat',
-@@ -39,13 +39,14 @@
-   `,
-   `
-     CREATE TABLE IF NOT EXISTS app.messages (
--      message_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-+      user_id text NOT NULL,
-       role text NOT NULL,
-       content text NOT NULL,
-       citations jsonb NOT NULL DEFAULT '[]'::jsonb,
--      attachment_ids jsonb NOT NULL DEFAULT '[]'::jsonb,
-+      attached_files jsonb NOT NULL DEFAULT '[]'::jsonb,
-       created_at timestamptz NOT NULL DEFAULT now()
-     );
-   `,
-@@ -53,12 +54,13 @@
-     CREATE TABLE IF NOT EXISTS app.session_files (
-       file_id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-       user_id text NOT NULL,
-       original_name text NOT NULL,
-       sanitized_name text NOT NULL,
-       content_type text NOT NULL,
-       size_bytes bigint NOT NULL,
-+      storage_bucket text NOT NULL,
-       storage_key text NOT NULL,
-       status text NOT NULL,
-       created_at timestamptz NOT NULL DEFAULT now(),
-
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc 'npm run build'[0m in /home/sundaram/code/multi-tenant-rag-demo/apps/web
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc 'npm run synth'[0m in /home/sundaram/code/multi-tenant-rag-demo/infra/cdk
-diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
-index 73482a3f9478013768a2f96cb0b871a311ffa7d5..06e7bb11a90033b443f01f81193d0d78dc64584a
---- a/infra/cdk/lib/shared-stack.ts
-+++ b/infra/cdk/lib/shared-stack.ts
-@@ -29,7 +29,7 @@
-   "CREATE EXTENSION IF NOT EXISTS vector;",
-   `
-     CREATE TABLE IF NOT EXISTS app.sessions (
--      session_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
-       user_id text NOT NULL,
-       title text NOT NULL DEFAULT 'New chat',
-@@ -39,13 +39,14 @@
-   `,
-   `
-     CREATE TABLE IF NOT EXISTS app.messages (
--      message_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-+      user_id text NOT NULL,
-       role text NOT NULL,
-       content text NOT NULL,
-       citations jsonb NOT NULL DEFAULT '[]'::jsonb,
--      attachment_ids jsonb NOT NULL DEFAULT '[]'::jsonb,
-+      attached_files jsonb NOT NULL DEFAULT '[]'::jsonb,
-       created_at timestamptz NOT NULL DEFAULT now()
-     );
-   `,
-@@ -53,12 +54,13 @@
-     CREATE TABLE IF NOT EXISTS app.session_files (
-       file_id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-       user_id text NOT NULL,
-       original_name text NOT NULL,
-       sanitized_name text NOT NULL,
-       content_type text NOT NULL,
-       size_bytes bigint NOT NULL,
-+      storage_bucket text NOT NULL,
-       storage_key text NOT NULL,
-       status text NOT NULL,
-       created_at timestamptz NOT NULL DEFAULT now(),
-
-[32m succeeded in 2403ms:[0m
-┌  Building Nuxt for production...
-│
-●  Nuxt 4.4.2 (with Nitro 2.13.2, Vite 7.3.1 and Vue 3.5.31)
-│
-●  Nitro preset: node-server
-ℹ Building client...
-ℹ vite v7.3.1 building client environment for production...
-
- WARN  [plugin nuxt:module-preload-polyfill] Sourcemap is likely to be incorrect: a plugin (nuxt:module-preload-polyfill) was used to transform files, but didn't generate a sourcemap for the transformation. Consult the plugin documentation for help
-
-ℹ transforming...
-ℹ ✓ 115 modules transformed.
-ℹ rendering chunks...
-ℹ computing gzip size...
-ℹ node_modules/.cache/nuxt/.nuxt/dist/client/manifest.json                   1.26 kB │ gzip:  0.32 kB
-ℹ node_modules/.cache/nuxt/.nuxt/dist/client/_nuxt/error-500.BENb_mjk.css    1.91 kB │ gzip:  0.73 kB
-ℹ node_modules/.cache/nuxt/.nuxt/dist/client/_nuxt/error-404._yXoGkXB.css    2.43 kB │ gzip:  0.86 kB
-ℹ node_modules/.cache/nuxt/.nuxt/dist/client/_nuxt/entry.XgzKt5N3.css        4.20 kB │ gzip:  1.30 kB
-ℹ node_modules/.cache/nuxt/.nuxt/dist/client/_nuxt/C95PXIof.js               0.33 kB │ gzip:  0.24 kB
-ℹ node_modules/.cache/nuxt/.nuxt/dist/client/_nuxt/4ZzoKaW5.js               3.48 kB │ gzip:  1.56 kB
-ℹ node_modules/.cache/nuxt/.nuxt/dist/client/_nuxt/Coj61gYI.js               9.54 kB │ gzip:  3.86 kB
-ℹ node_modules/.cache/nuxt/.nuxt/dist/client/_nuxt/DPGoB10T.js             150.19 kB │ gzip: 57.27 kB
-ℹ ✓ built in 696ms
-✔ Client built in 702ms
-ℹ Building server...
-ℹ vite v7.3.1 building ssr environment for production...
-ℹ transforming...
-ℹ ✓ 61 modules transformed.
-ℹ rendering chunks...
-ℹ ✓ built in 216ms
-✔ Server built in 218ms
-[nitro] ✔ Generated public .output/public
-[nitro] ℹ Building Nuxt Nitro server (preset: node-server, compatibility date: 2026-03-24)
-[nitro] ✔ Nuxt Nitro server built
-  ├─ .output/server/chunks/_/chat-store.mjs (5.67 kB) (1.44 kB gzip)
-  ├─ .output/server/chunks/_/chat-store.mjs.map (5.85 kB) (859 B gzip)
-  ├─ .output/server/chunks/_/error-500.mjs (5.09 kB) (2.07 kB gzip)
-  ├─ .output/server/chunks/_/error-500.mjs.map (182 B) (154 B gzip)
-  ├─ .output/server/chunks/_/tenant.mjs (262 B) (210 B gzip)
-  ├─ .output/server/chunks/_/tenant.mjs.map (249 B) (169 B gzip)
-  ├─ .output/server/chunks/build/app-styles.BATTsX8c.mjs (4.45 kB) (1.43 kB gzip)
-  ├─ .output/server/chunks/build/app-styles.BATTsX8c.mjs.map (299 B) (188 B gzip)
-  ├─ .output/server/chunks/build/client.precomputed.mjs (3.4 kB) (616 B gzip)
-  ├─ .output/server/chunks/build/client.precomputed.mjs.map (188 B) (150 B gzip)
-  ├─ .output/server/chunks/build/composables-DVmpI4lg.mjs (732 B) (390 B gzip)
-  ├─ .output/server/chunks/build/composables-DVmpI4lg.mjs.map (197 B) (160 B gzip)
-  ├─ .output/server/chunks/build/error-404-BOdaEcCG.mjs (15.1 kB) (4.56 kB gzip)
-  ├─ .output/server/chunks/build/error-404-BOdaEcCG.mjs.map (193 B) (162 B gzip)
-  ├─ .output/server/chunks/build/error-404-styles.DtuF77Et.mjs (2.72 kB) (985 B gzip)
-  ├─ .output/server/chunks/build/error-404-styles.DtuF77Et.mjs.map (317 B) (190 B gzip)
-  ├─ .output/server/chunks/build/error-500-D2zY5t7B.mjs (4.85 kB) (2 kB gzip)
-  ├─ .output/server/chunks/build/error-500-D2zY5t7B.mjs.map (193 B) (162 B gzip)
-  ├─ .output/server/chunks/build/error-500-styles.3g_bWYX3.mjs (2.19 kB) (861 B gzip)
-  ├─ .output/server/chunks/build/error-500-styles.3g_bWYX3.mjs.map (317 B) (191 B gzip)
-  ├─ .output/server/chunks/build/server.mjs (56.3 kB) (14.5 kB gzip)
-  ├─ .output/server/chunks/build/server.mjs.map (217 B) (159 B gzip)
-  ├─ .output/server/chunks/build/styles.mjs (950 B) (332 B gzip)
-  ├─ .output/server/chunks/build/styles.mjs.map (164 B) (142 B gzip)
-  ├─ .output/server/chunks/nitro/nitro.mjs (172 kB) (43.9 kB gzip)
-  ├─ .output/server/chunks/nitro/nitro.mjs.map (3.23 kB) (822 B gzip)
-  ├─ .output/server/chunks/routes/api/chat.post.mjs (5.15 kB) (1.72 kB gzip)
-  ├─ .output/server/chunks/routes/api/chat.post.mjs.map (4.95 kB) (1.03 kB gzip)
-  ├─ .output/server/chunks/routes/api/files.post.mjs (6.13 kB) (1.95 kB gzip)
-  ├─ .output/server/chunks/routes/api/files.post.mjs.map (5.51 kB) (1.06 kB gzip)
-  ├─ .output/server/chunks/routes/api/health.get.mjs (547 B) (303 B gzip)
-  ├─ .output/server/chunks/routes/api/health.get.mjs.map (318 B) (182 B gzip)
-  ├─ .output/server/chunks/routes/api/index.get.mjs (877 B) (423 B gzip)
-  ├─ .output/server/chunks/routes/api/index.get.mjs.map (565 B) (244 B gzip)
-  ├─ .output/server/chunks/routes/api/index.post.mjs (965 B) (452 B gzip)
-  ├─ .output/server/chunks/routes/api/index.post.mjs.map (678 B) (265 B gzip)
-  ├─ .output/server/chunks/routes/api/sessions/_id/messages.get.mjs (1.5 kB) (531 B gzip)
-  ├─ .output/server/chunks/routes/api/sessions/_id/messages.get.mjs.map (1.17 kB) (312 B gzip)
-  ├─ .output/server/chunks/routes/renderer.mjs (17.2 kB) (5.6 kB gzip)
-  ├─ .output/server/chunks/routes/renderer.mjs.map (845 B) (273 B gzip)
-  ├─ .output/server/chunks/virtual/_virtual_spa-template.mjs (94 B) (100 B gzip)
-  ├─ .output/server/chunks/virtual/_virtual_spa-template.mjs.map (90 B) (98 B gzip)
-  ├─ .output/server/index.mjs (353 B) (205 B gzip)
-  └─ .output/server/package.json (706 B) (323 B gzip)
-Σ Total size: 1.83 MB (454 kB gzip)
-[nitro] ✔ You can preview this build using node .output/server/index.mjs
-│
-└  ✨ Build complete!
-
-[35m[3mcodex[0m[0m
-The code change is in. I’m waiting on the mandated `apps/web` build and `infra/cdk` synth verification to see whether this schema-only fix stays clean.
-diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
-index 73482a3f9478013768a2f96cb0b871a311ffa7d5..06e7bb11a90033b443f01f81193d0d78dc64584a
---- a/infra/cdk/lib/shared-stack.ts
-+++ b/infra/cdk/lib/shared-stack.ts
-@@ -29,7 +29,7 @@
-   "CREATE EXTENSION IF NOT EXISTS vector;",
-   `
-     CREATE TABLE IF NOT EXISTS app.sessions (
--      session_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
-       user_id text NOT NULL,
-       title text NOT NULL DEFAULT 'New chat',
-@@ -39,13 +39,14 @@
-   `,
-   `
-     CREATE TABLE IF NOT EXISTS app.messages (
--      message_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-+      user_id text NOT NULL,
-       role text NOT NULL,
-       content text NOT NULL,
-       citations jsonb NOT NULL DEFAULT '[]'::jsonb,
--      attachment_ids jsonb NOT NULL DEFAULT '[]'::jsonb,
-+      attached_files jsonb NOT NULL DEFAULT '[]'::jsonb,
-       created_at timestamptz NOT NULL DEFAULT now()
-     );
-   `,
-@@ -53,12 +54,13 @@
-     CREATE TABLE IF NOT EXISTS app.session_files (
-       file_id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-       user_id text NOT NULL,
-       original_name text NOT NULL,
-       sanitized_name text NOT NULL,
-       content_type text NOT NULL,
-       size_bytes bigint NOT NULL,
-+      storage_bucket text NOT NULL,
-       storage_key text NOT NULL,
-       status text NOT NULL,
-       created_at timestamptz NOT NULL DEFAULT now(),
-
-diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
-index 73482a3f9478013768a2f96cb0b871a311ffa7d5..06e7bb11a90033b443f01f81193d0d78dc64584a
---- a/infra/cdk/lib/shared-stack.ts
-+++ b/infra/cdk/lib/shared-stack.ts
-@@ -29,7 +29,7 @@
-   "CREATE EXTENSION IF NOT EXISTS vector;",
-   `
-     CREATE TABLE IF NOT EXISTS app.sessions (
--      session_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
-       user_id text NOT NULL,
-       title text NOT NULL DEFAULT 'New chat',
-@@ -39,13 +39,14 @@
-   `,
-   `
-     CREATE TABLE IF NOT EXISTS app.messages (
--      message_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-+      user_id text NOT NULL,
-       role text NOT NULL,
-       content text NOT NULL,
-       citations jsonb NOT NULL DEFAULT '[]'::jsonb,
--      attachment_ids jsonb NOT NULL DEFAULT '[]'::jsonb,
-+      attached_files jsonb NOT NULL DEFAULT '[]'::jsonb,
-       created_at timestamptz NOT NULL DEFAULT now()
-     );
-   `,
-@@ -53,12 +54,13 @@
-     CREATE TABLE IF NOT EXISTS app.session_files (
-       file_id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-       user_id text NOT NULL,
-       original_name text NOT NULL,
-       sanitized_name text NOT NULL,
-       content_type text NOT NULL,
-       size_bytes bigint NOT NULL,
-+      storage_bucket text NOT NULL,
-       storage_key text NOT NULL,
-       status text NOT NULL,
-       created_at timestamptz NOT NULL DEFAULT now(),
-
-[32m succeeded in 20191ms:[0m
-Successfully synthesized to /home/sundaram/code/multi-tenant-rag-demo/infra/cdk/cdk.out
-Supply a stack id (SharedStack-dev, TenantStack-tenant-a-dev, UIStack-tenant-a-dev, TenantStack-tenant-b-dev, UIStack-tenant-b-dev) to display its template.
-77 feature flags are not configured. Run 'cdk flags --unstable=flags' to learn more.
-
-[35m[3mcodex[0m[0m
-The required checks passed: `apps/web` builds and `infra/cdk` synthesizes after the schema correction. I’m updating the baton files now with a minimal implementation note and validator handoff.
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,220p' ai/logs/baton.log"[0m in /home/sundaram/code/multi-tenant-rag-demo
-[32m succeeded in 0ms:[0m
-# Baton run log
-# Timestamped entries from scripts/run-baton.sh are appended here.
-[2026-04-01T23:31:01Z] STEP 1 START role=PLANNER executor=codex model=gpt-5.4
-[2026-04-01T23:31:22Z] STEP 1 END role=PLANNER result=WAITING_FOR_USER
-[2026-04-01T23:33:54Z] STEP 1 START role=PLANNER executor=codex model=gpt-5.4
-[2026-04-01T23:34:08Z] STEP 1 END role=PLANNER result=WAITING_FOR_USER
-[2026-04-01T23:36:46Z] STEP 1 START role=PLANNER executor=codex model=gpt-5.4
-[2026-04-01T23:37:06Z] STEP 1 END role=PLANNER result=INVALID_WAITING_FOR_USER missing_or_incomplete_user_questions
-[2026-04-01T23:39:44Z] STEP 1 START role=PLANNER executor=codex model=gpt-5.4
-[2026-04-01T23:39:50Z] STEP 1 END role=PLANNER result=INVALID_OUTPUT
-[2026-04-01T23:42:06Z] STEP 1 START role=PLANNER executor=codex model=gpt-5.4
-[2026-04-01T23:42:24Z] STEP 1 END role=PLANNER result=INVALID_WAITING_FOR_USER missing_or_incomplete_user_questions
-[2026-04-01T23:47:10Z] STEP 1 START role=PLANNER executor=codex model=gpt-5.4
-[2026-04-01T23:48:50Z] STEP 1 END role=PLANNER result=INVALID_OUTPUT
-[2026-04-01T23:50:26Z] STEP 1 START role=PLANNER executor=codex model=gpt-5.4
-[2026-04-01T23:52:01Z] STEP 1 END role=PLANNER result=INVALID_OUTPUT
-[2026-04-01T23:55:46Z] STEP 1 START role=PLANNER executor=codex model=gpt-5.4
-[2026-04-01T23:56:39Z] STEP 1 START role=PLANNER executor=codex model=gpt-5.4
-[2026-04-01T23:57:01Z] STEP 1 START role=PLANNER executor=codex model=gpt-5.4
-[2026-04-01T23:58:07Z] STEP 1 END role=PLANNER result=HANDOFF to=SENIOR_JUDGMENTAL_ENGINEER
-[2026-04-01T23:58:08Z] STEP 2 START role=SENIOR_JUDGMENTAL_ENGINEER executor=codex model=gpt-5.4
-[2026-04-01T23:59:37Z] STEP 2 END role=SENIOR_JUDGMENTAL_ENGINEER result=HANDOFF to=ENGINEER
-[2026-04-01T23:59:38Z] STEP 3 START role=ENGINEER executor=codex model=gpt-5.4
-[2026-04-02T00:00:54Z] STEP 3 END role=ENGINEER result=HANDOFF to=SENIOR_JUDGMENTAL_ENGINEER
-[2026-04-02T00:00:54Z] STEP 4 START role=SENIOR_JUDGMENTAL_ENGINEER executor=codex model=gpt-5.4
-[2026-04-02T00:02:05Z] STEP 4 END role=SENIOR_JUDGMENTAL_ENGINEER result=WAITING_FOR_USER
-[2026-04-02T00:09:19Z] STEP 1 START role=SENIOR_JUDGMENTAL_ENGINEER executor=codex model=gpt-5.4
-[2026-04-02T00:10:38Z] STEP 1 END role=SENIOR_JUDGMENTAL_ENGINEER result=HANDOFF to=ENGINEER
-[2026-04-02T00:10:38Z] STEP 2 START role=ENGINEER executor=codex model=gpt-5.4
-[2026-04-02T00:12:59Z] STEP 2 END role=ENGINEER result=HANDOFF to=VALIDATOR
-[2026-04-02T00:13:00Z] STEP 3 START role=VALIDATOR executor=codex model=gpt-5.4
-[2026-04-02T00:14:42Z] STEP 3 END role=VALIDATOR result=HANDOFF to=ENGINEER
-[2026-04-02T00:14:42Z] STEP 4 START role=ENGINEER executor=codex model=gpt-5.4
-[2026-04-02T00:16:38Z] STEP 4 END role=ENGINEER result=HANDOFF to=VALIDATOR
-[2026-04-02T00:16:38Z] STEP 5 START role=VALIDATOR executor=codex model=gpt-5.4
-[2026-04-02T00:18:33Z] STEP 5 END role=VALIDATOR result=HANDOFF to=PLANNER
-[2026-04-02T00:18:33Z] STEP 6 START role=PLANNER executor=codex model=gpt-5.4
-[2026-04-02T00:19:58Z] STEP 6 END role=PLANNER result=INVALID_HANDOFF to=SENIOR_JUDGMENTAL_ENGINEER
-[2026-04-02T00:22:37Z] STEP 1 START role=SENIOR_JUDGMENTAL_ENGINEER executor=codex model=gpt-5.4
-[2026-04-02T00:23:56Z] STEP 1 END role=SENIOR_JUDGMENTAL_ENGINEER result=HANDOFF to=ENGINEER
-[2026-04-02T00:23:56Z] STEP 2 START role=ENGINEER executor=codex model=gpt-5.4
-[2026-04-02T00:28:26Z] STEP 2 END role=ENGINEER result=HANDOFF to=VALIDATOR
-[2026-04-02T00:28:27Z] STEP 3 START role=VALIDATOR executor=codex model=gpt-5.4
-[2026-04-02T00:31:26Z] STEP 3 END role=VALIDATOR result=HANDOFF to=ENGINEER
-[2026-04-02T00:31:26Z] STEP 4 START role=ENGINEER executor=codex model=gpt-5.4
-[2026-04-02T00:34:42Z] STEP 4 END role=ENGINEER result=HANDOFF to=VALIDATOR
-[2026-04-02T00:34:42Z] STEP 5 START role=VALIDATOR executor=codex model=gpt-5.4
-[2026-04-02T00:37:16Z] STEP 5 END role=VALIDATOR result=HANDOFF to=PLANNER
-[2026-04-02T00:37:16Z] STEP 6 START role=PLANNER executor=codex model=gpt-5.4
-[2026-04-02T00:39:05Z] STEP 6 END role=PLANNER result=HANDOFF to=SENIOR_JUDGMENTAL_ENGINEER
-[2026-04-02T00:39:05Z] STEP 7 START role=SENIOR_JUDGMENTAL_ENGINEER executor=codex model=gpt-5.4
-[2026-04-02T00:40:52Z] STEP 7 END role=SENIOR_JUDGMENTAL_ENGINEER result=HANDOFF to=ENGINEER
-[2026-04-02T00:40:53Z] STEP 8 START role=ENGINEER executor=codex model=gpt-5.4
-[2026-04-02T00:47:09Z] STEP 8 END role=ENGINEER result=HANDOFF to=VALIDATOR
-[2026-04-02T00:47:10Z] STEP 9 START role=VALIDATOR executor=codex model=gpt-5.4
-[2026-04-02T00:50:00Z] STEP 9 END role=VALIDATOR result=HANDOFF to=PLANNER
-[2026-04-02T00:50:00Z] STEP 10 START role=PLANNER executor=codex model=gpt-5.4
-[2026-04-02T00:52:06Z] STEP 10 END role=PLANNER result=HANDOFF to=SENIOR_JUDGMENTAL_ENGINEER
-[2026-04-02T00:52:06Z] REACHED_MAX_STEPS (10)
-[2026-04-02T01:08:35Z] STEP 1 START role=SENIOR_JUDGMENTAL_ENGINEER executor=codex model=gpt-5.4
-[2026-04-02T01:10:19Z] STEP 1 END role=SENIOR_JUDGMENTAL_ENGINEER result=HANDOFF to=ENGINEER
-[2026-04-02T01:10:19Z] STEP 2 START role=ENGINEER executor=codex model=gpt-5.4
-[2026-04-02T01:20:35Z] STEP 2 END role=ENGINEER result=HANDOFF to=VALIDATOR
-[2026-04-02T01:20:35Z] STEP 3 START role=VALIDATOR executor=codex model=gpt-5.4
-[2026-04-02T01:22:49Z] STEP 3 END role=VALIDATOR result=HANDOFF to=ENGINEER
-[2026-04-02T01:22:49Z] STEP 4 START role=ENGINEER executor=codex model=gpt-5.4
-[2026-04-02T01:27:09Z] STEP 4 END role=ENGINEER result=HANDOFF to=VALIDATOR
-[2026-04-02T01:27:10Z] STEP 5 START role=VALIDATOR executor=codex model=gpt-5.4
-[2026-04-02T01:30:42Z] STEP 5 END role=VALIDATOR result=HANDOFF to=ENGINEER
-[2026-04-02T01:30:43Z] STEP 6 START role=ENGINEER executor=codex model=gpt-5.4
-[2026-04-02T01:33:36Z] STEP 6 END role=ENGINEER result=HANDOFF to=VALIDATOR
-[2026-04-02T01:33:36Z] STEP 7 START role=VALIDATOR executor=codex model=gpt-5.4
-[2026-04-02T01:35:32Z] STEP 7 END role=VALIDATOR result=HANDOFF to=ENGINEER
-[2026-04-02T01:35:32Z] STEP 8 START role=ENGINEER executor=codex model=gpt-5.4
-[2026-04-02T01:38:11Z] STEP 8 END role=ENGINEER result=HANDOFF to=VALIDATOR
-[2026-04-02T01:38:12Z] STEP 9 START role=VALIDATOR executor=codex model=gpt-5.4
-[2026-04-02T01:40:57Z] STEP 9 END role=VALIDATOR result=HANDOFF to=PLANNER
-[2026-04-02T01:40:57Z] STEP 10 START role=PLANNER executor=codex model=gpt-5.4
-[2026-04-02T01:44:29Z] STEP 10 END role=PLANNER result=HANDOFF to=SENIOR_JUDGMENTAL_ENGINEER
-[2026-04-02T01:44:29Z] REACHED_MAX_STEPS (10)
-[2026-04-02T01:44:32Z] STEP 1 START role=SENIOR_JUDGMENTAL_ENGINEER executor=codex model=gpt-5.4
-[2026-04-02T01:44:38Z] STEP 1 END role=SENIOR_JUDGMENTAL_ENGINEER result=INVALID_OUTPUT
-[2026-04-02T01:44:52Z] STEP 1 START role=SENIOR_JUDGMENTAL_ENGINEER executor=codex model=gpt-5.4
-[2026-04-02T01:46:04Z] STEP 1 END role=SENIOR_JUDGMENTAL_ENGINEER result=HANDOFF to=ENGINEER
-[2026-04-02T01:46:04Z] STEP 2 START role=ENGINEER executor=codex model=gpt-5.4
-
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,220p' ai/iterations/ITER-0001.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
-[32m succeeded in 0ms:[0m
-# ITER-0001 Decision Log
-
-| Timestamp | Role | Decision | Why |
-|-----------|------|----------|-----|
-| 2026-04-01T18:48:06-05:00 | PLANNER | Created the initial backlog, selected ITEM-0001 as the active item, and locked the Nuxt 4 + TypeScript CDK architecture from the goal/PRD. | The repo has only baton scaffolding, so the highest-leverage next step is a constrained baseline scaffold with explicit stack guidance before engineering starts. |
-| 2026-04-01T18:52:00-05:00 | PLANNER | Clarified ITEM-0001 as a scaffold-only slice, normalized the repo layout to `apps/web` and `infra/cdk`, and refreshed the handoff for judgment. | The goal/PRD were clear enough to remove planning ambiguity without escalating to the user, and the next role now has a concrete boundary to validate before engineering begins. |
-| 2026-04-01T18:57:38-05:00 | PLANNER | Reconfirmed that ITEM-0001 needs no user clarification, tightened the scaffold boundary in the decision lock, and refreshed the judgment handoff. | The existing planning state already aligned with the goal and PRD, so the correct move was to preserve momentum and send a sharper validation brief rather than reopen scope. |
-| 2026-04-01T18:58:39-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Approved `ITEM-0001` for implementation, explicitly overrode generic defaults with the project-specific Nuxt/CDK decisions, and narrowed engineering to an `npm` workspace baseline with placeholder app and stack wiring only. | The repo is empty enough that stronger judgment is useful here: remove template ambiguity now, choose the simplest workspace path, and block predictable scope creep before engineering starts. |
-| 2026-04-01T19:00:22-05:00 | ENGINEER | Stopped implementation and handed back to `SENIOR_JUDGMENTAL_ENGINEER` because the engineer prompt forbids the root-level workspace/config edits that `ITEM-0001` explicitly requires. | Proceeding would have violated the role contract; the accepted scope needs either an expanded allowed-edit list or a narrower item definition before coding can start. |
-| 2026-04-01T19:07:00-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Escalated to the user because the accepted ITEM-0001 scope still requires root workspace/config files that the ENGINEER prompt contract forbids, and this role cannot modify that prompt within its allowed edits. | This is a real constraint conflict, not a planning gap; the baton cannot move honestly until the user chooses either to expand the engineer edit boundary or to narrow the item scope. |
-| 2026-04-01T19:14:00-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Applied the user's `rescope_item_0001` answer, cleared the blocked state, and redirected engineering to an in-contract scaffold limited to `apps/web` and `infra/cdk`. | The ambiguity is resolved: progress now depends on disciplined implementation, not more planning. The old root-workspace requirement was the wrong hill to die on under the current role contract. |
-| 2026-04-01T19:22:00-05:00 | ENGINEER | Implemented the re-scoped `ITEM-0001` scaffold under `apps/web` and `infra/cdk`, then handed off to `VALIDATOR`. | The baseline now proves the intended Nuxt 4 and TypeScript CDK shape without violating the edit boundary or dragging deferred root-workspace and feature work into this slice. |
-| 2026-04-01T19:31:00-05:00 | VALIDATOR | Rejected the first scaffold pass and handed back to `ENGINEER` for a narrow CDK workflow fix. | The slice stayed within scope, but the checked-in `infra/cdk` synth contract is internally inconsistent because `cdk synth` points at compiled output that is never built as part of the advertised flow. |
-| 2026-04-01T19:36:00-05:00 | ENGINEER | Fixed the `infra/cdk` synth workflow by wiring the build step into `npm run synth`, verified from a clean `dist/` state, and handed the slice back to `VALIDATOR`. | This resolves the concrete implementation defect without expanding scope: the placeholder CDK scaffold now has an explicit, working primary synth path and still avoids deferred infra or feature work. |
-| 2026-04-02T00:18:05Z | VALIDATOR | Accepted `ITEM-0001` after confirming the re-scoped Nuxt and CDK scaffold builds and synthesizes cleanly within the allowed boundary, then handed back to `PLANNER`. | The remaining implementation is intentionally placeholder-only, and the key baseline contracts now hold: the Nuxt app builds, the CDK app synthesizes via its advertised script, and no deferred product scope leaked into this slice. |
-| 2026-04-01T19:45:00-05:00 | PLANNER | Closed `ITEM-0001`, promoted `ITEM-0002` as the active slice, and locked the next scope to tenant-scoped sessions plus streamed chat routes inside `apps/web`. | The scaffold baseline is now accepted, so the next highest-value step is the first end-to-end application vertical. Planning needs to keep this slice narrow by excluding uploads, root bootstrap work, and infra expansion while making the tenant and streaming contracts explicit. |
-| 2026-04-02T00:23:12Z | SENIOR_JUDGMENTAL_ENGINEER | Confirmed `ITEM-0002` needs no user escalation, tightened the scope locks for tenant-derived session/message routes plus POST-streamed chat, and handed implementation to `ENGINEER`. | The ambiguity is gone. The only risk now is engineer drift into uploads, auth, infra, or fake tenant inputs, so the right move is to lock those boundaries and push the first app vertical forward. |
-| 2026-04-01T19:27:43-05:00 | ENGINEER | Implemented the first tenant-scoped chat vertical in `apps/web`, including Aurora-shaped local persistence, minimal session/message APIs, and a streamed `POST /api/chat` contract consumed by the Nuxt UI, then handed off to `VALIDATOR`. | This satisfies the active slice without reopening deferred work: tenant scope stays server-derived, persistence stays replaceable, and the app now proves usable session creation, history reload, and streamed assistant replies inside the allowed edit boundary. |
-| 2026-04-02T00:30:46Z | VALIDATOR | Rejected the first `ITEM-0002` pass and handed it back to `ENGINEER` for root-page wiring and runtime tenant-config fixes. | Validation reproduced two concrete implementation defects: the built app still serves the default Nuxt welcome page instead of the chat UI, and changing `TENANT_ID` at server start does not change the resolved tenant scope after build, which breaks the same-image per-tenant deployment contract. |
-| 2026-04-02T00:34:30Z | ENGINEER | Fixed the Nuxt root entrypoint and runtime tenant resolution for `ITEM-0002`, then revalidated the built server before handing back to `VALIDATOR`. | The built app now serves the chat UI at `/`, server tenant scope honors runtime-only `TENANT_ID`, and the SSR page initializes from the server-derived tenant instead of the stale public fallback. |
-| 2026-04-02T00:36:31Z | VALIDATOR | Accepted `ITEM-0002` and handed the baton back to `PLANNER` after rebuilding and validating the built Nuxt artifact. | The two blocking defects are fixed, tenant scope now honors runtime `TENANT_ID` on the built server, the chat UI is served at `/`, and the session/chat routes still satisfy the locked streaming and tenant/user isolation contracts. |
-| 2026-04-01T19:38:06-05:00 | PLANNER | Closed `ITEM-0002`, promoted `ITEM-0003` as the active slice, and locked the upload scope to tenant-scoped session attachments with S3-shaped metadata and minimal chat integration inside `apps/web`. | The chat vertical is now accepted, so the next highest-value step is to add guarded session file uploads without prematurely dragging in AWS wiring, cleanup jobs, or full Bedrock attachment handling. |
-| 2026-04-02T00:40:04Z | SENIOR_JUDGMENTAL_ENGINEER | Locked `ITEM-0003` for engineering, clarifying atomic upload validation, multipart route shape, S3-shaped dev storage metadata, and the minimal chat attachment boundary. | There is no product ambiguity left. The only realistic failure mode is scope drift into fake infrastructure or sloppy attachment semantics, so the correct move is to pin those contracts now and hand directly to `ENGINEER`. |
-| 2026-04-02T00:47:18Z | ENGINEER | Implemented `ITEM-0003` in `apps/web`, adding tenant-scoped multipart uploads, S3-shaped local storage metadata, persisted session-file/message attachment records, and minimal UI/chat attachment handling before handing off to `VALIDATOR`. | The slice now enforces the locked upload limits and ownership rules on the server, keeps attachment metadata on the existing replaceable seams, and proves end-to-end upload plus attachment context without dragging in real AWS or wider infra work. |
-| 2026-04-02T00:49:17Z | VALIDATOR | Accepted `ITEM-0003` after rebuilding the app and validating upload limits, session ownership, attachment persistence, chat linkage, and runtime tenant scoping on the built artifact. | The active slice now meets the locked contract end to end: uploads are atomically validated, stored metadata is S3-shaped and tenant/user/session scoped, attachment-aware chat rejects stolen file IDs, and runtime `TENANT_ID` still governs server behavior without caller override. |
-| 2026-04-01T19:50:39-05:00 | PLANNER | Closed `ITEM-0003`, promoted `ITEM-0004` as the active slice, and locked the next work to real CDK infrastructure across `SharedStack`, `TenantStack`, and `UIStack` with the same-image-per-tenant deployment model preserved. | The app-side verticals are accepted, so the next bottleneck is infrastructure. Planning needs to keep this slice concrete enough to replace placeholder stacks with deployable PoC resources while still rejecting root-workspace churn, separate service sprawl, and manual-console shortcuts. |
-| 2026-04-01T20:09:23-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Locked `ITEM-0004` for engineering, clarifying the concrete stack split, required in-repo tenant config source, acceptable PoC shims, and explicit no-placeholder/no-manual-setup boundaries. | The active ambiguity is gone. The codebase still has placeholder-only CDK stacks, so the right judgment move is to force real resource delivery and keep engineering from cheating with more outputs, root-workspace churn, or fake shared-tenant shortcuts. |
-| 2026-04-02T01:19:55Z | ENGINEER | Replaced the placeholder CDK baseline with synthesized shared, tenant, and per-tenant UI stacks, added the in-repo tenant config source, and added the minimal Nuxt Docker/start artifacts for the shared ECS image contract before handing off to `VALIDATOR`. | The active slice required real deployable stack shape rather than more placeholder outputs. The implementation now proves the shared-vs-tenant-vs-UI split, same-image-per-tenant wiring, and PoC bootstrap shims under `cdk synth`, while leaving the only notable caveat as the EventBridge Bedrock ingestion shim warning and the expected prerequisite that the shared ECR image tag be pushed before deploy. |
-| 2026-04-02T01:35:00Z | VALIDATOR | Rejected the first `ITEM-0004` pass and handed it back to `ENGINEER` for two deploy-path fixes: a real KB ingestion scheduler target and a self-contained shared-image deployment path. | The stack boundary is materially correct and the app plus CDK packages build, but the current scheduler shim is wired to an invalid AWS SDK service name and the UI stacks still depend on a separately pushed `latest` image, so the slice does not yet satisfy the locked deployability contract. |
-| 2026-04-02T01:55:00Z | ENGINEER | Replaced the invalid ingestion scheduler shim with an EventBridge Scheduler universal Bedrock target and made the UI image build self-contained from `apps/web` during CDK synth/deploy, then re-verified the app and CDK packages. | This fixes the exact deployability gaps the validator found without reopening broader scope: the scheduler now synthesizes cleanly as a real API invocation target, and the per-tenant UI services no longer hide a manual image-push prerequisite outside `cdk deploy --all`. |
-| 2026-04-02T01:29:26+00:00 | VALIDATOR | Rejected the current `ITEM-0004` pass and handed it back to `ENGINEER` for a narrow Aurora schema bootstrap fix. | Build and synth now pass, but the custom-resource schema bootstrap still submits joined multi-statement DDL through one Data API `ExecuteStatement` call, which makes the deploy path unreliable for creating the shared app schema and tenant vector schemas. |
-| 2026-04-01T20:33:02-05:00 | ENGINEER | Replaced the Aurora schema bootstrap's single-call Data API path with a provider-backed custom resource that executes ordered SQL statements one at a time, then re-ran the required app build, CDK build, and CDK synth checks. | The remaining validator issue was deploy-safety, not stack design. Executing each statement separately preserves the accepted shared/tenant/UI boundaries while making shared and tenant schema creation compatible with the RDS Data API contract. |
-| 2026-04-02T02:08:00Z | VALIDATOR | Rejected the current `ITEM-0004` pass again and handed it back to `ENGINEER` because the new one-statement-at-a-time schema runner is being fed SQL fragments instead of complete statements. | The package builds and CDK synth succeed, but deploy would still fail: the shared and tenant schema arrays are split across individual SQL lines, so the custom resource now attempts invalid standalone Data API calls for partial `CREATE TABLE` and `CREATE INDEX` fragments. |
-| 2026-04-02T01:37:30Z | ENGINEER | Replaced the fragmented shared and tenant Aurora DDL arrays with complete ordered SQL statements, then re-ran the required app build, CDK build, and CDK synth checks before handing back to `VALIDATOR`. | The custom resource contract was already correct; the defect was in the inputs. Feeding complete `CREATE SCHEMA`, `CREATE EXTENSION`, `CREATE TABLE`, and `CREATE INDEX` statements preserves the accepted provider-backed bootstrap path while making each Data API execution unit valid and deployable. |
-| 2026-04-02T02:15:00Z | VALIDATOR | Rejected the current `ITEM-0004` pass again and handed back to `PLANNER` because the shared Aurora bootstrap DDL no longer matches the existing Nuxt app persistence contract. | The ordered-statement schema runner is now structurally sound, and build/synth still pass, but the shared `app` tables use column names and fields (`session_id`, `message_id`, `attachment_ids`, missing `storage_bucket`) that disagree with the current Aurora-shaped records in `apps/web`, creating a concrete deployability and integration risk. |
-| 2026-04-01T20:41:38-05:00 | PLANNER | Kept `ITEM-0004` in progress, narrowed the revise scope to shared Aurora app-schema alignment with the existing Nuxt persistence contract, and refreshed the handoff so judgment preserves the accepted infra design. | The validator found a concrete contract mismatch rather than new product ambiguity. The right planning move is to lock a small corrective pass, avoid reopening accepted CDK architecture decisions, and send a precise review brief back through judgment. |
-| 2026-04-02T02:31:00Z | SENIOR_JUDGMENTAL_ENGINEER | Confirmed `ITEM-0004` remains a narrow engineering revise pass, rejected any scope reset or user escalation, and handed back a precise shared-schema alignment fix. | The only live issue is the mismatch between the shared Aurora bootstrap DDL and the existing Nuxt persistence seam. The accepted infra design is already good enough; engineering just needs to make the schema names and ownership fields match and re-run the locked verification commands. |
-
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,220p' ai/review.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc "sed -n '1,260p' ai/review.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 # Review Notes
 
@@ -2201,547 +661,496 @@ Use this file for reviewer outcomes:
 - The current codebase still contains placeholder-only CDK stacks in [infra/cdk/lib/shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) and [infra/cdk/lib/tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts); engineering should treat that as debt to replace, not a scaffold to decorate with more outputs.
 - `ai/requirements.md` remains template residue and is not authoritative for this item. Source of truth is `ai/goal.yaml`, `ai/prd.yaml`, `ai/active_item.yaml`, `ai/decision-lock.yaml`, and the item-specific simplification rules.
 
-diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
-index 73482a3f9478013768a2f96cb0b871a311ffa7d5..06e7bb11a90033b443f01f81193d0d78dc64584a
---- a/infra/cdk/lib/shared-stack.ts
-+++ b/infra/cdk/lib/shared-stack.ts
-@@ -29,7 +29,7 @@
-   "CREATE EXTENSION IF NOT EXISTS vector;",
-   `
-     CREATE TABLE IF NOT EXISTS app.sessions (
--      session_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
-       user_id text NOT NULL,
-       title text NOT NULL DEFAULT 'New chat',
-@@ -39,13 +39,14 @@
-   `,
-   `
-     CREATE TABLE IF NOT EXISTS app.messages (
--      message_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-+      user_id text NOT NULL,
-       role text NOT NULL,
-       content text NOT NULL,
-       citations jsonb NOT NULL DEFAULT '[]'::jsonb,
--      attachment_ids jsonb NOT NULL DEFAULT '[]'::jsonb,
-+      attached_files jsonb NOT NULL DEFAULT '[]'::jsonb,
-       created_at timestamptz NOT NULL DEFAULT now()
-     );
-   `,
-@@ -53,12 +54,13 @@
-     CREATE TABLE IF NOT EXISTS app.session_files (
-       file_id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-       user_id text NOT NULL,
-       original_name text NOT NULL,
-       sanitized_name text NOT NULL,
-       content_type text NOT NULL,
-       size_bytes bigint NOT NULL,
-+      storage_bucket text NOT NULL,
-       storage_key text NOT NULL,
-       status text NOT NULL,
-       created_at timestamptz NOT NULL DEFAULT now(),
+## 2026-04-02 SENIOR_JUDGMENTAL_ENGINEER
+
+- **REVISE**: `ITEM-0005` is not acceptable yet. There is no user ambiguity, but there is a concrete product-contract defect in the assistant fallback path.
+- Local validation that passed:
+  - `cd apps/web && npm run build`
+  - `cd infra/cdk && npm run synth`
+  - Running the built Nuxt server with `TENANT_ID=tenant-alpha` confirmed runtime tenant scoping at `/api/health`, tenant/user-scoped session creation, `404` for cross-user session reads, atomic file ownership enforcement, and POST-streamed chat persistence with attachment metadata.
+- The acceptance blocker is in [chat-assistant.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-assistant.ts): the current implementation always returns a deterministic `"assistant stub response"` plus a synthetic citation like `tenant-kb://<tenant>/local-stub`, even when the question has no grounded KB evidence. That directly conflicts with the success criterion requiring a KB limitation message instead of a hallucinated or fake-grounded answer.
+- The live response from [chat.post.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/api/chat.post.ts) proves the mismatch: the streamed assistant reply for an arbitrary question still ends with `"This deterministic placeholder preserves the chat contract until the Bedrock adapter is wired in."` and persists the synthetic citation. That is honest developer text, but it is not the accepted product behavior.
+- Keep the revise scope narrow:
+  - Preserve the existing tenant/user/file isolation behavior and the current POST `ReadableStream` chat contract.
+  - Preserve the existing persistence shape in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts) and the accepted CDK package state.
+  - Fix only the assistant seam so that locally ungrounded questions return a clear limitation response and no fake citation, while still allowing bounded session/file context to inform replies when there is actual local evidence to summarize.
+  - After the fix, re-run `cd apps/web && npm run build` and perform a live POST `/api/chat` check showing the no-relevant-content limitation path instead of the current synthetic grounded stub.
+
+## 2026-04-02 ENGINEER
+
+- Implemented the narrow `ITEM-0004` revise pass by correcting the shared Aurora `app` schema DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) to match the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
+- Updated `app.sessions` to use primary key column `id`, updated `app.messages` to use `id`, include `user_id`, reference `sessions(id)`, and store `attached_files`, and updated `app.session_files` to reference `sessions(id)` and include `storage_bucket`.
+
+## 2026-04-02 ENGINEER
+
+- Implemented the narrow `ITEM-0005` follow-up revise pass in [chat.post.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/api/chat.post.ts).
+- Changed attachment lookup so `POST /api/chat` only loads and validates attachments when the caller explicitly provides non-empty `fileIds`; omitting `fileIds` now means "no new attachments for this turn" instead of implicitly selecting every session file.
+- Preserved the existing ownership checks for explicit attachments: invalid or stolen `fileIds` still fail with `400 One or more fileIds are invalid for this tenant, user, or session`.
+- Verification performed:
+  - `cd apps/web && npm run build` succeeded.
+  - `cd infra/cdk && npm run synth` succeeded.
+  - Ran the built Nuxt server with `TENANT_ID=tenant-alpha`.
+  - Reproduced the validator flow end to end: created a session for `user-a`, uploaded `note.txt`, completed a first streamed chat turn with the uploaded `fileId`, then completed a second streamed chat turn in the same session with no `fileIds`.
+  - The second turn returned `HTTP/1.1 200 OK`, the saved second user message persisted with `attached_files: []`, and the persisted assistant reply kept the fixed limitation behavior with `citations: []` while still referencing recent session-file metadata in its content.
+- Left the accepted stack boundaries and ordered-statement Aurora custom resource unchanged.
+- Verification performed:
+  - `cd apps/web && npm run build` succeeded.
+  - `cd infra/cdk && npm run synth` succeeded.
+
+## 2026-04-02 SENIOR_JUDGMENTAL_ENGINEER
+
+- **REVISE**: `ITEM-0004` stays in engineering as a narrow shared-schema alignment fix. There is no product ambiguity and no reason to escalate to the user.
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,240p' ai/iterations/ITER-0001.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+# ITER-0001 Decision Log
+
+| Timestamp | Role | Decision | Why |
+|-----------|------|----------|-----|
+| 2026-04-01T18:48:06-05:00 | PLANNER | Created the initial backlog, selected ITEM-0001 as the active item, and locked the Nuxt 4 + TypeScript CDK architecture from the goal/PRD. | The repo has only baton scaffolding, so the highest-leverage next step is a constrained baseline scaffold with explicit stack guidance before engineering starts. |
+| 2026-04-01T18:52:00-05:00 | PLANNER | Clarified ITEM-0001 as a scaffold-only slice, normalized the repo layout to `apps/web` and `infra/cdk`, and refreshed the handoff for judgment. | The goal/PRD were clear enough to remove planning ambiguity without escalating to the user, and the next role now has a concrete boundary to validate before engineering begins. |
+| 2026-04-01T18:57:38-05:00 | PLANNER | Reconfirmed that ITEM-0001 needs no user clarification, tightened the scaffold boundary in the decision lock, and refreshed the judgment handoff. | The existing planning state already aligned with the goal and PRD, so the correct move was to preserve momentum and send a sharper validation brief rather than reopen scope. |
+| 2026-04-01T18:58:39-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Approved `ITEM-0001` for implementation, explicitly overrode generic defaults with the project-specific Nuxt/CDK decisions, and narrowed engineering to an `npm` workspace baseline with placeholder app and stack wiring only. | The repo is empty enough that stronger judgment is useful here: remove template ambiguity now, choose the simplest workspace path, and block predictable scope creep before engineering starts. |
+| 2026-04-01T19:00:22-05:00 | ENGINEER | Stopped implementation and handed back to `SENIOR_JUDGMENTAL_ENGINEER` because the engineer prompt forbids the root-level workspace/config edits that `ITEM-0001` explicitly requires. | Proceeding would have violated the role contract; the accepted scope needs either an expanded allowed-edit list or a narrower item definition before coding can start. |
+| 2026-04-01T19:07:00-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Escalated to the user because the accepted ITEM-0001 scope still requires root workspace/config files that the ENGINEER prompt contract forbids, and this role cannot modify that prompt within its allowed edits. | This is a real constraint conflict, not a planning gap; the baton cannot move honestly until the user chooses either to expand the engineer edit boundary or to narrow the item scope. |
+| 2026-04-01T19:14:00-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Applied the user's `rescope_item_0001` answer, cleared the blocked state, and redirected engineering to an in-contract scaffold limited to `apps/web` and `infra/cdk`. | The ambiguity is resolved: progress now depends on disciplined implementation, not more planning. The old root-workspace requirement was the wrong hill to die on under the current role contract. |
+| 2026-04-01T19:22:00-05:00 | ENGINEER | Implemented the re-scoped `ITEM-0001` scaffold under `apps/web` and `infra/cdk`, then handed off to `VALIDATOR`. | The baseline now proves the intended Nuxt 4 and TypeScript CDK shape without violating the edit boundary or dragging deferred root-workspace and feature work into this slice. |
+| 2026-04-01T19:31:00-05:00 | VALIDATOR | Rejected the first scaffold pass and handed back to `ENGINEER` for a narrow CDK workflow fix. | The slice stayed within scope, but the checked-in `infra/cdk` synth contract is internally inconsistent because `cdk synth` points at compiled output that is never built as part of the advertised flow. |
+| 2026-04-01T19:36:00-05:00 | ENGINEER | Fixed the `infra/cdk` synth workflow by wiring the build step into `npm run synth`, verified from a clean `dist/` state, and handed the slice back to `VALIDATOR`. | This resolves the concrete implementation defect without expanding scope: the placeholder CDK scaffold now has an explicit, working primary synth path and still avoids deferred infra or feature work. |
+| 2026-04-02T00:18:05Z | VALIDATOR | Accepted `ITEM-0001` after confirming the re-scoped Nuxt and CDK scaffold builds and synthesizes cleanly within the allowed boundary, then handed back to `PLANNER`. | The remaining implementation is intentionally placeholder-only, and the key baseline contracts now hold: the Nuxt app builds, the CDK app synthesizes via its advertised script, and no deferred product scope leaked into this slice. |
+| 2026-04-01T19:45:00-05:00 | PLANNER | Closed `ITEM-0001`, promoted `ITEM-0002` as the active slice, and locked the next scope to tenant-scoped sessions plus streamed chat routes inside `apps/web`. | The scaffold baseline is now accepted, so the next highest-value step is the first end-to-end application vertical. Planning needs to keep this slice narrow by excluding uploads, root bootstrap work, and infra expansion while making the tenant and streaming contracts explicit. |
+| 2026-04-02T00:23:12Z | SENIOR_JUDGMENTAL_ENGINEER | Confirmed `ITEM-0002` needs no user escalation, tightened the scope locks for tenant-derived session/message routes plus POST-streamed chat, and handed implementation to `ENGINEER`. | The ambiguity is gone. The only risk now is engineer drift into uploads, auth, infra, or fake tenant inputs, so the right move is to lock those boundaries and push the first app vertical forward. |
+| 2026-04-01T19:27:43-05:00 | ENGINEER | Implemented the first tenant-scoped chat vertical in `apps/web`, including Aurora-shaped local persistence, minimal session/message APIs, and a streamed `POST /api/chat` contract consumed by the Nuxt UI, then handed off to `VALIDATOR`. | This satisfies the active slice without reopening deferred work: tenant scope stays server-derived, persistence stays replaceable, and the app now proves usable session creation, history reload, and streamed assistant replies inside the allowed edit boundary. |
+| 2026-04-02T00:30:46Z | VALIDATOR | Rejected the first `ITEM-0002` pass and handed it back to `ENGINEER` for root-page wiring and runtime tenant-config fixes. | Validation reproduced two concrete implementation defects: the built app still serves the default Nuxt welcome page instead of the chat UI, and changing `TENANT_ID` at server start does not change the resolved tenant scope after build, which breaks the same-image per-tenant deployment contract. |
+| 2026-04-02T00:34:30Z | ENGINEER | Fixed the Nuxt root entrypoint and runtime tenant resolution for `ITEM-0002`, then revalidated the built server before handing back to `VALIDATOR`. | The built app now serves the chat UI at `/`, server tenant scope honors runtime-only `TENANT_ID`, and the SSR page initializes from the server-derived tenant instead of the stale public fallback. |
+| 2026-04-02T00:36:31Z | VALIDATOR | Accepted `ITEM-0002` and handed the baton back to `PLANNER` after rebuilding and validating the built Nuxt artifact. | The two blocking defects are fixed, tenant scope now honors runtime `TENANT_ID` on the built server, the chat UI is served at `/`, and the session/chat routes still satisfy the locked streaming and tenant/user isolation contracts. |
+| 2026-04-01T19:38:06-05:00 | PLANNER | Closed `ITEM-0002`, promoted `ITEM-0003` as the active slice, and locked the upload scope to tenant-scoped session attachments with S3-shaped metadata and minimal chat integration inside `apps/web`. | The chat vertical is now accepted, so the next highest-value step is to add guarded session file uploads without prematurely dragging in AWS wiring, cleanup jobs, or full Bedrock attachment handling. |
+| 2026-04-02T00:40:04Z | SENIOR_JUDGMENTAL_ENGINEER | Locked `ITEM-0003` for engineering, clarifying atomic upload validation, multipart route shape, S3-shaped dev storage metadata, and the minimal chat attachment boundary. | There is no product ambiguity left. The only realistic failure mode is scope drift into fake infrastructure or sloppy attachment semantics, so the correct move is to pin those contracts now and hand directly to `ENGINEER`. |
+| 2026-04-02T00:47:18Z | ENGINEER | Implemented `ITEM-0003` in `apps/web`, adding tenant-scoped multipart uploads, S3-shaped local storage metadata, persisted session-file/message attachment records, and minimal UI/chat attachment handling before handing off to `VALIDATOR`. | The slice now enforces the locked upload limits and ownership rules on the server, keeps attachment metadata on the existing replaceable seams, and proves end-to-end upload plus attachment context without dragging in real AWS or wider infra work. |
+| 2026-04-02T00:49:17Z | VALIDATOR | Accepted `ITEM-0003` after rebuilding the app and validating upload limits, session ownership, attachment persistence, chat linkage, and runtime tenant scoping on the built artifact. | The active slice now meets the locked contract end to end: uploads are atomically validated, stored metadata is S3-shaped and tenant/user/session scoped, attachment-aware chat rejects stolen file IDs, and runtime `TENANT_ID` still governs server behavior without caller override. |
+| 2026-04-01T19:50:39-05:00 | PLANNER | Closed `ITEM-0003`, promoted `ITEM-0004` as the active slice, and locked the next work to real CDK infrastructure across `SharedStack`, `TenantStack`, and `UIStack` with the same-image-per-tenant deployment model preserved. | The app-side verticals are accepted, so the next bottleneck is infrastructure. Planning needs to keep this slice concrete enough to replace placeholder stacks with deployable PoC resources while still rejecting root-workspace churn, separate service sprawl, and manual-console shortcuts. |
+| 2026-04-01T20:09:23-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Locked `ITEM-0004` for engineering, clarifying the concrete stack split, required in-repo tenant config source, acceptable PoC shims, and explicit no-placeholder/no-manual-setup boundaries. | The active ambiguity is gone. The codebase still has placeholder-only CDK stacks, so the right judgment move is to force real resource delivery and keep engineering from cheating with more outputs, root-workspace churn, or fake shared-tenant shortcuts. |
+| 2026-04-02T01:19:55Z | ENGINEER | Replaced the placeholder CDK baseline with synthesized shared, tenant, and per-tenant UI stacks, added the in-repo tenant config source, and added the minimal Nuxt Docker/start artifacts for the shared ECS image contract before handing off to `VALIDATOR`. | The active slice required real deployable stack shape rather than more placeholder outputs. The implementation now proves the shared-vs-tenant-vs-UI split, same-image-per-tenant wiring, and PoC bootstrap shims under `cdk synth`, while leaving the only notable caveat as the EventBridge Bedrock ingestion shim warning and the expected prerequisite that the shared ECR image tag be pushed before deploy. |
+| 2026-04-02T01:35:00Z | VALIDATOR | Rejected the first `ITEM-0004` pass and handed it back to `ENGINEER` for two deploy-path fixes: a real KB ingestion scheduler target and a self-contained shared-image deployment path. | The stack boundary is materially correct and the app plus CDK packages build, but the current scheduler shim is wired to an invalid AWS SDK service name and the UI stacks still depend on a separately pushed `latest` image, so the slice does not yet satisfy the locked deployability contract. |
+| 2026-04-02T01:55:00Z | ENGINEER | Replaced the invalid ingestion scheduler shim with an EventBridge Scheduler universal Bedrock target and made the UI image build self-contained from `apps/web` during CDK synth/deploy, then re-verified the app and CDK packages. | This fixes the exact deployability gaps the validator found without reopening broader scope: the scheduler now synthesizes cleanly as a real API invocation target, and the per-tenant UI services no longer hide a manual image-push prerequisite outside `cdk deploy --all`. |
+| 2026-04-02T01:29:26+00:00 | VALIDATOR | Rejected the current `ITEM-0004` pass and handed it back to `ENGINEER` for a narrow Aurora schema bootstrap fix. | Build and synth now pass, but the custom-resource schema bootstrap still submits joined multi-statement DDL through one Data API `ExecuteStatement` call, which makes the deploy path unreliable for creating the shared app schema and tenant vector schemas. |
+| 2026-04-01T20:33:02-05:00 | ENGINEER | Replaced the Aurora schema bootstrap's single-call Data API path with a provider-backed custom resource that executes ordered SQL statements one at a time, then re-ran the required app build, CDK build, and CDK synth checks. | The remaining validator issue was deploy-safety, not stack design. Executing each statement separately preserves the accepted shared/tenant/UI boundaries while making shared and tenant schema creation compatible with the RDS Data API contract. |
+| 2026-04-02T02:08:00Z | VALIDATOR | Rejected the current `ITEM-0004` pass again and handed it back to `ENGINEER` because the new one-statement-at-a-time schema runner is being fed SQL fragments instead of complete statements. | The package builds and CDK synth succeed, but deploy would still fail: the shared and tenant schema arrays are split across individual SQL lines, so the custom resource now attempts invalid standalone Data API calls for partial `CREATE TABLE` and `CREATE INDEX` fragments. |
+| 2026-04-02T01:37:30Z | ENGINEER | Replaced the fragmented shared and tenant Aurora DDL arrays with complete ordered SQL statements, then re-ran the required app build, CDK build, and CDK synth checks before handing back to `VALIDATOR`. | The custom resource contract was already correct; the defect was in the inputs. Feeding complete `CREATE SCHEMA`, `CREATE EXTENSION`, `CREATE TABLE`, and `CREATE INDEX` statements preserves the accepted provider-backed bootstrap path while making each Data API execution unit valid and deployable. |
+| 2026-04-02T02:15:00Z | VALIDATOR | Rejected the current `ITEM-0004` pass again and handed back to `PLANNER` because the shared Aurora bootstrap DDL no longer matches the existing Nuxt app persistence contract. | The ordered-statement schema runner is now structurally sound, and build/synth still pass, but the shared `app` tables use column names and fields (`session_id`, `message_id`, `attachment_ids`, missing `storage_bucket`) that disagree with the current Aurora-shaped records in `apps/web`, creating a concrete deployability and integration risk. |
+| 2026-04-01T20:41:38-05:00 | PLANNER | Kept `ITEM-0004` in progress, narrowed the revise scope to shared Aurora app-schema alignment with the existing Nuxt persistence contract, and refreshed the handoff so judgment preserves the accepted infra design. | The validator found a concrete contract mismatch rather than new product ambiguity. The right planning move is to lock a small corrective pass, avoid reopening accepted CDK architecture decisions, and send a precise review brief back through judgment. |
+| 2026-04-02T02:31:00Z | SENIOR_JUDGMENTAL_ENGINEER | Confirmed `ITEM-0004` remains a narrow engineering revise pass, rejected any scope reset or user escalation, and handed back a precise shared-schema alignment fix. | The only live issue is the mismatch between the shared Aurora bootstrap DDL and the existing Nuxt persistence seam. The accepted infra design is already good enough; engineering just needs to make the schema names and ownership fields match and re-run the locked verification commands. |
+| 2026-04-02T02:50:00Z | ENGINEER | Aligned the shared Aurora `app` schema DDL with the existing Nuxt persistence contract in `chat-store.ts` and re-ran the required `apps/web` build plus `infra/cdk` synth checks before handing off to `VALIDATOR`. | The revise scope was intentionally narrow. Fixing the DDL in place resolves the concrete contract mismatch without reopening the accepted SharedStack/TenantStack/UIStack design, the ordered-statement schema custom resource, or the self-contained deployment path. |
+| 2026-04-01T20:49:29-05:00 | VALIDATOR | Accepted `ITEM-0004` after confirming the shared Aurora bootstrap DDL now matches the app persistence contract and re-running the locked app build plus CDK synth verification. | The narrow revise pass is complete, the accepted deploy-path fixes remain intact, and no new ambiguity surfaced that would justify another engineering loop or escalation. |
+| 2026-04-01T20:50:39-05:00 | PLANNER | Closed `ITEM-0004`, promoted `ITEM-0005` as the active slice, and reframed the next loop as validation-first against the stated success criteria and locked contracts. | The infrastructure revise pass is accepted, so the next bottleneck is proof rather than more feature work. Planning needs to preserve momentum by turning the remaining acceptance goal into an evidence-driven validation brief that separates locally proven behavior from any external AWS/Bedrock dependencies. |
+| 2026-04-02T02:54:00Z | SENIOR_JUDGMENTAL_ENGINEER | Rejected acceptance of `ITEM-0005` and routed a narrow fix back to `ENGINEER` for the assistant fallback contract. | Local evidence now proves the tenant/user/file isolation path, app build, and CDK synth, but the assistant still returns a synthetic grounded stub response and fake citation instead of the required limitation message when no KB grounding exists. |
+| 2026-04-02T02:00:53Z | VALIDATOR | Rejected the current `ITEM-0005` pass and handed it back to `ENGINEER` for a narrow follow-up-turn attachment fix. | The fake-grounding fallback defect is fixed and the package-level plus isolation checks still pass, but a later `POST /api/chat` in a session with uploaded files now fails with `400` when `fileIds` are omitted, which breaks the accepted attachment-aware subsequent-turn contract. |
+| 2026-04-02T02:05:27Z | ENGINEER | Fixed the follow-up-turn attachment validation in `POST /api/chat`, then re-ran the app build, CDK synth, and a live built-server repro covering upload plus a later chat turn with no `fileIds`. | The defect was narrowly scoped: omitting `fileIds` should mean no new attachments for that turn, not "attach every session file and fail validation." The fix preserves tenant/runtime scoping, explicit invalid-file rejection, the limitation-response fallback, and the existing POST-stream contract. |
+| 2026-04-01T21:08:34-05:00 | VALIDATOR | Accepted `ITEM-0005` after re-running the package checks and confirming the built app now supports follow-up chat turns without `fileIds` while still rejecting invalid file ownership references. | The narrow revise pass is complete: the second-turn attachment contract now matches the locked behavior, the limitation-response fallback still persists `citations: []`, and the remaining AWS/Bedrock proof gaps are correctly external rather than hidden regressions. |
+| 2026-04-02T02:10:06Z | PLANNER | Closed `ITEM-0005` in the backlog, kept the active record on closeout judgment, and handed the loop to `SENIOR_JUDGMENTAL_ENGINEER` with explicit local-versus-external proof boundaries. | The validator evidence is sufficient to stop implementation churn. The only honest next step is judgment: confirm backlog completion for the local repo state while naming the AWS/Bedrock acceptance criteria that still require real deployed infrastructure to prove. |
+| 2026-04-02T02:20:00Z | SENIOR_JUDGMENTAL_ENGINEER | Closed out the current loop by accepting the repo as locally complete through `ITEM-0005`, recording the remaining AWS/Bedrock gaps as external proof work rather than hidden engineering defects, and handing off conservatively. | The written validation evidence is internally consistent and already proves the local contracts that matter. Reopening engineering here would be churn unless a new scoped item or real-environment validation task is created. |
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,220p' apps/web/server/utils/chat-assistant.ts"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+import type { ChatCitationRecord, ChatMessageRecord } from "./chat-store"
+
+interface AssistantReply {
+  content: string
+  citations: ChatCitationRecord[]
+}
+
+export function generateAssistantReply(input: {
+  tenantId: string
+  userMessage: string
+  history: ChatMessageRecord[]
+}): AssistantReply {
+  const trimmedMessage = input.userMessage.trim()
+  const priorTurns = excludeCurrentUserTurn(input.history, trimmedMessage)
+  const recentTurns = priorTurns.slice(-3)
+  const recentAttachedFiles = recentTurns
+    .flatMap(message => message.attached_files)
+    .filter((file, index, files) => files.findIndex(entry => entry.file_id === file.file_id) === index)
+    .slice(-4)
+  const attachmentSummary = recentAttachedFiles.length
+    ? recentAttachedFiles
+      .map(file => `${file.original_name} (${file.content_type}, ${file.size_bytes} bytes)`)
+      .join(" | ")
+    : ""
+
+  const content = recentAttachedFiles.length
+    ? [
+      `I can't provide a grounded tenant knowledge base answer for "${trimmedMessage}" in this local environment because no retrieved KB evidence is available.`,
+      `The only session-scoped evidence I can point to right now is the attached file metadata: ${attachmentSummary}.`,
+      "Ask about one of those files after relevant content is attached or after the Bedrock grounding path is wired in.",
+    ].join(" ")
+    : [
+      `I can't provide a grounded tenant knowledge base answer for "${trimmedMessage}" in this local environment because no retrieved KB evidence is available.`,
+      `No attached session files were available in recent turns for tenant ${input.tenantId}.`,
+      "Upload a relevant document or use the Bedrock-backed path before relying on an answer here.",
+    ].join(" ")
+
+  return {
+    content,
+    citations: [],
+  }
+}
+
+function excludeCurrentUserTurn(history: ChatMessageRecord[], userMessage: string) {
+  const lastMessage = history.at(-1)
+
+  if (
+    lastMessage?.role === "user"
+    && lastMessage.content.trim() === userMessage
+  ) {
+    return history.slice(0, -1)
+  }
+
+  return history
+}
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,220p' apps/web/server/api/chat.post.ts"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+import { generateAssistantReply } from "../utils/chat-assistant"
+import { useChatStore } from "../utils/chat-store"
+import { getTenantId } from "../utils/tenant"
+
+interface ChatRequestBody {
+  sessionId?: string
+  userId?: string
+  message?: string
+  fileIds?: string[]
+}
+
+function writeSseChunk(data: unknown) {
+  return `data: ${JSON.stringify(data)}\n\n`
+}
+
+export default defineEventHandler(async event => {
+  const body = await readBody<ChatRequestBody>(event)
+  const userId = body?.userId?.trim()
+  const message = body?.message?.trim()
+  const hasExplicitFileIds = Array.isArray(body?.fileIds)
+  const fileIds = hasExplicitFileIds
+    ? body.fileIds.filter((fileId): fileId is string => typeof fileId === "string" && fileId.trim().length > 0)
+    : []
+
+  if (!userId) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "userId is required",
+    })
+  }
+
+  if (!message) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "message is required",
+    })
+  }
+
+  const tenantId = getTenantId()
+  const store = useChatStore()
+  let session = body.sessionId
+    ? store.getSession({
+      tenantId,
+      sessionId: body.sessionId,
+      userId,
+    })
+    : null
+
+  if (!session) {
+    session = store.createSession({
+      tenantId,
+      userId,
+      title: message,
+    })
+  }
+
+  const attachedFiles = fileIds.length > 0
+    ? store.getSessionFiles({
+      tenantId,
+      sessionId: session.id,
+      userId,
+      fileIds,
+    })
+    : []
+
+  if (hasExplicitFileIds && fileIds.length > 0 && attachedFiles.length !== fileIds.length) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "One or more fileIds are invalid for this tenant, user, or session",
+    })
+  }
+
+  const userMessage = store.appendMessage({
+    tenantId,
+    sessionId: session.id,
+    userId,
+    role: "user",
+    content: message,
+    attachedFiles,
+  })
+
+  const history = store.listMessages({
+    tenantId,
+    sessionId: session.id,
+    userId,
+  })
+
+  const assistantReply = generateAssistantReply({
+    tenantId,
+    userMessage: message,
+    history,
+  })
+
+  const encoder = new TextEncoder()
+  const tokens = assistantReply.content.split(" ")
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      controller.enqueue(encoder.encode(writeSseChunk({
+        type: "session",
+        session,
+      })))
+
+      controller.enqueue(encoder.encode(writeSseChunk({
+        type: "message_saved",
+        message: userMessage,
+      })))
+
+      controller.enqueue(encoder.encode(writeSseChunk({
+        type: "assistant_start",
+      })))
+
+      let accumulated = ""
+
+      for (const token of tokens) {
+        const chunk = accumulated ? ` ${token}` : token
+        accumulated += chunk
+
+        controller.enqueue(encoder.encode(writeSseChunk({
+          type: "assistant_delta",
+          delta: chunk,
+        })))
+
+        await new Promise(resolve => setTimeout(resolve, 20))
+      }
+
+      const assistantMessage = store.appendMessage({
+        tenantId,
+        sessionId: session.id,
+        userId,
+        role: "assistant",
+        content: accumulated,
+        citations: assistantReply.citations,
+      })
+
+      controller.enqueue(encoder.encode(writeSseChunk({
+        type: "assistant_done",
+        message: assistantMessage,
+      })))
+
+      controller.enqueue(encoder.encode(writeSseChunk({
+        type: "done",
+        sessionId: session.id,
+      })))
+
+      controller.close()
+    },
+  })
+
+  return new Response(stream, {
+    headers: {
+      "Cache-Control": "no-cache, no-transform",
+      Connection: "keep-alive",
+      "Content-Type": "text/event-stream; charset=utf-8",
+    },
+  })
+})
 
 [35m[3mcodex[0m[0m
-I’m leaving the accepted stack design untouched and writing only the handoff state the next role needs: what changed, what was verified, and the exact narrow surface they should validate.
+No implementation defect is left to fix under the current engineer contract. I’m updating the baton artifacts only: append the iteration log and refresh the handoff for `VALIDATOR` so closeout can proceed without reopening code.
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'date --iso-8601=seconds'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+2026-04-01T21:13:53-05:00
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'tail -n 5 ai/iterations/ITER-0001.md'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+| 2026-04-02T02:00:53Z | VALIDATOR | Rejected the current `ITEM-0005` pass and handed it back to `ENGINEER` for a narrow follow-up-turn attachment fix. | The fake-grounding fallback defect is fixed and the package-level plus isolation checks still pass, but a later `POST /api/chat` in a session with uploaded files now fails with `400` when `fileIds` are omitted, which breaks the accepted attachment-aware subsequent-turn contract. |
+| 2026-04-02T02:05:27Z | ENGINEER | Fixed the follow-up-turn attachment validation in `POST /api/chat`, then re-ran the app build, CDK synth, and a live built-server repro covering upload plus a later chat turn with no `fileIds`. | The defect was narrowly scoped: omitting `fileIds` should mean no new attachments for that turn, not "attach every session file and fail validation." The fix preserves tenant/runtime scoping, explicit invalid-file rejection, the limitation-response fallback, and the existing POST-stream contract. |
+| 2026-04-01T21:08:34-05:00 | VALIDATOR | Accepted `ITEM-0005` after re-running the package checks and confirming the built app now supports follow-up chat turns without `fileIds` while still rejecting invalid file ownership references. | The narrow revise pass is complete: the second-turn attachment contract now matches the locked behavior, the limitation-response fallback still persists `citations: []`, and the remaining AWS/Bedrock proof gaps are correctly external rather than hidden regressions. |
+| 2026-04-02T02:10:06Z | PLANNER | Closed `ITEM-0005` in the backlog, kept the active record on closeout judgment, and handed the loop to `SENIOR_JUDGMENTAL_ENGINEER` with explicit local-versus-external proof boundaries. | The validator evidence is sufficient to stop implementation churn. The only honest next step is judgment: confirm backlog completion for the local repo state while naming the AWS/Bedrock acceptance criteria that still require real deployed infrastructure to prove. |
+| 2026-04-02T02:20:00Z | SENIOR_JUDGMENTAL_ENGINEER | Closed out the current loop by accepting the repo as locally complete through `ITEM-0005`, recording the remaining AWS/Bedrock gaps as external proof work rather than hidden engineering defects, and handing off conservatively. | The written validation evidence is internally consistent and already proves the local contracts that matter. Reopening engineering here would be churn unless a new scoped item or real-environment validation task is created. |
+
 [1mapply patch[0m
 [1mpatch:[0m completed
 [2m/home/sundaram/code/multi-tenant-rag-demo/ai/iterations/ITER-0001.md[0m
 [2m/home/sundaram/code/multi-tenant-rag-demo/ai/next_agent.md[0m
 diff --git a/ai/iterations/ITER-0001.md b/ai/iterations/ITER-0001.md
-index 161b8309dd29d1a4c4adf6adccb1665e42691161..a520a061bc8cb0426d8414f7aedd32cb6a2cf6c7
+index 819c0dcc354f60dce25c5117e2121d86842c8732..8305023ea49e0caab055a059d4e70ea05808bcd3
 --- a/ai/iterations/ITER-0001.md
 +++ b/ai/iterations/ITER-0001.md
-@@ -35,3 +35,4 @@
- | 2026-04-02T02:15:00Z | VALIDATOR | Rejected the current `ITEM-0004` pass again and handed back to `PLANNER` because the shared Aurora bootstrap DDL no longer matches the existing Nuxt app persistence contract. | The ordered-statement schema runner is now structurally sound, and build/synth still pass, but the shared `app` tables use column names and fields (`session_id`, `message_id`, `attachment_ids`, missing `storage_bucket`) that disagree with the current Aurora-shaped records in `apps/web`, creating a concrete deployability and integration risk. |
- | 2026-04-01T20:41:38-05:00 | PLANNER | Kept `ITEM-0004` in progress, narrowed the revise scope to shared Aurora app-schema alignment with the existing Nuxt persistence contract, and refreshed the handoff so judgment preserves the accepted infra design. | The validator found a concrete contract mismatch rather than new product ambiguity. The right planning move is to lock a small corrective pass, avoid reopening accepted CDK architecture decisions, and send a precise review brief back through judgment. |
- | 2026-04-02T02:31:00Z | SENIOR_JUDGMENTAL_ENGINEER | Confirmed `ITEM-0004` remains a narrow engineering revise pass, rejected any scope reset or user escalation, and handed back a precise shared-schema alignment fix. | The only live issue is the mismatch between the shared Aurora bootstrap DDL and the existing Nuxt persistence seam. The accepted infra design is already good enough; engineering just needs to make the schema names and ownership fields match and re-run the locked verification commands. |
-+| 2026-04-02T02:50:00Z | ENGINEER | Aligned the shared Aurora `app` schema DDL with the existing Nuxt persistence contract in `chat-store.ts` and re-ran the required `apps/web` build plus `infra/cdk` synth checks before handing off to `VALIDATOR`. | The revise scope was intentionally narrow. Fixing the DDL in place resolves the concrete contract mismatch without reopening the accepted SharedStack/TenantStack/UIStack design, the ordered-statement schema custom resource, or the self-contained deployment path. |
+@@ -44,3 +44,4 @@
+ | 2026-04-01T21:08:34-05:00 | VALIDATOR | Accepted `ITEM-0005` after re-running the package checks and confirming the built app now supports follow-up chat turns without `fileIds` while still rejecting invalid file ownership references. | The narrow revise pass is complete: the second-turn attachment contract now matches the locked behavior, the limitation-response fallback still persists `citations: []`, and the remaining AWS/Bedrock proof gaps are correctly external rather than hidden regressions. |
+ | 2026-04-02T02:10:06Z | PLANNER | Closed `ITEM-0005` in the backlog, kept the active record on closeout judgment, and handed the loop to `SENIOR_JUDGMENTAL_ENGINEER` with explicit local-versus-external proof boundaries. | The validator evidence is sufficient to stop implementation churn. The only honest next step is judgment: confirm backlog completion for the local repo state while naming the AWS/Bedrock acceptance criteria that still require real deployed infrastructure to prove. |
+ | 2026-04-02T02:20:00Z | SENIOR_JUDGMENTAL_ENGINEER | Closed out the current loop by accepting the repo as locally complete through `ITEM-0005`, recording the remaining AWS/Bedrock gaps as external proof work rather than hidden engineering defects, and handing off conservatively. | The written validation evidence is internally consistent and already proves the local contracts that matter. Reopening engineering here would be churn unless a new scoped item or real-environment validation task is created. |
++| 2026-04-01T21:13:53-05:00 | ENGINEER | Confirmed the baton is with `ENGINEER` but the active item is already locally accepted and closed, so made no code changes and handed to `VALIDATOR` for conservative closeout continuity. | The engineer prompt requires a handoff note and iteration entry at end of turn; reopening `apps/web` or `infra/cdk` would contradict the locked closeout state and introduce churn without new evidence. |
 diff --git a/ai/next_agent.md b/ai/next_agent.md
-index d386c68c9431282935168bf14dd745e61060b30f..620484dfcffd73cacbea1e01f0fcab4082dbb850
+index 37397cc5cb424b97f0b34df9d8e76701812eba6b..34a10169517eb8b8d4ac62bb573c4affcc5fdd17
 --- a/ai/next_agent.md
 +++ b/ai/next_agent.md
-@@ -1,13 +1,13 @@
+@@ -1,11 +1,11 @@
  # Next Agent
  
--`ITEM-0004` remains active as a narrow revise pass for ENGINEER.
-+`ITEM-0004` should go to `VALIDATOR`.
+-`ENGINEER` should not reopen `ITEM-0005` or start speculative fixes.
++`VALIDATOR` should preserve the closeout posture and avoid reopening engineering without a concrete contradiction in the accepted evidence.
  
--- Do not reopen stack design. Preserve the accepted SharedStack/TenantStack/UIStack split, the ordered-statement Aurora custom resource, the scheduler approach, and the container-asset UI deploy path.
--- Fix only the shared Aurora `app` schema in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) so it matches the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
--- Required DDL alignment:
--  - `app.sessions`: primary key column `id`
--  - `app.messages`: `id`, `tenant_id`, `session_id`, `user_id`, `role`, `content`, `citations`, `attached_files`, `created_at`
--  - `app.session_files`: include both `storage_bucket` and `storage_key`
--  - keep compatible foreign keys and tenant/user ownership fields
--- Do not change the app contract in `apps/web` to match the bad DDL.
--- Re-run `cd apps/web && npm run build` and `cd infra/cdk && npm run synth` before handing to `VALIDATOR`.
-+- Preserve the accepted infra design. This pass changed only the shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts).
-+- The shared `app` schema now matches [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts):
-+  - `app.sessions.id` is the primary key.
-+  - `app.messages` now uses `id`, references `sessions(id)`, includes `user_id`, and stores `attached_files` instead of `attachment_ids`.
-+  - `app.session_files` now references `sessions(id)` and includes both `storage_bucket` and `storage_key`.
-+- Verification already run successfully:
-+  - `cd apps/web && npm run build`
-+  - `cd infra/cdk && npm run synth`
-+- Validator should confirm the DDL contract alignment stays narrow and that no accepted stack/resource decisions were reopened.
-diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
-index 73482a3f9478013768a2f96cb0b871a311ffa7d5..06e7bb11a90033b443f01f81193d0d78dc64584a
---- a/infra/cdk/lib/shared-stack.ts
-+++ b/infra/cdk/lib/shared-stack.ts
-@@ -29,7 +29,7 @@
-   "CREATE EXTENSION IF NOT EXISTS vector;",
-   `
-     CREATE TABLE IF NOT EXISTS app.sessions (
--      session_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
-       user_id text NOT NULL,
-       title text NOT NULL DEFAULT 'New chat',
-@@ -39,13 +39,14 @@
-   `,
-   `
-     CREATE TABLE IF NOT EXISTS app.messages (
--      message_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-+      user_id text NOT NULL,
-       role text NOT NULL,
-       content text NOT NULL,
-       citations jsonb NOT NULL DEFAULT '[]'::jsonb,
--      attachment_ids jsonb NOT NULL DEFAULT '[]'::jsonb,
-+      attached_files jsonb NOT NULL DEFAULT '[]'::jsonb,
-       created_at timestamptz NOT NULL DEFAULT now()
-     );
-   `,
-@@ -53,12 +54,13 @@
-     CREATE TABLE IF NOT EXISTS app.session_files (
-       file_id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-       user_id text NOT NULL,
-       original_name text NOT NULL,
-       sanitized_name text NOT NULL,
-       content_type text NOT NULL,
-       size_bytes bigint NOT NULL,
-+      storage_bucket text NOT NULL,
-       storage_key text NOT NULL,
-       status text NOT NULL,
-       created_at timestamptz NOT NULL DEFAULT now(),
+ - Current repo state is locally accepted through `ITEM-0005`.
+-- No concrete implementation defect remains in the written evidence.
++- No new implementation work was performed in this turn.
++- If validation finds no written-evidence contradiction, keep the handoff on closeout rather than routing back to engineering.
+ - Remaining gaps are external proof gaps only:
+   - real `cdk deploy --all`
+   - real AWS tenant deployments and Bedrock grounding/citations
+   - live Aurora, S3, Secrets Manager, and Google OAuth behavior
+-- If a new baton cycle starts, require a freshly scoped item before making code changes.
 
 diff --git a/ai/iterations/ITER-0001.md b/ai/iterations/ITER-0001.md
-index 161b8309dd29d1a4c4adf6adccb1665e42691161..a520a061bc8cb0426d8414f7aedd32cb6a2cf6c7
+index 819c0dcc354f60dce25c5117e2121d86842c8732..8305023ea49e0caab055a059d4e70ea05808bcd3
 --- a/ai/iterations/ITER-0001.md
 +++ b/ai/iterations/ITER-0001.md
-@@ -35,3 +35,4 @@
- | 2026-04-02T02:15:00Z | VALIDATOR | Rejected the current `ITEM-0004` pass again and handed back to `PLANNER` because the shared Aurora bootstrap DDL no longer matches the existing Nuxt app persistence contract. | The ordered-statement schema runner is now structurally sound, and build/synth still pass, but the shared `app` tables use column names and fields (`session_id`, `message_id`, `attachment_ids`, missing `storage_bucket`) that disagree with the current Aurora-shaped records in `apps/web`, creating a concrete deployability and integration risk. |
- | 2026-04-01T20:41:38-05:00 | PLANNER | Kept `ITEM-0004` in progress, narrowed the revise scope to shared Aurora app-schema alignment with the existing Nuxt persistence contract, and refreshed the handoff so judgment preserves the accepted infra design. | The validator found a concrete contract mismatch rather than new product ambiguity. The right planning move is to lock a small corrective pass, avoid reopening accepted CDK architecture decisions, and send a precise review brief back through judgment. |
- | 2026-04-02T02:31:00Z | SENIOR_JUDGMENTAL_ENGINEER | Confirmed `ITEM-0004` remains a narrow engineering revise pass, rejected any scope reset or user escalation, and handed back a precise shared-schema alignment fix. | The only live issue is the mismatch between the shared Aurora bootstrap DDL and the existing Nuxt persistence seam. The accepted infra design is already good enough; engineering just needs to make the schema names and ownership fields match and re-run the locked verification commands. |
-+| 2026-04-02T02:50:00Z | ENGINEER | Aligned the shared Aurora `app` schema DDL with the existing Nuxt persistence contract in `chat-store.ts` and re-ran the required `apps/web` build plus `infra/cdk` synth checks before handing off to `VALIDATOR`. | The revise scope was intentionally narrow. Fixing the DDL in place resolves the concrete contract mismatch without reopening the accepted SharedStack/TenantStack/UIStack design, the ordered-statement schema custom resource, or the self-contained deployment path. |
+@@ -44,3 +44,4 @@
+ | 2026-04-01T21:08:34-05:00 | VALIDATOR | Accepted `ITEM-0005` after re-running the package checks and confirming the built app now supports follow-up chat turns without `fileIds` while still rejecting invalid file ownership references. | The narrow revise pass is complete: the second-turn attachment contract now matches the locked behavior, the limitation-response fallback still persists `citations: []`, and the remaining AWS/Bedrock proof gaps are correctly external rather than hidden regressions. |
+ | 2026-04-02T02:10:06Z | PLANNER | Closed `ITEM-0005` in the backlog, kept the active record on closeout judgment, and handed the loop to `SENIOR_JUDGMENTAL_ENGINEER` with explicit local-versus-external proof boundaries. | The validator evidence is sufficient to stop implementation churn. The only honest next step is judgment: confirm backlog completion for the local repo state while naming the AWS/Bedrock acceptance criteria that still require real deployed infrastructure to prove. |
+ | 2026-04-02T02:20:00Z | SENIOR_JUDGMENTAL_ENGINEER | Closed out the current loop by accepting the repo as locally complete through `ITEM-0005`, recording the remaining AWS/Bedrock gaps as external proof work rather than hidden engineering defects, and handing off conservatively. | The written validation evidence is internally consistent and already proves the local contracts that matter. Reopening engineering here would be churn unless a new scoped item or real-environment validation task is created. |
++| 2026-04-01T21:13:53-05:00 | ENGINEER | Confirmed the baton is with `ENGINEER` but the active item is already locally accepted and closed, so made no code changes and handed to `VALIDATOR` for conservative closeout continuity. | The engineer prompt requires a handoff note and iteration entry at end of turn; reopening `apps/web` or `infra/cdk` would contradict the locked closeout state and introduce churn without new evidence. |
 diff --git a/ai/next_agent.md b/ai/next_agent.md
-index d386c68c9431282935168bf14dd745e61060b30f..620484dfcffd73cacbea1e01f0fcab4082dbb850
+index 37397cc5cb424b97f0b34df9d8e76701812eba6b..34a10169517eb8b8d4ac62bb573c4affcc5fdd17
 --- a/ai/next_agent.md
 +++ b/ai/next_agent.md
-@@ -1,13 +1,13 @@
+@@ -1,11 +1,11 @@
  # Next Agent
  
--`ITEM-0004` remains active as a narrow revise pass for ENGINEER.
-+`ITEM-0004` should go to `VALIDATOR`.
+-`ENGINEER` should not reopen `ITEM-0005` or start speculative fixes.
++`VALIDATOR` should preserve the closeout posture and avoid reopening engineering without a concrete contradiction in the accepted evidence.
  
--- Do not reopen stack design. Preserve the accepted SharedStack/TenantStack/UIStack split, the ordered-statement Aurora custom resource, the scheduler approach, and the container-asset UI deploy path.
--- Fix only the shared Aurora `app` schema in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) so it matches the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
--- Required DDL alignment:
--  - `app.sessions`: primary key column `id`
--  - `app.messages`: `id`, `tenant_id`, `session_id`, `user_id`, `role`, `content`, `citations`, `attached_files`, `created_at`
--  - `app.session_files`: include both `storage_bucket` and `storage_key`
--  - keep compatible foreign keys and tenant/user ownership fields
--- Do not change the app contract in `apps/web` to match the bad DDL.
--- Re-run `cd apps/web && npm run build` and `cd infra/cdk && npm run synth` before handing to `VALIDATOR`.
-+- Preserve the accepted infra design. This pass changed only the shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts).
-+- The shared `app` schema now matches [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts):
-+  - `app.sessions.id` is the primary key.
-+  - `app.messages` now uses `id`, references `sessions(id)`, includes `user_id`, and stores `attached_files` instead of `attachment_ids`.
-+  - `app.session_files` now references `sessions(id)` and includes both `storage_bucket` and `storage_key`.
-+- Verification already run successfully:
-+  - `cd apps/web && npm run build`
-+  - `cd infra/cdk && npm run synth`
-+- Validator should confirm the DDL contract alignment stays narrow and that no accepted stack/resource decisions were reopened.
-diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
-index 73482a3f9478013768a2f96cb0b871a311ffa7d5..06e7bb11a90033b443f01f81193d0d78dc64584a
---- a/infra/cdk/lib/shared-stack.ts
-+++ b/infra/cdk/lib/shared-stack.ts
-@@ -29,7 +29,7 @@
-   "CREATE EXTENSION IF NOT EXISTS vector;",
-   `
-     CREATE TABLE IF NOT EXISTS app.sessions (
--      session_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
-       user_id text NOT NULL,
-       title text NOT NULL DEFAULT 'New chat',
-@@ -39,13 +39,14 @@
-   `,
-   `
-     CREATE TABLE IF NOT EXISTS app.messages (
--      message_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-+      user_id text NOT NULL,
-       role text NOT NULL,
-       content text NOT NULL,
-       citations jsonb NOT NULL DEFAULT '[]'::jsonb,
--      attachment_ids jsonb NOT NULL DEFAULT '[]'::jsonb,
-+      attached_files jsonb NOT NULL DEFAULT '[]'::jsonb,
-       created_at timestamptz NOT NULL DEFAULT now()
-     );
-   `,
-@@ -53,12 +54,13 @@
-     CREATE TABLE IF NOT EXISTS app.session_files (
-       file_id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-       user_id text NOT NULL,
-       original_name text NOT NULL,
-       sanitized_name text NOT NULL,
-       content_type text NOT NULL,
-       size_bytes bigint NOT NULL,
-+      storage_bucket text NOT NULL,
-       storage_key text NOT NULL,
-       status text NOT NULL,
-       created_at timestamptz NOT NULL DEFAULT now(),
+ - Current repo state is locally accepted through `ITEM-0005`.
+-- No concrete implementation defect remains in the written evidence.
++- No new implementation work was performed in this turn.
++- If validation finds no written-evidence contradiction, keep the handoff on closeout rather than routing back to engineering.
+ - Remaining gaps are external proof gaps only:
+   - real `cdk deploy --all`
+   - real AWS tenant deployments and Bedrock grounding/citations
+   - live Aurora, S3, Secrets Manager, and Google OAuth behavior
+-- If a new baton cycle starts, require a freshly scoped item before making code changes.
 
 [35m[3mcodex[0m[0m
-I’ve updated the handoff notes and iteration log. I’m adding one concise implementation note for review traceability, then I’ll stop with the required baton line only.
-[1mapply patch[0m
-[1mpatch:[0m completed
-[2m/home/sundaram/code/multi-tenant-rag-demo/ai/review.md[0m
+The baton files are updated. I’m doing a quick diff check to ensure the handoff is limited to the required iteration and next-agent notes.
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'git diff -- ai/iterations/ITER-0001.md ai/next_agent.md'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
 diff --git a/ai/iterations/ITER-0001.md b/ai/iterations/ITER-0001.md
-index 161b8309dd29d1a4c4adf6adccb1665e42691161..a520a061bc8cb0426d8414f7aedd32cb6a2cf6c7
+index 819c0dc..8305023 100644
 --- a/ai/iterations/ITER-0001.md
 +++ b/ai/iterations/ITER-0001.md
-@@ -35,3 +35,4 @@
- | 2026-04-02T02:15:00Z | VALIDATOR | Rejected the current `ITEM-0004` pass again and handed back to `PLANNER` because the shared Aurora bootstrap DDL no longer matches the existing Nuxt app persistence contract. | The ordered-statement schema runner is now structurally sound, and build/synth still pass, but the shared `app` tables use column names and fields (`session_id`, `message_id`, `attachment_ids`, missing `storage_bucket`) that disagree with the current Aurora-shaped records in `apps/web`, creating a concrete deployability and integration risk. |
- | 2026-04-01T20:41:38-05:00 | PLANNER | Kept `ITEM-0004` in progress, narrowed the revise scope to shared Aurora app-schema alignment with the existing Nuxt persistence contract, and refreshed the handoff so judgment preserves the accepted infra design. | The validator found a concrete contract mismatch rather than new product ambiguity. The right planning move is to lock a small corrective pass, avoid reopening accepted CDK architecture decisions, and send a precise review brief back through judgment. |
- | 2026-04-02T02:31:00Z | SENIOR_JUDGMENTAL_ENGINEER | Confirmed `ITEM-0004` remains a narrow engineering revise pass, rejected any scope reset or user escalation, and handed back a precise shared-schema alignment fix. | The only live issue is the mismatch between the shared Aurora bootstrap DDL and the existing Nuxt persistence seam. The accepted infra design is already good enough; engineering just needs to make the schema names and ownership fields match and re-run the locked verification commands. |
-+| 2026-04-02T02:50:00Z | ENGINEER | Aligned the shared Aurora `app` schema DDL with the existing Nuxt persistence contract in `chat-store.ts` and re-ran the required `apps/web` build plus `infra/cdk` synth checks before handing off to `VALIDATOR`. | The revise scope was intentionally narrow. Fixing the DDL in place resolves the concrete contract mismatch without reopening the accepted SharedStack/TenantStack/UIStack design, the ordered-statement schema custom resource, or the self-contained deployment path. |
+@@ -44,3 +44,4 @@
+ | 2026-04-01T21:08:34-05:00 | VALIDATOR | Accepted `ITEM-0005` after re-running the package checks and confirming the built app now supports follow-up chat turns without `fileIds` while still rejecting invalid file ownership references. | The narrow revise pass is complete: the second-turn attachment contract now matches the locked behavior, the limitation-response fallback still persists `citations: []`, and the remaining AWS/Bedrock proof gaps are correctly external rather than hidden regressions. |
+ | 2026-04-02T02:10:06Z | PLANNER | Closed `ITEM-0005` in the backlog, kept the active record on closeout judgment, and handed the loop to `SENIOR_JUDGMENTAL_ENGINEER` with explicit local-versus-external proof boundaries. | The validator evidence is sufficient to stop implementation churn. The only honest next step is judgment: confirm backlog completion for the local repo state while naming the AWS/Bedrock acceptance criteria that still require real deployed infrastructure to prove. |
+ | 2026-04-02T02:20:00Z | SENIOR_JUDGMENTAL_ENGINEER | Closed out the current loop by accepting the repo as locally complete through `ITEM-0005`, recording the remaining AWS/Bedrock gaps as external proof work rather than hidden engineering defects, and handing off conservatively. | The written validation evidence is internally consistent and already proves the local contracts that matter. Reopening engineering here would be churn unless a new scoped item or real-environment validation task is created. |
++| 2026-04-01T21:13:53-05:00 | ENGINEER | Confirmed the baton is with `ENGINEER` but the active item is already locally accepted and closed, so made no code changes and handed to `VALIDATOR` for conservative closeout continuity. | The engineer prompt requires a handoff note and iteration entry at end of turn; reopening `apps/web` or `infra/cdk` would contradict the locked closeout state and introduce churn without new evidence. |
 diff --git a/ai/next_agent.md b/ai/next_agent.md
-index d386c68c9431282935168bf14dd745e61060b30f..620484dfcffd73cacbea1e01f0fcab4082dbb850
+index 37397cc..34a1016 100644
 --- a/ai/next_agent.md
 +++ b/ai/next_agent.md
-@@ -1,13 +1,13 @@
+@@ -1,11 +1,11 @@
  # Next Agent
  
--`ITEM-0004` remains active as a narrow revise pass for ENGINEER.
-+`ITEM-0004` should go to `VALIDATOR`.
+-`ENGINEER` should not reopen `ITEM-0005` or start speculative fixes.
++`VALIDATOR` should preserve the closeout posture and avoid reopening engineering without a concrete contradiction in the accepted evidence.
  
--- Do not reopen stack design. Preserve the accepted SharedStack/TenantStack/UIStack split, the ordered-statement Aurora custom resource, the scheduler approach, and the container-asset UI deploy path.
--- Fix only the shared Aurora `app` schema in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) so it matches the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
--- Required DDL alignment:
--  - `app.sessions`: primary key column `id`
--  - `app.messages`: `id`, `tenant_id`, `session_id`, `user_id`, `role`, `content`, `citations`, `attached_files`, `created_at`
--  - `app.session_files`: include both `storage_bucket` and `storage_key`
--  - keep compatible foreign keys and tenant/user ownership fields
--- Do not change the app contract in `apps/web` to match the bad DDL.
--- Re-run `cd apps/web && npm run build` and `cd infra/cdk && npm run synth` before handing to `VALIDATOR`.
-+- Preserve the accepted infra design. This pass changed only the shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts).
-+- The shared `app` schema now matches [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts):
-+  - `app.sessions.id` is the primary key.
-+  - `app.messages` now uses `id`, references `sessions(id)`, includes `user_id`, and stores `attached_files` instead of `attachment_ids`.
-+  - `app.session_files` now references `sessions(id)` and includes both `storage_bucket` and `storage_key`.
-+- Verification already run successfully:
-+  - `cd apps/web && npm run build`
-+  - `cd infra/cdk && npm run synth`
-+- Validator should confirm the DDL contract alignment stays narrow and that no accepted stack/resource decisions were reopened.
-diff --git a/ai/review.md b/ai/review.md
-index ce6b9b31c5a863472b770ebb9ea9e9559a2337d3..c86c3651d924ff48a3c1bd344e2e4c8e7fce2851
---- a/ai/review.md
-+++ b/ai/review.md
-@@ -219,6 +219,15 @@
- - The current codebase still contains placeholder-only CDK stacks in [infra/cdk/lib/shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) and [infra/cdk/lib/tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts); engineering should treat that as debt to replace, not a scaffold to decorate with more outputs.
- - `ai/requirements.md` remains template residue and is not authoritative for this item. Source of truth is `ai/goal.yaml`, `ai/prd.yaml`, `ai/active_item.yaml`, `ai/decision-lock.yaml`, and the item-specific simplification rules.
- 
-+## 2026-04-02 ENGINEER
-+
-+- Implemented the narrow `ITEM-0004` revise pass by correcting the shared Aurora `app` schema DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) to match the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
-+- Updated `app.sessions` to use primary key column `id`, updated `app.messages` to use `id`, include `user_id`, reference `sessions(id)`, and store `attached_files`, and updated `app.session_files` to reference `sessions(id)` and include `storage_bucket`.
-+- Left the accepted stack boundaries and ordered-statement Aurora custom resource unchanged.
-+- Verification performed:
-+  - `cd apps/web && npm run build` succeeded.
-+  - `cd infra/cdk && npm run synth` succeeded.
-+
- ## 2026-04-02 SENIOR_JUDGMENTAL_ENGINEER
- 
- - **REVISE**: `ITEM-0004` stays in engineering as a narrow shared-schema alignment fix. There is no product ambiguity and no reason to escalate to the user.
-diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
-index 73482a3f9478013768a2f96cb0b871a311ffa7d5..06e7bb11a90033b443f01f81193d0d78dc64584a
---- a/infra/cdk/lib/shared-stack.ts
-+++ b/infra/cdk/lib/shared-stack.ts
-@@ -29,7 +29,7 @@
-   "CREATE EXTENSION IF NOT EXISTS vector;",
-   `
-     CREATE TABLE IF NOT EXISTS app.sessions (
--      session_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
-       user_id text NOT NULL,
-       title text NOT NULL DEFAULT 'New chat',
-@@ -39,13 +39,14 @@
-   `,
-   `
-     CREATE TABLE IF NOT EXISTS app.messages (
--      message_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-+      user_id text NOT NULL,
-       role text NOT NULL,
-       content text NOT NULL,
-       citations jsonb NOT NULL DEFAULT '[]'::jsonb,
--      attachment_ids jsonb NOT NULL DEFAULT '[]'::jsonb,
-+      attached_files jsonb NOT NULL DEFAULT '[]'::jsonb,
-       created_at timestamptz NOT NULL DEFAULT now()
-     );
-   `,
-@@ -53,12 +54,13 @@
-     CREATE TABLE IF NOT EXISTS app.session_files (
-       file_id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-       user_id text NOT NULL,
-       original_name text NOT NULL,
-       sanitized_name text NOT NULL,
-       content_type text NOT NULL,
-       size_bytes bigint NOT NULL,
-+      storage_bucket text NOT NULL,
-       storage_key text NOT NULL,
-       status text NOT NULL,
-       created_at timestamptz NOT NULL DEFAULT now(),
+ - Current repo state is locally accepted through `ITEM-0005`.
+-- No concrete implementation defect remains in the written evidence.
++- No new implementation work was performed in this turn.
++- If validation finds no written-evidence contradiction, keep the handoff on closeout rather than routing back to engineering.
+ - Remaining gaps are external proof gaps only:
+   - real `cdk deploy --all`
+   - real AWS tenant deployments and Bedrock grounding/citations
+   - live Aurora, S3, Secrets Manager, and Google OAuth behavior
+-- If a new baton cycle starts, require a freshly scoped item before making code changes.
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'git status --short ai/iterations/ITER-0001.md ai/next_agent.md ai/logs/baton.log'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+ M ai/iterations/ITER-0001.md
+ M ai/logs/baton.log
+ M ai/next_agent.md
 
 diff --git a/ai/iterations/ITER-0001.md b/ai/iterations/ITER-0001.md
-index 161b8309dd29d1a4c4adf6adccb1665e42691161..a520a061bc8cb0426d8414f7aedd32cb6a2cf6c7
+index 819c0dcc354f60dce25c5117e2121d86842c8732..8305023ea49e0caab055a059d4e70ea05808bcd3
 --- a/ai/iterations/ITER-0001.md
 +++ b/ai/iterations/ITER-0001.md
-@@ -35,3 +35,4 @@
- | 2026-04-02T02:15:00Z | VALIDATOR | Rejected the current `ITEM-0004` pass again and handed back to `PLANNER` because the shared Aurora bootstrap DDL no longer matches the existing Nuxt app persistence contract. | The ordered-statement schema runner is now structurally sound, and build/synth still pass, but the shared `app` tables use column names and fields (`session_id`, `message_id`, `attachment_ids`, missing `storage_bucket`) that disagree with the current Aurora-shaped records in `apps/web`, creating a concrete deployability and integration risk. |
- | 2026-04-01T20:41:38-05:00 | PLANNER | Kept `ITEM-0004` in progress, narrowed the revise scope to shared Aurora app-schema alignment with the existing Nuxt persistence contract, and refreshed the handoff so judgment preserves the accepted infra design. | The validator found a concrete contract mismatch rather than new product ambiguity. The right planning move is to lock a small corrective pass, avoid reopening accepted CDK architecture decisions, and send a precise review brief back through judgment. |
- | 2026-04-02T02:31:00Z | SENIOR_JUDGMENTAL_ENGINEER | Confirmed `ITEM-0004` remains a narrow engineering revise pass, rejected any scope reset or user escalation, and handed back a precise shared-schema alignment fix. | The only live issue is the mismatch between the shared Aurora bootstrap DDL and the existing Nuxt persistence seam. The accepted infra design is already good enough; engineering just needs to make the schema names and ownership fields match and re-run the locked verification commands. |
-+| 2026-04-02T02:50:00Z | ENGINEER | Aligned the shared Aurora `app` schema DDL with the existing Nuxt persistence contract in `chat-store.ts` and re-ran the required `apps/web` build plus `infra/cdk` synth checks before handing off to `VALIDATOR`. | The revise scope was intentionally narrow. Fixing the DDL in place resolves the concrete contract mismatch without reopening the accepted SharedStack/TenantStack/UIStack design, the ordered-statement schema custom resource, or the self-contained deployment path. |
+@@ -44,3 +44,4 @@
+ | 2026-04-01T21:08:34-05:00 | VALIDATOR | Accepted `ITEM-0005` after re-running the package checks and confirming the built app now supports follow-up chat turns without `fileIds` while still rejecting invalid file ownership references. | The narrow revise pass is complete: the second-turn attachment contract now matches the locked behavior, the limitation-response fallback still persists `citations: []`, and the remaining AWS/Bedrock proof gaps are correctly external rather than hidden regressions. |
+ | 2026-04-02T02:10:06Z | PLANNER | Closed `ITEM-0005` in the backlog, kept the active record on closeout judgment, and handed the loop to `SENIOR_JUDGMENTAL_ENGINEER` with explicit local-versus-external proof boundaries. | The validator evidence is sufficient to stop implementation churn. The only honest next step is judgment: confirm backlog completion for the local repo state while naming the AWS/Bedrock acceptance criteria that still require real deployed infrastructure to prove. |
+ | 2026-04-02T02:20:00Z | SENIOR_JUDGMENTAL_ENGINEER | Closed out the current loop by accepting the repo as locally complete through `ITEM-0005`, recording the remaining AWS/Bedrock gaps as external proof work rather than hidden engineering defects, and handing off conservatively. | The written validation evidence is internally consistent and already proves the local contracts that matter. Reopening engineering here would be churn unless a new scoped item or real-environment validation task is created. |
++| 2026-04-01T21:13:53-05:00 | ENGINEER | Confirmed the baton is with `ENGINEER` but the active item is already locally accepted and closed, so made no code changes and handed to `VALIDATOR` for conservative closeout continuity. | The engineer prompt requires a handoff note and iteration entry at end of turn; reopening `apps/web` or `infra/cdk` would contradict the locked closeout state and introduce churn without new evidence. |
 diff --git a/ai/next_agent.md b/ai/next_agent.md
-index d386c68c9431282935168bf14dd745e61060b30f..620484dfcffd73cacbea1e01f0fcab4082dbb850
+index 37397cc5cb424b97f0b34df9d8e76701812eba6b..34a10169517eb8b8d4ac62bb573c4affcc5fdd17
 --- a/ai/next_agent.md
 +++ b/ai/next_agent.md
-@@ -1,13 +1,13 @@
+@@ -1,11 +1,11 @@
  # Next Agent
  
--`ITEM-0004` remains active as a narrow revise pass for ENGINEER.
-+`ITEM-0004` should go to `VALIDATOR`.
+-`ENGINEER` should not reopen `ITEM-0005` or start speculative fixes.
++`VALIDATOR` should preserve the closeout posture and avoid reopening engineering without a concrete contradiction in the accepted evidence.
  
--- Do not reopen stack design. Preserve the accepted SharedStack/TenantStack/UIStack split, the ordered-statement Aurora custom resource, the scheduler approach, and the container-asset UI deploy path.
--- Fix only the shared Aurora `app` schema in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) so it matches the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
--- Required DDL alignment:
--  - `app.sessions`: primary key column `id`
--  - `app.messages`: `id`, `tenant_id`, `session_id`, `user_id`, `role`, `content`, `citations`, `attached_files`, `created_at`
--  - `app.session_files`: include both `storage_bucket` and `storage_key`
--  - keep compatible foreign keys and tenant/user ownership fields
--- Do not change the app contract in `apps/web` to match the bad DDL.
--- Re-run `cd apps/web && npm run build` and `cd infra/cdk && npm run synth` before handing to `VALIDATOR`.
-+- Preserve the accepted infra design. This pass changed only the shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts).
-+- The shared `app` schema now matches [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts):
-+  - `app.sessions.id` is the primary key.
-+  - `app.messages` now uses `id`, references `sessions(id)`, includes `user_id`, and stores `attached_files` instead of `attachment_ids`.
-+  - `app.session_files` now references `sessions(id)` and includes both `storage_bucket` and `storage_key`.
-+- Verification already run successfully:
-+  - `cd apps/web && npm run build`
-+  - `cd infra/cdk && npm run synth`
-+- Validator should confirm the DDL contract alignment stays narrow and that no accepted stack/resource decisions were reopened.
-diff --git a/ai/review.md b/ai/review.md
-index ce6b9b31c5a863472b770ebb9ea9e9559a2337d3..c86c3651d924ff48a3c1bd344e2e4c8e7fce2851
---- a/ai/review.md
-+++ b/ai/review.md
-@@ -219,6 +219,15 @@
- - The current codebase still contains placeholder-only CDK stacks in [infra/cdk/lib/shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) and [infra/cdk/lib/tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts); engineering should treat that as debt to replace, not a scaffold to decorate with more outputs.
- - `ai/requirements.md` remains template residue and is not authoritative for this item. Source of truth is `ai/goal.yaml`, `ai/prd.yaml`, `ai/active_item.yaml`, `ai/decision-lock.yaml`, and the item-specific simplification rules.
- 
-+## 2026-04-02 ENGINEER
-+
-+- Implemented the narrow `ITEM-0004` revise pass by correcting the shared Aurora `app` schema DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) to match the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
-+- Updated `app.sessions` to use primary key column `id`, updated `app.messages` to use `id`, include `user_id`, reference `sessions(id)`, and store `attached_files`, and updated `app.session_files` to reference `sessions(id)` and include `storage_bucket`.
-+- Left the accepted stack boundaries and ordered-statement Aurora custom resource unchanged.
-+- Verification performed:
-+  - `cd apps/web && npm run build` succeeded.
-+  - `cd infra/cdk && npm run synth` succeeded.
-+
- ## 2026-04-02 SENIOR_JUDGMENTAL_ENGINEER
- 
- - **REVISE**: `ITEM-0004` stays in engineering as a narrow shared-schema alignment fix. There is no product ambiguity and no reason to escalate to the user.
-diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
-index 73482a3f9478013768a2f96cb0b871a311ffa7d5..06e7bb11a90033b443f01f81193d0d78dc64584a
---- a/infra/cdk/lib/shared-stack.ts
-+++ b/infra/cdk/lib/shared-stack.ts
-@@ -29,7 +29,7 @@
-   "CREATE EXTENSION IF NOT EXISTS vector;",
-   `
-     CREATE TABLE IF NOT EXISTS app.sessions (
--      session_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
-       user_id text NOT NULL,
-       title text NOT NULL DEFAULT 'New chat',
-@@ -39,13 +39,14 @@
-   `,
-   `
-     CREATE TABLE IF NOT EXISTS app.messages (
--      message_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-+      user_id text NOT NULL,
-       role text NOT NULL,
-       content text NOT NULL,
-       citations jsonb NOT NULL DEFAULT '[]'::jsonb,
--      attachment_ids jsonb NOT NULL DEFAULT '[]'::jsonb,
-+      attached_files jsonb NOT NULL DEFAULT '[]'::jsonb,
-       created_at timestamptz NOT NULL DEFAULT now()
-     );
-   `,
-@@ -53,12 +54,13 @@
-     CREATE TABLE IF NOT EXISTS app.session_files (
-       file_id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-       user_id text NOT NULL,
-       original_name text NOT NULL,
-       sanitized_name text NOT NULL,
-       content_type text NOT NULL,
-       size_bytes bigint NOT NULL,
-+      storage_bucket text NOT NULL,
-       storage_key text NOT NULL,
-       status text NOT NULL,
-       created_at timestamptz NOT NULL DEFAULT now(),
+ - Current repo state is locally accepted through `ITEM-0005`.
+-- No concrete implementation defect remains in the written evidence.
++- No new implementation work was performed in this turn.
++- If validation finds no written-evidence contradiction, keep the handoff on closeout rather than routing back to engineering.
+ - Remaining gaps are external proof gaps only:
+   - real `cdk deploy --all`
+   - real AWS tenant deployments and Bedrock grounding/citations
+   - live Aurora, S3, Secrets Manager, and Google OAuth behavior
+-- If a new baton cycle starts, require a freshly scoped item before making code changes.
 
 [35m[3mcodex[0m[0m
 FINISHED: HANDING TO VALIDATOR
 diff --git a/ai/iterations/ITER-0001.md b/ai/iterations/ITER-0001.md
-index 161b8309dd29d1a4c4adf6adccb1665e42691161..a520a061bc8cb0426d8414f7aedd32cb6a2cf6c7
+index 819c0dcc354f60dce25c5117e2121d86842c8732..8305023ea49e0caab055a059d4e70ea05808bcd3
 --- a/ai/iterations/ITER-0001.md
 +++ b/ai/iterations/ITER-0001.md
-@@ -35,3 +35,4 @@
- | 2026-04-02T02:15:00Z | VALIDATOR | Rejected the current `ITEM-0004` pass again and handed back to `PLANNER` because the shared Aurora bootstrap DDL no longer matches the existing Nuxt app persistence contract. | The ordered-statement schema runner is now structurally sound, and build/synth still pass, but the shared `app` tables use column names and fields (`session_id`, `message_id`, `attachment_ids`, missing `storage_bucket`) that disagree with the current Aurora-shaped records in `apps/web`, creating a concrete deployability and integration risk. |
- | 2026-04-01T20:41:38-05:00 | PLANNER | Kept `ITEM-0004` in progress, narrowed the revise scope to shared Aurora app-schema alignment with the existing Nuxt persistence contract, and refreshed the handoff so judgment preserves the accepted infra design. | The validator found a concrete contract mismatch rather than new product ambiguity. The right planning move is to lock a small corrective pass, avoid reopening accepted CDK architecture decisions, and send a precise review brief back through judgment. |
- | 2026-04-02T02:31:00Z | SENIOR_JUDGMENTAL_ENGINEER | Confirmed `ITEM-0004` remains a narrow engineering revise pass, rejected any scope reset or user escalation, and handed back a precise shared-schema alignment fix. | The only live issue is the mismatch between the shared Aurora bootstrap DDL and the existing Nuxt persistence seam. The accepted infra design is already good enough; engineering just needs to make the schema names and ownership fields match and re-run the locked verification commands. |
-+| 2026-04-02T02:50:00Z | ENGINEER | Aligned the shared Aurora `app` schema DDL with the existing Nuxt persistence contract in `chat-store.ts` and re-ran the required `apps/web` build plus `infra/cdk` synth checks before handing off to `VALIDATOR`. | The revise scope was intentionally narrow. Fixing the DDL in place resolves the concrete contract mismatch without reopening the accepted SharedStack/TenantStack/UIStack design, the ordered-statement schema custom resource, or the self-contained deployment path. |
+@@ -44,3 +44,4 @@
+ | 2026-04-01T21:08:34-05:00 | VALIDATOR | Accepted `ITEM-0005` after re-running the package checks and confirming the built app now supports follow-up chat turns without `fileIds` while still rejecting invalid file ownership references. | The narrow revise pass is complete: the second-turn attachment contract now matches the locked behavior, the limitation-response fallback still persists `citations: []`, and the remaining AWS/Bedrock proof gaps are correctly external rather than hidden regressions. |
+ | 2026-04-02T02:10:06Z | PLANNER | Closed `ITEM-0005` in the backlog, kept the active record on closeout judgment, and handed the loop to `SENIOR_JUDGMENTAL_ENGINEER` with explicit local-versus-external proof boundaries. | The validator evidence is sufficient to stop implementation churn. The only honest next step is judgment: confirm backlog completion for the local repo state while naming the AWS/Bedrock acceptance criteria that still require real deployed infrastructure to prove. |
+ | 2026-04-02T02:20:00Z | SENIOR_JUDGMENTAL_ENGINEER | Closed out the current loop by accepting the repo as locally complete through `ITEM-0005`, recording the remaining AWS/Bedrock gaps as external proof work rather than hidden engineering defects, and handing off conservatively. | The written validation evidence is internally consistent and already proves the local contracts that matter. Reopening engineering here would be churn unless a new scoped item or real-environment validation task is created. |
++| 2026-04-01T21:13:53-05:00 | ENGINEER | Confirmed the baton is with `ENGINEER` but the active item is already locally accepted and closed, so made no code changes and handed to `VALIDATOR` for conservative closeout continuity. | The engineer prompt requires a handoff note and iteration entry at end of turn; reopening `apps/web` or `infra/cdk` would contradict the locked closeout state and introduce churn without new evidence. |
 diff --git a/ai/next_agent.md b/ai/next_agent.md
-index d386c68c9431282935168bf14dd745e61060b30f..620484dfcffd73cacbea1e01f0fcab4082dbb850
+index 37397cc5cb424b97f0b34df9d8e76701812eba6b..34a10169517eb8b8d4ac62bb573c4affcc5fdd17
 --- a/ai/next_agent.md
 +++ b/ai/next_agent.md
-@@ -1,13 +1,13 @@
+@@ -1,11 +1,11 @@
  # Next Agent
  
--`ITEM-0004` remains active as a narrow revise pass for ENGINEER.
-+`ITEM-0004` should go to `VALIDATOR`.
+-`ENGINEER` should not reopen `ITEM-0005` or start speculative fixes.
++`VALIDATOR` should preserve the closeout posture and avoid reopening engineering without a concrete contradiction in the accepted evidence.
  
--- Do not reopen stack design. Preserve the accepted SharedStack/TenantStack/UIStack split, the ordered-statement Aurora custom resource, the scheduler approach, and the container-asset UI deploy path.
--- Fix only the shared Aurora `app` schema in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) so it matches the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
--- Required DDL alignment:
--  - `app.sessions`: primary key column `id`
--  - `app.messages`: `id`, `tenant_id`, `session_id`, `user_id`, `role`, `content`, `citations`, `attached_files`, `created_at`
--  - `app.session_files`: include both `storage_bucket` and `storage_key`
--  - keep compatible foreign keys and tenant/user ownership fields
--- Do not change the app contract in `apps/web` to match the bad DDL.
--- Re-run `cd apps/web && npm run build` and `cd infra/cdk && npm run synth` before handing to `VALIDATOR`.
-+- Preserve the accepted infra design. This pass changed only the shared Aurora bootstrap DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts).
-+- The shared `app` schema now matches [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts):
-+  - `app.sessions.id` is the primary key.
-+  - `app.messages` now uses `id`, references `sessions(id)`, includes `user_id`, and stores `attached_files` instead of `attachment_ids`.
-+  - `app.session_files` now references `sessions(id)` and includes both `storage_bucket` and `storage_key`.
-+- Verification already run successfully:
-+  - `cd apps/web && npm run build`
-+  - `cd infra/cdk && npm run synth`
-+- Validator should confirm the DDL contract alignment stays narrow and that no accepted stack/resource decisions were reopened.
-diff --git a/ai/review.md b/ai/review.md
-index ce6b9b31c5a863472b770ebb9ea9e9559a2337d3..c86c3651d924ff48a3c1bd344e2e4c8e7fce2851
---- a/ai/review.md
-+++ b/ai/review.md
-@@ -219,6 +219,15 @@
- - The current codebase still contains placeholder-only CDK stacks in [infra/cdk/lib/shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) and [infra/cdk/lib/tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts); engineering should treat that as debt to replace, not a scaffold to decorate with more outputs.
- - `ai/requirements.md` remains template residue and is not authoritative for this item. Source of truth is `ai/goal.yaml`, `ai/prd.yaml`, `ai/active_item.yaml`, `ai/decision-lock.yaml`, and the item-specific simplification rules.
- 
-+## 2026-04-02 ENGINEER
-+
-+- Implemented the narrow `ITEM-0004` revise pass by correcting the shared Aurora `app` schema DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) to match the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
-+- Updated `app.sessions` to use primary key column `id`, updated `app.messages` to use `id`, include `user_id`, reference `sessions(id)`, and store `attached_files`, and updated `app.session_files` to reference `sessions(id)` and include `storage_bucket`.
-+- Left the accepted stack boundaries and ordered-statement Aurora custom resource unchanged.
-+- Verification performed:
-+  - `cd apps/web && npm run build` succeeded.
-+  - `cd infra/cdk && npm run synth` succeeded.
-+
- ## 2026-04-02 SENIOR_JUDGMENTAL_ENGINEER
- 
- - **REVISE**: `ITEM-0004` stays in engineering as a narrow shared-schema alignment fix. There is no product ambiguity and no reason to escalate to the user.
-diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
-index 73482a3f9478013768a2f96cb0b871a311ffa7d5..06e7bb11a90033b443f01f81193d0d78dc64584a
---- a/infra/cdk/lib/shared-stack.ts
-+++ b/infra/cdk/lib/shared-stack.ts
-@@ -29,7 +29,7 @@
-   "CREATE EXTENSION IF NOT EXISTS vector;",
-   `
-     CREATE TABLE IF NOT EXISTS app.sessions (
--      session_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
-       user_id text NOT NULL,
-       title text NOT NULL DEFAULT 'New chat',
-@@ -39,13 +39,14 @@
-   `,
-   `
-     CREATE TABLE IF NOT EXISTS app.messages (
--      message_id uuid PRIMARY KEY,
-+      id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-+      user_id text NOT NULL,
-       role text NOT NULL,
-       content text NOT NULL,
-       citations jsonb NOT NULL DEFAULT '[]'::jsonb,
--      attachment_ids jsonb NOT NULL DEFAULT '[]'::jsonb,
-+      attached_files jsonb NOT NULL DEFAULT '[]'::jsonb,
-       created_at timestamptz NOT NULL DEFAULT now()
-     );
-   `,
-@@ -53,12 +54,13 @@
-     CREATE TABLE IF NOT EXISTS app.session_files (
-       file_id uuid PRIMARY KEY,
-       tenant_id text NOT NULL,
--      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
-+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
-       user_id text NOT NULL,
-       original_name text NOT NULL,
-       sanitized_name text NOT NULL,
-       content_type text NOT NULL,
-       size_bytes bigint NOT NULL,
-+      storage_bucket text NOT NULL,
-       storage_key text NOT NULL,
-       status text NOT NULL,
-       created_at timestamptz NOT NULL DEFAULT now(),
+ - Current repo state is locally accepted through `ITEM-0005`.
+-- No concrete implementation defect remains in the written evidence.
++- No new implementation work was performed in this turn.
++- If validation finds no written-evidence contradiction, keep the handoff on closeout rather than routing back to engineering.
+ - Remaining gaps are external proof gaps only:
+   - real `cdk deploy --all`
+   - real AWS tenant deployments and Bedrock grounding/citations
+   - live Aurora, S3, Secrets Manager, and Google OAuth behavior
+-- If a new baton cycle starts, require a freshly scoped item before making code changes.
 
 [2mtokens used[0m
-47,204
+23,277
 
-Script done on 2026-04-01 20:48:05-05:00 [COMMAND_EXIT_CODE="0"]
+Script done on 2026-04-01 21:14:18-05:00 [COMMAND_EXIT_CODE="0"]
