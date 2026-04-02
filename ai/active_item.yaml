@@ -14,12 +14,14 @@ related_files:
 acceptance_criteria:
   - "The item stays inside infra/cdk plus minimal app-local deployment/config files under apps/web if needed for containerization or ECS runtime wiring; no root workspace/bootstrap changes and no separate backend service are introduced"
   - "SharedStack provisions real CDK resources for the PoC baseline: VPC, ECS cluster, ALB, Aurora Serverless v2, database/admin secret handling in Secrets Manager, ECR repository, shared attachments bucket, and coherent shared logging/parameter outputs instead of placeholder-only stacks"
+  - "The shared Aurora app-schema bootstrap matches the existing Nuxt persistence contract in apps/web: `app.sessions.id`, `app.messages.id`, `app.messages.tenant_id`, `app.messages.user_id`, `app.messages.attached_files`, and `app.session_files.storage_bucket` are present with compatible ownership and reference columns"
   - "TenantStack provisions one-tenant-per-stack resources and permissions for the locked isolation model: tenant docs bucket, Bedrock Knowledge Base, Bedrock Agent plus alias, tenant schema setup/custom-resource path, scheduler for KB sync, and tenant-scoped IAM/log resources"
   - "UIStack provisions one ECS/Fargate service per tenant behind the shared ALB, wiring the same application image with deploy-time tenant env vars and secret-backed runtime config for the existing Nuxt SSR app"
   - "The CDK app includes a concrete tenant configuration source and stack instantiation path for SharedStack, TenantStack, and UIStack so `cdk deploy --all` is the intended local-package workflow"
   - "The slice preserves the current product constraints: Nuxt server routes remain the only app backend, tenant identity stays deploy-time server config rather than caller input, and no fake shared Bedrock/KB shortcut is introduced"
   - "The slice may use pragmatic PoC simplifications for difficult AWS edges, but it must not defer the named stack/resource categories into placeholders, manual console steps, or comments-only TODOs"
+  - "This revise pass is limited to schema-contract alignment and verification; it must not reopen the accepted SharedStack/TenantStack/UIStack split, replace the provider-backed ordered-statement Aurora custom resource, or reintroduce a hidden image-push/manual-ingestion prerequisite"
 done_definition:
   - "Backlog marks ITEM-0003 done and advances ITEM-0004 as the current in-progress slice without disturbing the remaining sequence"
-  - "Decision locks capture the required SharedStack, TenantStack, and UIStack boundaries, the same-image-per-tenant deployment contract, and the acceptable PoC simplifications for AWS wiring"
-  - "ai/next_agent.md tells SENIOR_JUDGMENTAL_ENGINEER exactly what to validate: concrete CDK resource scope, tenant-isolated Bedrock and ECS wiring, deployment/config assumptions, and what still must remain out of scope"
+  - "Decision locks capture the required SharedStack, TenantStack, and UIStack boundaries, the same-image-per-tenant deployment contract, the accepted PoC simplifications for AWS wiring, and the narrowed shared-schema alignment fix"
+  - "ai/next_agent.md tells SENIOR_JUDGMENTAL_ENGINEER to preserve the accepted infra design and route only the shared-schema contract correction plus build/synth re-verification"

@@ -1,17 +1,18 @@
 # Next Agent
 
-Route `ITEM-0004` back through planning with a narrow implementation correction.
+Keep `ITEM-0004` active and route it through judgment as a narrow infra correction, not a scope reset.
 
 Validator result:
-- `ITEM-0004` is still `REVISE`, not accepted.
-- The new ordered-statement Aurora custom-resource path is fine, and `cd apps/web && npm run build` plus `cd infra/cdk && npm run synth` still succeed.
-- The remaining blocker is a schema-contract mismatch between the shared Aurora bootstrap DDL and the current app persistence shapes.
+- `ITEM-0004` remains `REVISE`.
+- The accepted stack split, ordered-statement Aurora custom resource, EventBridge ingestion path, and container-asset UI deploy path should stay in place.
+- The remaining blocker is narrow: the shared Aurora app-schema DDL no longer matches the existing Nuxt persistence contract in `apps/web`.
 
-Concrete mismatches to correct:
-- [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L31) creates `app.sessions(session_id, ...)`, but [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts#L4) uses `id`.
-- [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L41) creates `app.messages(message_id, session_id, role, content, citations, attachment_ids, created_at)` but the app message contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts#L19) expects `id`, `tenant_id`, `session_id`, `user_id`, `role`, `content`, `citations`, `attached_files`, `created_at`.
-- [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L53) creates `app.session_files` without `storage_bucket`, while [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts#L31) requires both `storage_bucket` and `storage_key`.
+Required correction:
+- Align [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) with [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts) so the shared `app` tables use the same Aurora-shaped field names and ownership columns the Nuxt app already persists.
+- Specifically: sessions should use `id`; messages should include `id`, `tenant_id`, `session_id`, `user_id`, `role`, `content`, `citations`, `attached_files`, and `created_at`; session files should include both `storage_bucket` and `storage_key`.
+- Preserve compatible foreign-key relationships while making those names match; do not solve this by changing the app contract in `apps/web`.
 
-Planner handoff:
-- Keep the accepted shared/tenant/UI stack boundaries, the EventBridge/container-asset deploy path, and the one-statement-at-a-time Aurora schema custom resource.
-- Send this back for a narrow engineer fix that aligns the shared Aurora app-schema DDL with the current Nuxt persistence contract, then re-run `cd apps/web && npm run build` and `cd infra/cdk && npm run synth`.
+Judgment focus:
+- Confirm this is still the same `ITEM-0004` slice with no new user ambiguity.
+- Preserve the accepted SharedStack/TenantStack/UIStack boundaries and PoC deploy-path decisions.
+- Send ENGINEER a narrow fix only: update the shared app-schema DDL, then re-run `cd apps/web && npm run build` and `cd infra/cdk && npm run synth`.

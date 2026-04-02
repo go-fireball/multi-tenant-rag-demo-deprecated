@@ -62,6 +62,7 @@ items:
       - Must include the UI baseline: one ECS/Fargate service per tenant wired to the shared ALB with deploy-time tenant env vars and secret injection into the Nuxt task
       - cdk deploy --all should be the intended path from the local infra/cdk package without requiring ad hoc console setup
       - Defer CI/CD automation, production hardening, custom domains/certificates beyond a coherent placeholder strategy, and any non-CDK operational runbooks unless needed to keep the stacks internally consistent
+      - Current revise scope is narrow: align the shared Aurora app-schema DDL with the existing Nuxt persistence contract without changing the accepted stack boundaries, scheduler path, or container-asset deploy path
   - id: ITEM-0005
     title: Validate tenant isolation, grounding behavior, and end-to-end acceptance
     goal: Prove the platform meets the stated PoC success criteria and key guardrails
