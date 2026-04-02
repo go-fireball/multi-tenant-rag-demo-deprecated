@@ -294,6 +294,23 @@ Use this file for reviewer outcomes:
   - Preserve the current runtime-tenant derivation, session/message/file ownership enforcement, SSE-over-POST streaming contract, limitation-response fallback, and accepted CDK package state.
   - Fix only the attachment lookup contract so omitting `fileIds` means "attach nothing new on this user turn" rather than "treat every stored session file as newly attached and then fail validation."
   - After the fix, re-run `cd apps/web && npm run build` and a live follow-up-turn check proving that a session with uploaded files can send a later chat turn without `fileIds`, persists the turn successfully, and still keeps assistant citations empty in the ungrounded path.
+
+## 2026-04-02 VALIDATOR
+
+- **DONE**: `ITEM-0005` is accepted and can return to `PLANNER`.
+- Validation performed against the current checked source and built artifact:
+  - `cd apps/web && npm run build`
+  - `cd infra/cdk && npm run synth`
+  - Ran the built Nuxt server with `TENANT_ID=tenant-alpha` and exercised the upload-plus-follow-up-turn path end to end.
+- Acceptance evidence for the narrow revise pass:
+  - A tenant-scoped session for `user-a` accepted `note.txt`, completed a first streamed `POST /api/chat` turn with the uploaded `fileId`, then completed a second streamed `POST /api/chat` turn with no `fileIds` and returned `200`.
+  - Reloading `GET /api/sessions/:id/messages?userId=user-a` showed the second user turn persisted with `attached_files: []`, which matches the intended "no new attachments on this turn" contract instead of reloading all prior session files.
+  - The persisted assistant reply for that follow-up turn still uses the limitation-response path and stores `citations: []`; no synthetic grounding artifact was reintroduced.
+  - An explicit invalid `fileIds` request still returns `400 One or more fileIds are invalid for this tenant, user, or session`, so the ownership/validation guardrail remains intact.
+- Constraint and acceptance assessment:
+  - The fix stays inside the accepted `apps/web` boundary and does not reopen auth, infra redesign, root workspace normalization, or Bedrock integration scope.
+  - Local validation now proves the accepted subsequent-turn attachment behavior, the ungrounded limitation fallback, and the package-level build/synth contract.
+  - External AWS and Bedrock success criteria remain only partially provable in this environment and should stay documented as external proof gaps rather than implied complete production acceptance.
 - [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27) now passes complete shared-schema DDL statements for `app.sessions`, `app.messages`, and `app.session_files` rather than line-by-line SQL fragments.
 - [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L31) now constructs complete per-tenant `CREATE SCHEMA`, `CREATE EXTENSION`, `CREATE TABLE`, and HNSW `CREATE INDEX` statements before wiring them into `AuroraSchema`.
 - Left [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) unchanged on purpose: it already executes one ordered Data API `ExecuteStatement` per statement, keeps update stability via the same physical resource id, and remains a no-op on delete.
