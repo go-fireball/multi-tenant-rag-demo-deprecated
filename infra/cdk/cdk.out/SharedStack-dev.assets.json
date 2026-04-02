@@ -15,16 +15,16 @@
         }
       }
     },
-    "56f7467bbde8a5efebcf57ae9e460027607099bab9f844669dcf5d800172ee5a": {
-      "displayName": "AWS679f53fac002430cb0da5b7982bd2287/Code",
+    "07a90cc3efdfc34da22208dcd9d211f06f5b0e01b21e778edc7c3966b1f61d57": {
+      "displayName": "SharedSchema/Provider/framework-onEvent/Code",
       "source": {
-        "path": "asset.56f7467bbde8a5efebcf57ae9e460027607099bab9f844669dcf5d800172ee5a",
+        "path": "asset.07a90cc3efdfc34da22208dcd9d211f06f5b0e01b21e778edc7c3966b1f61d57",
         "packaging": "zip"
       },
       "destinations": {
-        "current_account-current_region-f3c562d4": {
+        "current_account-current_region-3e934f01": {
           "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}",
-          "objectKey": "56f7467bbde8a5efebcf57ae9e460027607099bab9f844669dcf5d800172ee5a.zip",
+          "objectKey": "07a90cc3efdfc34da22208dcd9d211f06f5b0e01b21e778edc7c3966b1f61d57.zip",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-${AWS::Region}"
         }
       }
@@ -43,16 +43,16 @@
         }
       }
     },
-    "4309e6eeb691202aa3b07ce9867984a6b473c630b459298b466158bc7235b552": {
+    "e33b29d1467b9511dae6cbcbf8948dfe4baf4cacf7774fa6f46dc40ee1631169": {
       "displayName": "SharedStack-dev Template",
       "source": {
         "path": "SharedStack-dev.template.json",
         "packaging": "file"
       },
       "destinations": {
-        "current_account-current_region-6a767798": {
+        "current_account-current_region-c1c52c1c": {
           "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}",
-          "objectKey": "4309e6eeb691202aa3b07ce9867984a6b473c630b459298b466158bc7235b552.json",
+          "objectKey": "e33b29d1467b9511dae6cbcbf8948dfe4baf4cacf7774fa6f46dc40ee1631169.json",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-${AWS::Region}"
         }
       }

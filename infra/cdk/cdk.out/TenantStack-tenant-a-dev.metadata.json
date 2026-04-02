@@ -5,16 +5,6 @@
       "data": true
     }
   ],
-  "/TenantStack-tenant-a-dev/AWS679f53fac002430cb0da5b7982bd2287": [
-    {
-      "type": "aws:cdk:is-custom-resource-handler-singleton",
-      "data": true
-    },
-    {
-      "type": "aws:cdk:is-custom-resource-handler-runtime-family",
-      "data": 0
-    }
-  ],
   "/TenantStack-tenant-a-dev/KnowledgeBase": [
     {
       "type": "aws:cdk:logicalId",
@@ -117,12 +107,6 @@
       "data": "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F"
     }
   ],
-  "/TenantStack-tenant-a-dev/AWS679f53fac002430cb0da5b7982bd2287/Resource": [
-    {
-      "type": "aws:cdk:logicalId",
-      "data": "AWS679f53fac002430cb0da5b7982bd22872D164C4C"
-    }
-  ],
   "/TenantStack-tenant-a-dev/KnowledgeBaseRole/Resource": [
     {
       "type": "aws:cdk:logicalId",
@@ -189,10 +173,16 @@
       "data": "DocsBucketAutoDeleteObjectsCustomResourceADA97380"
     }
   ],
-  "/TenantStack-tenant-a-dev/AWS679f53fac002430cb0da5b7982bd2287/ServiceRole/Resource": [
+  "/TenantStack-tenant-a-dev/TenantSchema/Handler/Resource": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
+      "data": "TenantSchemaHandler79814F39"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/TenantSchema/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TenantSchemaEB79A040"
     }
   ],
   "/TenantStack-tenant-a-dev/KnowledgeBaseRole/DefaultPolicy/Resource": [
@@ -213,16 +203,34 @@
       "data": "SchedulerRoleForTarget7b9c1aDefaultPolicy03F55D35"
     }
   ],
-  "/TenantStack-tenant-a-dev/TenantSchema/Resource/Resource/Default": [
+  "/TenantStack-tenant-a-dev/TenantSchema/Handler/ServiceRole/Resource": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "TenantSchemaC9A9B20C"
+      "data": "TenantSchemaHandlerServiceRoleE6C8D7F9"
     }
   ],
-  "/TenantStack-tenant-a-dev/TenantSchema/Resource/CustomResourcePolicy/Resource": [
+  "/TenantStack-tenant-a-dev/TenantSchema/Provider/framework-onEvent/Resource": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "TenantSchemaCustomResourcePolicy53CF13B2"
+      "data": "TenantSchemaProviderframeworkonEventD11BB416"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/TenantSchema/Handler/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TenantSchemaHandlerServiceRoleDefaultPolicy102F5FAA"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/TenantSchema/Provider/framework-onEvent/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TenantSchemaProviderframeworkonEventServiceRoleB47C54B6"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/TenantSchema/Provider/framework-onEvent/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TenantSchemaProviderframeworkonEventServiceRoleDefaultPolicy3FA0FEBD"
     }
   ]
 }

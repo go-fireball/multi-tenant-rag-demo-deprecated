@@ -28,6 +28,30 @@ export interface TenantStackProps extends StackProps {
 
 const kbTableNameForTenant = (tenantId: string): string => `vectors_${tenantId.replace(/-/g, "_")}.bedrock_kb`
 
+const tenantSchemaStatements = (tenantId: string): string[] => {
+  const schemaName = `vectors_${tenantId.replace(/-/g, "_")}`
+  const tableName = kbTableNameForTenant(tenantId)
+  const indexName = `${tenantId.replace(/-/g, "_")}_bedrock_kb_embedding_idx`
+
+  return [
+    `CREATE SCHEMA IF NOT EXISTS ${schemaName};`,
+    "CREATE EXTENSION IF NOT EXISTS vector;",
+    `
+      CREATE TABLE IF NOT EXISTS ${tableName} (
+        id uuid PRIMARY KEY,
+        embedding vector(1024),
+        chunks text NOT NULL,
+        metadata jsonb NOT NULL DEFAULT '{}'::jsonb,
+        custom_metadata jsonb NOT NULL DEFAULT '{}'::jsonb
+      );
+    `,
+    `
+      CREATE INDEX IF NOT EXISTS ${indexName}
+      ON ${tableName} USING hnsw (embedding vector_cosine_ops);
+    `,
+  ].map((statement) => statement.trim())
+}
+
 export class TenantStack extends Stack {
   public readonly agent: bedrock.CfnAgent
   public readonly agentAlias: bedrock.CfnAgentAlias
@@ -60,19 +84,7 @@ export class TenantStack extends Stack {
       secretArn: props.shared.databaseSecret.secretArn,
       databaseName: props.databaseName,
       physicalResourceId: `tenant-schema-${props.tenant.tenantId}-${props.environmentName}`,
-      sql: [
-        `CREATE SCHEMA IF NOT EXISTS vectors_${props.tenant.tenantId.replace(/-/g, "_")};`,
-        "CREATE EXTENSION IF NOT EXISTS vector;",
-        `CREATE TABLE IF NOT EXISTS ${tableName} (`,
-        "  id uuid PRIMARY KEY,",
-        "  embedding vector(1024),",
-        "  chunks text NOT NULL,",
-        "  metadata jsonb NOT NULL DEFAULT '{}'::jsonb,",
-        "  custom_metadata jsonb NOT NULL DEFAULT '{}'::jsonb",
-        ");",
-        `CREATE INDEX IF NOT EXISTS ${props.tenant.tenantId.replace(/-/g, "_")}_bedrock_kb_embedding_idx`,
-        `ON ${tableName} USING hnsw (embedding vector_cosine_ops);`,
-      ].join("\n"),
+      statements: tenantSchemaStatements(props.tenant.tenantId),
     })
 
     const knowledgeBaseRole = new iam.Role(this, "KnowledgeBaseRole", {

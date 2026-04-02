@@ -24,6 +24,49 @@ export interface SharedStackProps extends StackProps {
   readonly databaseName: string
 }
 
+const sharedSchemaStatements = [
+  "CREATE SCHEMA IF NOT EXISTS app;",
+  "CREATE EXTENSION IF NOT EXISTS vector;",
+  `
+    CREATE TABLE IF NOT EXISTS app.sessions (
+      session_id uuid PRIMARY KEY,
+      tenant_id text NOT NULL,
+      user_id text NOT NULL,
+      title text NOT NULL DEFAULT 'New chat',
+      created_at timestamptz NOT NULL DEFAULT now(),
+      updated_at timestamptz NOT NULL DEFAULT now()
+    );
+  `,
+  `
+    CREATE TABLE IF NOT EXISTS app.messages (
+      message_id uuid PRIMARY KEY,
+      tenant_id text NOT NULL,
+      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
+      role text NOT NULL,
+      content text NOT NULL,
+      citations jsonb NOT NULL DEFAULT '[]'::jsonb,
+      attachment_ids jsonb NOT NULL DEFAULT '[]'::jsonb,
+      created_at timestamptz NOT NULL DEFAULT now()
+    );
+  `,
+  `
+    CREATE TABLE IF NOT EXISTS app.session_files (
+      file_id uuid PRIMARY KEY,
+      tenant_id text NOT NULL,
+      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
+      user_id text NOT NULL,
+      original_name text NOT NULL,
+      sanitized_name text NOT NULL,
+      content_type text NOT NULL,
+      size_bytes bigint NOT NULL,
+      storage_key text NOT NULL,
+      status text NOT NULL,
+      created_at timestamptz NOT NULL DEFAULT now(),
+      updated_at timestamptz NOT NULL DEFAULT now()
+    );
+  `,
+].map((statement) => statement.trim())
+
 export class SharedStack extends Stack {
   public readonly albSecurityGroup: ec2.SecurityGroup
   public readonly attachmentsBucket: s3.Bucket
@@ -142,42 +185,7 @@ export class SharedStack extends Stack {
       secretArn: this.databaseSecret.secretArn,
       databaseName: props.databaseName,
       physicalResourceId: `shared-schema-${props.environmentName}`,
-      sql: [
-        "CREATE SCHEMA IF NOT EXISTS app;",
-        "CREATE EXTENSION IF NOT EXISTS vector;",
-        "CREATE TABLE IF NOT EXISTS app.sessions (",
-        "  session_id uuid PRIMARY KEY,",
-        "  tenant_id text NOT NULL,",
-        "  user_id text NOT NULL,",
-        "  title text NOT NULL DEFAULT 'New chat',",
-        "  created_at timestamptz NOT NULL DEFAULT now(),",
-        "  updated_at timestamptz NOT NULL DEFAULT now()",
-        ");",
-        "CREATE TABLE IF NOT EXISTS app.messages (",
-        "  message_id uuid PRIMARY KEY,",
-        "  tenant_id text NOT NULL,",
-        "  session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,",
-        "  role text NOT NULL,",
-        "  content text NOT NULL,",
-        "  citations jsonb NOT NULL DEFAULT '[]'::jsonb,",
-        "  attachment_ids jsonb NOT NULL DEFAULT '[]'::jsonb,",
-        "  created_at timestamptz NOT NULL DEFAULT now()",
-        ");",
-        "CREATE TABLE IF NOT EXISTS app.session_files (",
-        "  file_id uuid PRIMARY KEY,",
-        "  tenant_id text NOT NULL,",
-        "  session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,",
-        "  user_id text NOT NULL,",
-        "  original_name text NOT NULL,",
-        "  sanitized_name text NOT NULL,",
-        "  content_type text NOT NULL,",
-        "  size_bytes bigint NOT NULL,",
-        "  storage_key text NOT NULL,",
-        "  status text NOT NULL,",
-        "  created_at timestamptz NOT NULL DEFAULT now(),",
-        "  updated_at timestamptz NOT NULL DEFAULT now()",
-        ");",
-      ].join("\n"),
+      statements: sharedSchemaStatements,
     })
 
     this.repository = new ecr.Repository(this, "Repository", {

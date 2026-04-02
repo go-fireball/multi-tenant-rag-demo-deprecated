@@ -1,14 +1,4 @@
 {
-  "/SharedStack-dev/AWS679f53fac002430cb0da5b7982bd2287": [
-    {
-      "type": "aws:cdk:is-custom-resource-handler-singleton",
-      "data": true
-    },
-    {
-      "type": "aws:cdk:is-custom-resource-handler-runtime-family",
-      "data": 0
-    }
-  ],
   "/SharedStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider": [
     {
       "type": "aws:cdk:is-custom-resource-handler-customResourceProvider",
@@ -133,12 +123,6 @@
     {
       "type": "aws:cdk:logicalId",
       "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A"
-    }
-  ],
-  "/SharedStack-dev/AWS679f53fac002430cb0da5b7982bd2287/Resource": [
-    {
-      "type": "aws:cdk:logicalId",
-      "data": "AWS679f53fac002430cb0da5b7982bd22872D164C4C"
     }
   ],
   "/SharedStack-dev/Repository/Resource": [
@@ -429,10 +413,16 @@
       "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
     }
   ],
-  "/SharedStack-dev/AWS679f53fac002430cb0da5b7982bd2287/ServiceRole/Resource": [
+  "/SharedStack-dev/SharedSchema/Handler/Resource": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
+      "data": "SharedSchemaHandler3FC80F8D"
+    }
+  ],
+  "/SharedStack-dev/SharedSchema/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SharedSchemaA73CBC9C"
     }
   ],
   "/SharedStack-dev/AttachmentsBucket/Policy/Resource": [
@@ -489,16 +479,34 @@
       "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB"
     }
   ],
-  "/SharedStack-dev/SharedSchema/Resource/Resource/Default": [
+  "/SharedStack-dev/SharedSchema/Handler/ServiceRole/Resource": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "SharedSchema04224B87"
+      "data": "SharedSchemaHandlerServiceRole7E7F3B16"
     }
   ],
-  "/SharedStack-dev/SharedSchema/Resource/CustomResourcePolicy/Resource": [
+  "/SharedStack-dev/SharedSchema/Provider/framework-onEvent/Resource": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "SharedSchemaCustomResourcePolicy4460D3B6"
+      "data": "SharedSchemaProviderframeworkonEvent74EBE10C"
+    }
+  ],
+  "/SharedStack-dev/SharedSchema/Handler/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SharedSchemaHandlerServiceRoleDefaultPolicy5DE05DCA"
+    }
+  ],
+  "/SharedStack-dev/SharedSchema/Provider/framework-onEvent/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SharedSchemaProviderframeworkonEventServiceRole263581DE"
+    }
+  ],
+  "/SharedStack-dev/SharedSchema/Provider/framework-onEvent/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SharedSchemaProviderframeworkonEventServiceRoleDefaultPolicyD6C85138"
     }
   ]
 }

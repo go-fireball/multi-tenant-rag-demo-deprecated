@@ -221,6 +221,17 @@ Use this file for reviewer outcomes:
 
 ## 2026-04-02 ENGINEER
 
+- Narrowed the Aurora schema bootstrap inputs without changing the accepted provider-backed custom resource contract.
+- [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27) now passes complete shared-schema DDL statements for `app.sessions`, `app.messages`, and `app.session_files` rather than line-by-line SQL fragments.
+- [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L31) now constructs complete per-tenant `CREATE SCHEMA`, `CREATE EXTENSION`, `CREATE TABLE`, and HNSW `CREATE INDEX` statements before wiring them into `AuroraSchema`.
+- Left [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) unchanged on purpose: it already executes one ordered Data API `ExecuteStatement` per statement, keeps update stability via the same physical resource id, and remains a no-op on delete.
+- Verification performed:
+  - `cd apps/web && npm run build`
+  - `cd infra/cdk && npm run build`
+  - `cd infra/cdk && npm run synth`
+
+## 2026-04-02 ENGINEER
+
 - Addressed the two validator-blocking deploy-path gaps for `ITEM-0004`.
 - Replaced the broken `aws-events-targets` ingestion call in [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts) with an EventBridge Scheduler `Universal` target that invokes `bedrockagent:startIngestionJob` on a daily rate using explicit `bedrock:StartIngestionJob` IAM permissions.
 - Removed the hidden pre-pushed-image dependency from [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts) by building the Nuxt container directly from [apps/web/Dockerfile](/home/sundaram/code/multi-tenant-rag-demo/apps/web/Dockerfile) as a CDK container asset during deploy/synth instead of assuming `latest` already exists in ECR.
@@ -247,6 +258,20 @@ Use this file for reviewer outcomes:
   - CDK synth still emits an intentional warning on the `AwsApi` ingestion-schedule shim because the EventBridge target helper does not recognize `BedrockAgent` as an SDK service name. The stack still synthesizes cleanly; validate whether this PoC shim is acceptable or should be treated as too weak for the item.
   - The UI services assume the shared ECR repository contains the configured shared image tag (`latest`) before `cdk deploy --all` attempts to stabilize ECS tasks.
 - Required implementation shape:
+
+## 2026-04-02 VALIDATOR
+
+- **REVISE**: `ITEM-0004` still cannot be accepted because the shared Aurora bootstrap schema in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27) does not match the existing application persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts#L4).
+- Concrete contract mismatches found:
+  - `app.sessions` is created with primary key `session_id`, while the app session shape is keyed as `id`.
+  - `app.messages` is created with `message_id` and `attachment_ids`, but the app message shape expects `id`, `user_id`, and `attached_files`.
+  - `app.session_files` omits `storage_bucket`, but the app file shape requires both `storage_bucket` and `storage_key`.
+- This is a real deployability issue for the current PoC baseline, not a stylistic preference. `ITEM-0004` wires Aurora credentials into the Nuxt ECS tasks, so provisioning a schema that disagrees with the app’s locked Aurora-shaped records would turn the first real Aurora integration into avoidable migration churn or runtime breakage.
+- Validation checks that passed:
+  - `cd apps/web && npm run build` still succeeds.
+  - `cd infra/cdk && npm run synth` still succeeds and emits all expected shared, tenant, and UI stacks.
+  - The narrowed Aurora custom-resource execution path now correctly accepts ordered standalone SQL statements instead of line fragments.
+- Required follow-up: keep the accepted shared/tenant/UI stack split and one-statement-at-a-time Aurora custom resource, but align the shared app-schema DDL with the current Nuxt persistence contract before this item returns for acceptance.
   - add a concrete CDK app instantiation path that creates one shared stack and per-tenant tenant/UI stacks from an in-repo tenant config source;
   - provision real PoC resources for the locked stack categories rather than placeholder descriptions;
   - preserve the same-image-per-tenant ECS contract and keep tenant identity deploy-time/server-side.
@@ -258,6 +283,28 @@ Use this file for reviewer outcomes:
   - no separate API service or Lambda application backend;
   - no fake shared Bedrock agent/KB shortcut;
   - no root-workspace/bootstrap churn;
+
+## 2026-04-02 VALIDATOR
+
+- **REVISE**: the Aurora schema bootstrap fix is still functionally incorrect, so `ITEM-0004` cannot be accepted yet.
+- [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts#L42) now executes one `ExecuteStatement` call per `statements[]` entry, but [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L145) and [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L63) still pass line-by-line SQL fragments such as `CREATE TABLE ... (` and individual column lines. Those fragments are not valid standalone SQL statements, so the custom resource will fail during deploy before the shared app tables or tenant vector table/index are created.
+- This is a concrete implementation defect, not a planning ambiguity. Keep the current stack boundaries and deployment model, but change the schema bootstrap contract so each executed unit is a complete valid statement in the intended order.
+- Static regression check passed outside the defect above: the scheduler/container-asset/stack-boundary work remains intact, and the current change stays within `infra/cdk` plus allowed baton files.
+- Verification performed in validation:
+  - `cd apps/web && npm run build` succeeded.
+  - `cd infra/cdk && npm run build` succeeded.
+  - `cd infra/cdk && npm run synth` succeeded.
+- Acceptance remains blocked because synth does not exercise the runtime Data API calls used by the schema custom resource, and the checked-in statement arrays are invalid for the new one-call-per-statement execution path.
+
+## 2026-04-02 ENGINEER
+
+- Fixed the remaining deploy-safety defect in the Aurora schema bootstrap path for `ITEM-0004`.
+- Replaced the single-call `AwsCustomResource` in [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) with a provider-backed custom resource that executes an ordered `statements` array one Data API `ExecuteStatement` call at a time on create/update and no-ops on delete.
+- Updated [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) and [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts) to pass explicit statement arrays instead of joined multi-statement SQL blobs, preserving the existing schema/table/index definitions and stack boundaries.
+- Verification performed:
+  - `cd apps/web && npm run build` succeeded.
+  - `cd infra/cdk && npm run build` succeeded.
+  - `cd infra/cdk && npm run synth` succeeded and synthesized `SharedStack-dev`, both tenant stacks, and both UI stacks.
 
 ## 2026-04-02 VALIDATOR
 

@@ -1,18 +1,17 @@
 # Next Agent
 
-Fix the remaining validator-blocking deploy defect for `ITEM-0004`.
+Route `ITEM-0004` back through planning with a narrow implementation correction.
 
-Blocking issue:
-- [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts#L17) sends one `RDSDataService.executeStatement` request with `sql: props.sql`.
-- [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L140) and [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L58) both pass joined multi-statement DDL blobs into that construct.
-- The result is synth-successful but deploy-unsafe schema bootstrap. Replace it with a Data-API-compatible execution path that can reliably create the shared schema/tables and per-tenant schema/table/index resources during `cdk deploy --all`.
+Validator result:
+- `ITEM-0004` is still `REVISE`, not accepted.
+- The new ordered-statement Aurora custom-resource path is fine, and `cd apps/web && npm run build` plus `cd infra/cdk && npm run synth` still succeed.
+- The remaining blocker is a schema-contract mismatch between the shared Aurora bootstrap DDL and the current app persistence shapes.
 
-Keep intact:
-- The shared/tenant/UI stack boundary is otherwise acceptable.
-- The scheduler fix in [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts) and the self-contained Docker asset path in [ui-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/ui-stack.ts) passed validation and should stay.
-- Do not reopen root-workspace/bootstrap changes, separate backend services, or broader app-scope work.
+Concrete mismatches to correct:
+- [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L31) creates `app.sessions(session_id, ...)`, but [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts#L4) uses `id`.
+- [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L41) creates `app.messages(message_id, session_id, role, content, citations, attachment_ids, created_at)` but the app message contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts#L19) expects `id`, `tenant_id`, `session_id`, `user_id`, `role`, `content`, `citations`, `attached_files`, `created_at`.
+- [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L53) creates `app.session_files` without `storage_bucket`, while [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts#L31) requires both `storage_bucket` and `storage_key`.
 
-Re-verify after fixes:
-- `cd apps/web && npm run build`
-- `cd infra/cdk && npm run build`
-- `cd infra/cdk && npm run synth`
+Planner handoff:
+- Keep the accepted shared/tenant/UI stack boundaries, the EventBridge/container-asset deploy path, and the one-statement-at-a-time Aurora schema custom resource.
+- Send this back for a narrow engineer fix that aligns the shared Aurora app-schema DDL with the current Nuxt persistence contract, then re-run `cd apps/web && npm run build` and `cd infra/cdk && npm run synth`.
