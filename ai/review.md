@@ -516,3 +516,21 @@ Use this file for reviewer outcomes:
   - Preserve the current runtime-tenant derivation, session/message/file ownership enforcement, SSE-over-POST streaming contract, limitation-response fallback, and accepted CDK package state.
   - Fix only the attachment lookup contract so omitting `fileIds` means "attach nothing new on this user turn" rather than "treat every stored session file as newly attached and then fail validation."
   - After the fix, re-run `cd apps/web && npm run build` and a live follow-up-turn check proving that a session with uploaded files can send a later chat turn without `fileIds`, persists the turn successfully, and still keeps assistant citations empty in the ungrounded path.
+
+## 2026-04-02 SENIOR_JUDGMENTAL_ENGINEER (closeout — loop termination)
+
+- **ESCALATE TO USER**: The local backlog is evidence-complete through `ITEM-0005`. No contradiction exists in the written record. The baton loop has cycled multiple times through ENGINEER (no changes) → VALIDATOR (no changes) → PLANNER → SJE without producing new code or new evidence.
+- Confirmed locally proven behaviors (unchanged since last acceptance):
+  - `cd apps/web && npm run build` succeeds.
+  - `cd infra/cdk && npm run synth` succeeds.
+  - Runtime `TENANT_ID` governs tenant scope on the built server; client callers cannot override it.
+  - Session, message, and file ownership fail closed across user and tenant boundaries.
+  - Upload limits enforced atomically; invalid or stolen `fileIds` return `400`.
+  - `POST /api/chat` without `fileIds` does not attach session files; ownership guardrails remain intact.
+  - No-relevant-content path persists `citations: []` and a limitation message instead of a synthetic grounded response.
+- External proof gaps (require real AWS infrastructure — not hidden defects):
+  - `cdk deploy --all` from scratch against real AWS.
+  - Real per-tenant Bedrock Agent and Knowledge Base isolation.
+  - Real KB grounding, reranking (top_k=12 → top 5), and citation behavior.
+  - Real Aurora Serverless v2, S3, Secrets Manager, and Google OAuth live behavior.
+- Loop termination judgment: continuing to cycle without user direction produces no value. Escalating to the user to confirm whether to (a) proceed to real AWS deployment/validation, (b) scope a new implementation item, or (c) accept local completion as the current deliverable.
