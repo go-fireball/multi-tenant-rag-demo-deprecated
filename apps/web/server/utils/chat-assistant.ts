@@ -11,10 +11,8 @@ export function generateAssistantReply(input: {
   history: ChatMessageRecord[]
 }): AssistantReply {
   const trimmedMessage = input.userMessage.trim()
-  const recentTurns = input.history.slice(-3)
-  const contextSummary = recentTurns
-    .map(message => `${message.role}: ${message.content.trim()}`)
-    .join(" | ")
+  const priorTurns = excludeCurrentUserTurn(input.history, trimmedMessage)
+  const recentTurns = priorTurns.slice(-3)
   const recentAttachedFiles = recentTurns
     .flatMap(message => message.attached_files)
     .filter((file, index, files) => files.findIndex(entry => entry.file_id === file.file_id) === index)
@@ -25,26 +23,33 @@ export function generateAssistantReply(input: {
       .join(" | ")
     : ""
 
-  const content = [
-    `Tenant ${input.tenantId} assistant stub response.`,
-    `Received: "${trimmedMessage}".`,
-    recentTurns.length
-      ? `Recent session context: ${contextSummary}.`
-      : "No earlier session context was stored for this conversation.",
-    recentAttachedFiles.length
-      ? `Recent attached file context: ${attachmentSummary}.`
-      : "No attached session files were linked to the recent turns.",
-    "This deterministic placeholder preserves the chat contract until the Bedrock adapter is wired in.",
-  ].join(" ")
+  const content = recentAttachedFiles.length
+    ? [
+      `I can't provide a grounded tenant knowledge base answer for "${trimmedMessage}" in this local environment because no retrieved KB evidence is available.`,
+      `The only session-scoped evidence I can point to right now is the attached file metadata: ${attachmentSummary}.`,
+      "Ask about one of those files after relevant content is attached or after the Bedrock grounding path is wired in.",
+    ].join(" ")
+    : [
+      `I can't provide a grounded tenant knowledge base answer for "${trimmedMessage}" in this local environment because no retrieved KB evidence is available.`,
+      `No attached session files were available in recent turns for tenant ${input.tenantId}.`,
+      "Upload a relevant document or use the Bedrock-backed path before relying on an answer here.",
+    ].join(" ")
 
   return {
     content,
-    citations: [
-      {
-        id: crypto.randomUUID(),
-        label: `${input.tenantId} local stub source`,
-        uri: `tenant-kb://${input.tenantId}/local-stub`,
-      },
-    ],
+    citations: [],
   }
+}
+
+function excludeCurrentUserTurn(history: ChatMessageRecord[], userMessage: string) {
+  const lastMessage = history.at(-1)
+
+  if (
+    lastMessage?.role === "user"
+    && lastMessage.content.trim() === userMessage
+  ) {
+    return history.slice(0, -1)
+  }
+
+  return history
 }
