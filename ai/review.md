@@ -258,6 +258,30 @@ Use this file for reviewer outcomes:
 ## 2026-04-02 ENGINEER
 
 - Narrowed the Aurora schema bootstrap inputs without changing the accepted provider-backed custom resource contract.
+- Updated [chat-assistant.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-assistant.ts) so locally ungrounded replies now return an explicit limitation message and `citations: []` instead of the old synthetic grounded stub and fake citation.
+- Left the accepted POST streaming route in [chat.post.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/api/chat.post.ts), the persistence seam in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts), and the accepted CDK package state unchanged.
+- Verification performed:
+  - `cd apps/web && npm run build` succeeded.
+  - `cd infra/cdk && npm run synth` succeeded.
+  - Ran the built Nuxt server and confirmed a no-relevant-content chat request now streams a limitation response and persists `citations: []`.
+
+## 2026-04-02 VALIDATOR
+
+- **REVISE**: `ITEM-0005` is still not acceptable. The fake-grounding fallback defect is fixed, but the checked-in chat route now breaks the required subsequent-turn attachment path for sessions that already contain uploaded files.
+- Local validation that passed:
+  - `cd apps/web && npm run build`
+  - `cd infra/cdk && npm run synth`
+  - Running the built Nuxt server with `TENANT_ID=tenant-alpha` confirmed `/api/health` derives tenant scope from runtime env, successful uploads still persist tenant/user/session-owned metadata with an ownership-hierarchical storage key, foreign session reads return `404`, and foreign uploads return `404`.
+  - A first streamed `POST /api/chat` turn in that tenant now correctly returns a limitation response and persists an assistant message with `citations: []` instead of the old synthetic citation.
+- The acceptance blocker is a concrete logic bug between [chat.post.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/api/chat.post.ts#L56) and [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts#L238). When a session already has uploaded files and a follow-up chat request omits `fileIds`, `getSessionFiles()` returns all scoped session files, but `chat.post.ts` still compares that result against the empty requested `fileIds` array and rejects the turn with `400 One or more fileIds are invalid for this tenant, user, or session`.
+- Live reproduction:
+  - Created a tenant-scoped session for `user-a`, uploaded `note.txt`, and successfully completed a first streamed chat turn with the file attached.
+  - A second `POST /api/chat` turn in the same session with body `{\"sessionId\":\"...\",\"userId\":\"user-a\",\"message\":\"What is the capital of France?\"}` and no `fileIds` failed with `400` instead of continuing the session.
+  - This prevents the accepted "assistant references uploaded file content in subsequent turns within the same session" path unless callers re-send attachment IDs on every turn, which is a behavior regression relative to the locked session/file contract.
+- Keep the revise scope narrow:
+  - Preserve the current runtime-tenant derivation, session/message/file ownership enforcement, SSE-over-POST streaming contract, limitation-response fallback, and accepted CDK package state.
+  - Fix only the attachment lookup contract so omitting `fileIds` means "attach nothing new on this user turn" rather than "treat every stored session file as newly attached and then fail validation."
+  - After the fix, re-run `cd apps/web && npm run build` and a live follow-up-turn check proving that a session with uploaded files can send a later chat turn without `fileIds`, persists the turn successfully, and still keeps assistant citations empty in the ungrounded path.
 - [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L27) now passes complete shared-schema DDL statements for `app.sessions`, `app.messages`, and `app.session_files` rather than line-by-line SQL fragments.
 - [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L31) now constructs complete per-tenant `CREATE SCHEMA`, `CREATE EXTENSION`, `CREATE TABLE`, and HNSW `CREATE INDEX` statements before wiring them into `AuroraSchema`.
 - Left [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts) unchanged on purpose: it already executes one ordered Data API `ExecuteStatement` per statement, keeps update stability via the same physical resource id, and remains a no-op on delete.
@@ -365,3 +389,31 @@ Use this file for reviewer outcomes:
 - The remaining blocker is in [aurora-schema.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/constructs/aurora-schema.ts#L17), which issues a single `RDSDataService.executeStatement` call with `sql: props.sql`. Both callers build `props.sql` by concatenating multiple DDL statements into one string in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts#L140) and [tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts#L58).
 - That means the stacks synthesize but the schema custom resources are wired to submit multi-statement SQL as one Data API `ExecuteStatement` request during deploy. This is a deploy-path correctness issue, not a documentation nit: the current bootstrap resource graph cannot reliably create the shared app schema or tenant vector schema/indexes under `cdk deploy --all`.
 - Keep the current stack split and the successful fixes for scheduler and image build path. The required engineering change is narrow: make the schema bootstrap path execute the DDL as supported Data API operations instead of one joined blob, then re-run the same `apps/web` build and `infra/cdk` build/synth verification.
+
+## 2026-04-02 ENGINEER
+
+- Updated [chat-assistant.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-assistant.ts) so locally ungrounded replies now return an explicit limitation message and `citations: []` instead of the old synthetic grounded stub and fake citation.
+- Left the accepted POST streaming route in [chat.post.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/api/chat.post.ts), the persistence seam in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts), and the accepted CDK package state unchanged.
+- Verification performed:
+  - `cd apps/web && npm run build` succeeded.
+  - `cd infra/cdk && npm run synth` succeeded.
+  - Ran the built Nuxt server and confirmed a no-relevant-content chat request now streams a limitation response and persists `citations: []`.
+
+## 2026-04-02 VALIDATOR
+
+- **REVISE**: `ITEM-0005` is still not acceptable. The fake-grounding fallback defect is fixed, but the checked-in chat route now breaks the required subsequent-turn attachment path for sessions that already contain uploaded files.
+- Local validation that passed:
+  - `cd apps/web && npm run build`
+  - `cd infra/cdk && npm run synth`
+  - Running the built Nuxt server with `TENANT_ID=tenant-alpha` confirmed `/api/health` derives tenant scope from runtime env, successful uploads still persist tenant/user/session-owned metadata with an ownership-hierarchical storage key, foreign session reads return `404`, and foreign uploads return `404`.
+  - Running the built Nuxt server with `TENANT_ID=tenant-beta` confirmed `/api/health` reflects the runtime tenant instead of any caller-controlled value.
+  - A first streamed `POST /api/chat` turn in `tenant-alpha` now correctly returns a limitation response and persists an assistant message with `citations: []` instead of the old synthetic citation.
+- The acceptance blocker is a concrete logic bug between [chat.post.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/api/chat.post.ts#L56) and [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts#L238). When a session already has uploaded files and a follow-up chat request omits `fileIds`, `getSessionFiles()` returns all scoped session files, but `chat.post.ts` still compares that result against the empty requested `fileIds` array and rejects the turn with `400 One or more fileIds are invalid for this tenant, user, or session`.
+- Live reproduction:
+  - Created a tenant-scoped session for `user-a`, uploaded `note.txt`, and successfully completed a first streamed chat turn with the file attached.
+  - A second `POST /api/chat` turn in the same session with body `{\"sessionId\":\"...\",\"userId\":\"user-a\",\"message\":\"What is the capital of France?\"}` and no `fileIds` failed with `400` instead of continuing the session.
+  - This prevents the accepted "assistant references uploaded file content in subsequent turns within the same session" path unless callers re-send attachment IDs on every turn, which is a behavior regression relative to the locked session/file contract.
+- Keep the revise scope narrow:
+  - Preserve the current runtime-tenant derivation, session/message/file ownership enforcement, SSE-over-POST streaming contract, limitation-response fallback, and accepted CDK package state.
+  - Fix only the attachment lookup contract so omitting `fileIds` means "attach nothing new on this user turn" rather than "treat every stored session file as newly attached and then fail validation."
+  - After the fix, re-run `cd apps/web && npm run build` and a live follow-up-turn check proving that a session with uploaded files can send a later chat turn without `fileIds`, persists the turn successfully, and still keeps assistant citations empty in the ungrounded path.
