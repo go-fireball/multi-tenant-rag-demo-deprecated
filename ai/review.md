@@ -239,6 +239,24 @@ Use this file for reviewer outcomes:
 - Implemented the narrow `ITEM-0004` revise pass by correcting the shared Aurora `app` schema DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) to match the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
 - Updated `app.sessions` to use primary key column `id`, updated `app.messages` to use `id`, include `user_id`, reference `sessions(id)`, and store `attached_files`, and updated `app.session_files` to reference `sessions(id)` and include `storage_bucket`.
 
+## 2026-04-02 VALIDATOR
+
+- **DONE**: the current repository state remains locally accepted through `ITEM-0005`; no contradiction was found in the accepted evidence, so the loop should stay in closeout posture and return to `PLANNER`.
+- Re-ran the required package verification on the current tree:
+  - `cd apps/web && npm run build`
+  - `cd infra/cdk && npm run synth`
+- Re-ran live built-server validation with `TENANT_ID=tenant-alpha` and confirmed the locally accepted behavior still holds:
+  - `GET /api/health` reported runtime tenant `tenant-alpha`.
+  - `POST /api/files` persisted tenant/user/session-owned file metadata with the expected ownership-hierarchical storage key shape.
+  - `POST /api/chat` on an ungrounded question persisted an assistant reply with `citations: []` and a limitation message instead of any synthetic grounding or fake citation.
+  - A later `POST /api/chat` in the same session succeeded with no `fileIds`, proving follow-up turns are no longer rejected when prior session attachments exist.
+  - A cross-user read of `GET /api/sessions/:id/messages` returned `404`, and a stolen `fileId` on `POST /api/chat` returned `400`.
+- Remaining gaps are still external proof gaps only, not hidden local defects:
+  - real `cdk deploy --all`
+  - real per-tenant AWS deployments
+  - real Bedrock grounding and citation behavior
+  - live Aurora, S3, Secrets Manager, and Google OAuth integrations
+
 ## 2026-04-02 ENGINEER
 
 - Implemented the narrow `ITEM-0005` follow-up revise pass in [chat.post.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/api/chat.post.ts).
