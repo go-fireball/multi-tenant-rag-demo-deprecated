@@ -219,6 +219,15 @@ Use this file for reviewer outcomes:
 - The current codebase still contains placeholder-only CDK stacks in [infra/cdk/lib/shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) and [infra/cdk/lib/tenant-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts); engineering should treat that as debt to replace, not a scaffold to decorate with more outputs.
 - `ai/requirements.md` remains template residue and is not authoritative for this item. Source of truth is `ai/goal.yaml`, `ai/prd.yaml`, `ai/active_item.yaml`, `ai/decision-lock.yaml`, and the item-specific simplification rules.
 
+## 2026-04-02 ENGINEER
+
+- Implemented the narrow `ITEM-0004` revise pass by correcting the shared Aurora `app` schema DDL in [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) to match the existing Nuxt persistence contract in [chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts).
+- Updated `app.sessions` to use primary key column `id`, updated `app.messages` to use `id`, include `user_id`, reference `sessions(id)`, and store `attached_files`, and updated `app.session_files` to reference `sessions(id)` and include `storage_bucket`.
+- Left the accepted stack boundaries and ordered-statement Aurora custom resource unchanged.
+- Verification performed:
+  - `cd apps/web && npm run build` succeeded.
+  - `cd infra/cdk && npm run synth` succeeded.
+
 ## 2026-04-02 SENIOR_JUDGMENTAL_ENGINEER
 
 - **REVISE**: `ITEM-0004` stays in engineering as a narrow shared-schema alignment fix. There is no product ambiguity and no reason to escalate to the user.

@@ -29,7 +29,7 @@ const sharedSchemaStatements = [
   "CREATE EXTENSION IF NOT EXISTS vector;",
   `
     CREATE TABLE IF NOT EXISTS app.sessions (
-      session_id uuid PRIMARY KEY,
+      id uuid PRIMARY KEY,
       tenant_id text NOT NULL,
       user_id text NOT NULL,
       title text NOT NULL DEFAULT 'New chat',
@@ -39,13 +39,14 @@ const sharedSchemaStatements = [
   `,
   `
     CREATE TABLE IF NOT EXISTS app.messages (
-      message_id uuid PRIMARY KEY,
+      id uuid PRIMARY KEY,
       tenant_id text NOT NULL,
-      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
+      user_id text NOT NULL,
       role text NOT NULL,
       content text NOT NULL,
       citations jsonb NOT NULL DEFAULT '[]'::jsonb,
-      attachment_ids jsonb NOT NULL DEFAULT '[]'::jsonb,
+      attached_files jsonb NOT NULL DEFAULT '[]'::jsonb,
       created_at timestamptz NOT NULL DEFAULT now()
     );
   `,
@@ -53,12 +54,13 @@ const sharedSchemaStatements = [
     CREATE TABLE IF NOT EXISTS app.session_files (
       file_id uuid PRIMARY KEY,
       tenant_id text NOT NULL,
-      session_id uuid NOT NULL REFERENCES app.sessions(session_id) ON DELETE CASCADE,
+      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,
       user_id text NOT NULL,
       original_name text NOT NULL,
       sanitized_name text NOT NULL,
       content_type text NOT NULL,
       size_bytes bigint NOT NULL,
+      storage_bucket text NOT NULL,
       storage_key text NOT NULL,
       status text NOT NULL,
       created_at timestamptz NOT NULL DEFAULT now(),
