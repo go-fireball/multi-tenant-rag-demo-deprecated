@@ -1,6 +1,6 @@
-id: ITEM-0001
-title: Scaffold the Nuxt and CDK baseline for the multi-tenant RAG platform
-goal: Establish a lean monorepo baseline with apps/web for Nuxt 4 and infra/cdk for AWS CDK so feature implementation can start on a real codebase
+id: ITEM-0002
+title: Implement tenant-scoped chat sessions and streaming response route
+goal: Add the first usable chat vertical in apps/web with session creation/loading, persisted messages, and a streamed assistant response contract that respects tenant scoping
 status: ready_for_judgment
 owner_role: SENIOR_JUDGMENTAL_ENGINEER
 related_files:
@@ -9,13 +9,15 @@ related_files:
   - ai/backlog.yaml
   - ai/decision-lock.yaml
   - ai/next_agent.md
+  - apps/web
 acceptance_criteria:
-  - The active item scope is confirmed to use Nuxt 4 plus Nitro server routes and TypeScript CDK on AWS, overriding generic template defaults
-  - Repo layout is explicitly normalized to apps/web for the application and infra/cdk for infrastructure, with a root workspace package manager setup
-  - The first engineering slice is limited to workspace scaffolding, shared TypeScript/config setup, minimal Nuxt entrypoints, and placeholder CDK stack wiring only
-  - No separate backend service, Lambda-based app logic, chat implementation, upload flow, Aurora integration, or Bedrock integration is included in this item
-  - Handoff guidance is specific enough for ENGINEER to scaffold the baseline with no further planning ambiguity
+  - "The item stays inside the existing implementation boundary: apps/web plus allowed baton files only, with no root workspace/bootstrap changes and no new infra delivery scope"
+  - Nuxt server routes provide a minimal tenant-scoped sessions API and a chat POST route that streams responses over the locked POST plus ReadableStream pattern
+  - The implementation includes persistence interfaces or concrete storage wiring sufficient to create sessions, append messages, and reload message history in an Aurora-compatible shape
+  - Tenant identity comes from server-side environment/runtime config and is applied consistently to session and message operations; callers cannot override tenant scope in the request body
+  - The slice establishes the application contract for future Bedrock-backed responses without dragging in uploads, OAuth completion, production Aurora hardening, or full Bedrock agent integration unless a thin adapter/stub is required to make the route coherent
+  - Handoff guidance is specific enough for judgment and engineering to distinguish in-scope chat/session work from deferred upload and infrastructure work
 done_definition:
-  - Decision locks capture the approved stack, repo layout, and first-slice boundaries from ai/goal.yaml and ai/prd.yaml
-  - Backlog keeps ITEM-0001 in progress and preserves sequenced follow-on items for chat, uploads, infrastructure, and validation
-  - ai/next_agent.md tells the next role exactly what to validate and simplify before implementation
+  - "Backlog marks ITEM-0001 done and advances ITEM-0002 as the current in-progress slice without disturbing the remaining sequence"
+  - Decision locks capture the chat-route boundaries, tenant-scoping rules, and streaming contract needed for this slice
+  - "ai/next_agent.md tells SENIOR_JUDGMENTAL_ENGINEER exactly what to validate: route scope, persistence contract shape, tenant isolation handling, and streaming behavior"

@@ -1,15 +1,16 @@
 # Next Agent
 
-Active item: `ITEM-0001` is unblocked and ready for implementation.
+`ITEM-0002` is ready for `ENGINEER`.
 
-Required scope for ENGINEER:
-- Implement only what fits inside the current engineer contract: scaffold `apps/web` and `infra/cdk`, plus any app-local config files that live inside those directories.
-- Build a minimal Nuxt 4 baseline in `apps/web` and placeholder CDK app/stack wiring in `infra/cdk`.
-- Keep the stack aligned with the project sources: Nuxt 4 + Nitro server routes, TypeScript, AWS CDK, shared/tenant separation.
+Engineering target:
+- Build the first usable chat vertical in `apps/web` only.
+- Add the minimal server routes and app wiring needed for tenant-scoped session creation/loading, message history reload, and a streamed assistant reply path.
+- Keep tenant scope server-derived only. Do not accept tenant identifiers from the caller anywhere in the request contract.
+- Put persistence behind a small Aurora-compatible seam. A local/dev adapter is fine if the contract stays replaceable and tenant-safe.
+- Preserve the locked streaming contract: client uses `fetch` `POST`, server returns a streamed response via `ReadableStream`; do not switch to EventSource.
+- A thin Bedrock adapter or deterministic stub is acceptable. Real Bedrock, uploads, OAuth completion, infra work, and production Aurora hardening are out of scope.
 
-Explicitly out of scope in this slice:
-- Any root-level `package.json`, lockfile, root `tsconfig`, or other workspace bootstrap files
-- Separate backend services, Lambda app logic, chat behavior, uploads, Aurora integration, Bedrock integration, auth implementation, or production-hardening work
-
-Execution note:
-- The human already chose `rescope_item_0001`; do not reopen the root-workspace conflict unless a new constraint appears that cannot be solved inside `apps/**` and `infra/**`.
+Current baseline:
+- `ITEM-0001` is complete and accepted.
+- `apps/web` builds successfully as the starting point for feature work.
+- `infra/cdk` remains placeholder-only and should stay untouched unless judgment finds a direct contradiction, which planning does not expect.

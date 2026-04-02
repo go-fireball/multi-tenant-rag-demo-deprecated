@@ -1,0 +1,20 @@
+{
+  "version": "53.0.0",
+  "files": {
+    "60895878f47f11ba9ee336a85b03ee805fdb9655b521bb55e5f489a0e975d604": {
+      "displayName": "TenantStack-tenant-a-dev Template",
+      "source": {
+        "path": "TenantStack-tenant-a-dev.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "current_account-current_region-0a6745be": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}",
+          "objectKey": "60895878f47f11ba9ee336a85b03ee805fdb9655b521bb55e5f489a0e975d604.json",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-${AWS::Region}"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

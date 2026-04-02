@@ -1,0 +1,38 @@
+{
+  "/SharedStack-dev/EnvironmentName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EnvironmentName"
+    }
+  ],
+  "/SharedStack-dev/SharedAssetsBucketName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SharedAssetsBucketName"
+    }
+  ],
+  "/SharedStack-dev/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    }
+  ],
+  "/SharedStack-dev/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    }
+  ],
+  "/SharedStack-dev/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ],
+  "/SharedStack-dev/CDKMetadata/Condition": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadataAvailable"
+    }
+  ]
+}

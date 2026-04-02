@@ -1,0 +1,50 @@
+{
+  "/TenantStack-tenant-a-dev/TenantId": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TenantId"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/EnvironmentName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EnvironmentName"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/SharedAssetsBucketName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SharedAssetsBucketName"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/PlannedResources": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PlannedResources"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ],
+  "/TenantStack-tenant-a-dev/CDKMetadata/Condition": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadataAvailable"
+    }
+  ]
+}

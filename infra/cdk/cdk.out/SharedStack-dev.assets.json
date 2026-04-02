@@ -1,0 +1,20 @@
+{
+  "version": "53.0.0",
+  "files": {
+    "cd50b947be43201c5fd948cdf37098821647e16d6222a583c0715b550f4f9f3c": {
+      "displayName": "SharedStack-dev Template",
+      "source": {
+        "path": "SharedStack-dev.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "current_account-current_region-e52b9cb2": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}",
+          "objectKey": "cd50b947be43201c5fd948cdf37098821647e16d6222a583c0715b550f4f9f3c.json",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-${AWS::Region}"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

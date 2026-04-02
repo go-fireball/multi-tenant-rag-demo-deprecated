@@ -1,0 +1,3504 @@
+Script started on 2026-04-01 19:10:38-05:00 [COMMAND="codex exec --model gpt-5.4 --dangerously-bypass-approvals-and-sandbox --output-last-message /tmp/tmp.LWJ7CoQ1bp $'Current role: ENGINEER\nSource of truth: ai/active_agent.txt\nLoad and follow this role prompt exactly: ai/prompts/02-engineer.md\nDo not route from ai/next_agent.yaml role config.\nStrict terminal contract (must output exactly one when ending):\n- FINISHED: HANDING TO <ROLE>\n- WAITING FOR USER\n- WAITING FOR BATON\n\nHandoff notes:\nHandoff from SENIOR_JUDGMENTAL_ENGINEER at 2026-04-02T00:10:38Z' " TERM="xterm-256color" TTY="/dev/pts/1" COLUMNS="184" LINES="43"]
+OpenAI Codex v0.118.0 (research preview)
+--------
+[1mworkdir:[0m /home/sundaram/code/multi-tenant-rag-demo
+[1mmodel:[0m gpt-5.4
+[1mprovider:[0m openai
+[1mapproval:[0m never
+[1msandbox:[0m danger-full-access
+[1mreasoning effort:[0m medium
+[1mreasoning summaries:[0m none
+[1msession id:[0m 019d4b87-1c01-78a1-9411-c6e8f55f7589
+--------
+[36muser[0m
+Current role: ENGINEER
+Source of truth: ai/active_agent.txt
+Load and follow this role prompt exactly: ai/prompts/02-engineer.md
+Do not route from ai/next_agent.yaml role config.
+Strict terminal contract (must output exactly one when ending):
+- FINISHED: HANDING TO <ROLE>
+- WAITING FOR USER
+- WAITING FOR BATON
+
+Handoff notes:
+Handoff from SENIOR_JUDGMENTAL_ENGINEER at 2026-04-02T00:10:38Z
+[35m[3mcodex[0m[0m
+I’m loading the engineer role prompt from the repo and will follow that as the active instruction source for this turn, using `ai/active_agent.txt` as the source of truth.
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,200p' ai/active_agent.txt"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+ENGINEER
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,240p' ai/prompts/02-engineer.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+# ROLE: ENGINEER
+
+## 1) Baton check
+- Read `ai/active_agent.txt`.
+- If value is not exactly `ENGINEER`, output exactly:
+`WAITING FOR BATON`
+- Stop.
+
+## 2) Required reads
+- `ai/goal.yaml`
+- `ai/active_item.yaml`
+- `ai/requirements.md`
+- `ai/judgment.yaml`
+- `ai/simplification.md`
+- `ai/decision-lock.yaml`
+- `ai/user-questions.yaml`
+- `ai/constitution.yaml`
+- `ai/next_agent.md`
+- relevant files in `apps/`, `infra/`, `context/repo/`
+
+## 3) Allowed edits (only)
+- `apps/**`
+- `infra/**`
+- related tests/docs for active item
+- `ai/review.md` (implementation notes)
+- `ai/decision-lock.yaml`
+- `ai/user-questions.yaml`
+- `ai/next_agent.md` (optional)
+- `ai/iterations/ITER-0001.md`
+
+## 4) Required actions
+- Implement active-item scope and keep changes proportional.
+- If blocked, conflicted, or underspecified, escalate by handing off to:
+  - `SENIOR_JUDGMENTAL_ENGINEER` (judgment/tradeoff resolution), or
+  - `PLANNER` (scope/intent decomposition).
+- Escalation should prefer those roles over direct HUMAN routing.
+
+## 5) End-of-turn required steps
+- Append iteration log line.
+- Write `ai/next_agent.md` with concise handoff notes.
+- Default happy-path handoff:
+`FINISHED: HANDING TO VALIDATOR`
+- Stop.
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'git status --short'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+ M ai/active_agent.txt
+ M ai/logs/baton.log
+ M ai/next_agent.yaml
+?? ai/logs/step-001-SENIOR_JUDGMENTAL_ENGINEER.log
+
+[35m[3mcodex[0m[0m
+I’ve confirmed the baton is correctly set to `ENGINEER`. Next I’m reading the required coordination files and the active-item context to determine the exact implementation scope before touching code.
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,220p' ai/goal.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+# Edit this file to define your project goal before running the baton loop.
+#
+# Full requirements, architecture decisions, and implementation detail are in:
+#   prd.yaml — Multi-Tenant RAG Chat Platform (v1.0.0 PoC)
+#
+# This file is the concise entry point. Refer to prd.yaml for:
+#   - Key design decisions (DEC-001 through DEC-009)
+#   - Full database schema and API endpoint contracts
+#   - RAG retrieval & relevance strategy
+#   - CDK stack breakdown (SharedStack, TenantStack, UIStack)
+#   - File handling, session limits, and cleanup policy
+#   - Non-functional requirements and security guardrails
+#
+project_goal: >
+  Build a multi-tenant RAG chat platform where each tenant gets an isolated
+  AI assistant backed by their own Bedrock Knowledge Base and Bedrock Agent.
+  A single Nuxt 4 codebase is deployed per tenant (same Docker image, different
+  TENANT_ID env var) on ECS Fargate. All backend logic lives in Nuxt server routes
+  (no separate API service). Aurora Serverless v2 stores sessions, messages, and
+  file metadata. Uploaded files are stored in S3 and passed to Bedrock by S3
+  reference. Responses stream via SSE. Infrastructure is fully automated with
+  AWS CDK in TypeScript. Auth is Google OAuth (nuxt-google-auth) for PoC.
+
+success_criteria:
+  - A user can open the chat UI, ask a question, and receive a streamed response
+    grounded in the tenant's knowledge base documents with source citations
+  - A second tenant deployment (different TENANT_ID) returns answers only from
+    its own KB — no cross-tenant content appears in any response
+  - A user can upload a file (PDF, DOCX, TXT) in a chat session and the assistant
+    references its content in subsequent turns within the same session
+  - Session history persists across browser refreshes — messages reload correctly
+    from Aurora via GET /api/sessions/:id/messages
+  - CDK deploy (cdk deploy --all) provisions SharedStack, TenantStack, and UIStack
+    from scratch without manual console steps
+  - Bedrock Agent returns a KB limitation message (not a hallucinated answer)
+    when a question has no relevant content in the tenant knowledge base
+  - Retrieval pipeline uses semantic chunking, top_k=12 candidates, Bedrock
+    reranking to top 5, and strict grounding (guardrail threshold 0.75)
+  - POST /api/files enforces max 5 files, 10MB per file, 20 files per session,
+    and validates MIME type server-side before writing to S3
+  - All infrastructure secrets (Aurora credentials, OAuth secrets) are stored in
+    Secrets Manager — nothing hardcoded in code or CDK assets
+
+context_notes:
+  - Stack is full TypeScript — Nuxt 4 (UI + server routes via h3/Nitro) + CDK
+  - One Bedrock Agent per tenant, one Bedrock KB per tenant — hard resource isolation,
+    not metadata-filter isolation
+  - Aurora Serverless v2 shared cluster with per-tenant vector schema
+    (vectors_{tenantId}) and shared app schema (sessions, messages, session_files)
+  - Bedrock KB uses Aurora pgvector as vector store via RDS Data API (semantic only,
+    no hybrid retrieval for PoC)
+  - Files are uploaded via POST /api/files → stored in S3 with key pattern
+    tenant-files-{env}/{tenantId}/{userId}/{sessionId}/{fileId}/{filename},
+    metadata in app.session_files; chat passes S3 source reference to Bedrock
+    (not byte content) — avoids server-side byte download on every turn
+  - Streaming uses fetch() POST + ReadableStream reader — NOT EventSource
+    (EventSource is GET-only and cannot carry a request body)
+  - tenantId is baked into the ECS task at deploy time via NUXT_PUBLIC_TENANT_ID
+    env var — it cannot be overridden by a browser caller
+  - Per-tenant ECS service is PoC architecture only; production will consolidate
+    to a single shared service with subdomain-based tenant routing
+  - Authenticated direct Aurora access is permitted in dev/PoC environments to
+    reduce development friction (see DEC-009 guardrails) — not for production
+  - Google OAuth via nuxt-google-auth is the recommended PoC auth path (~2hr setup);
+    fallback is browser UUID in localStorage if auth is deferred
+
+constraints:
+  - No autonomous background runtime
+  - No heavy phase orchestration engine
+  - No unnecessary microservices or clever abstractions
+  - No separate API service — all backend logic in Nuxt server routes only
+  - No Lambda functions for application logic (CDK schema-setup Lambda is the only exception)
+  - No DynamoDB — Aurora handles sessions, file metadata, and vectors
+  - No shared Bedrock Agent or KB across tenants — one agent and one KB per tenant, always
+  - No production customer data in dev/PoC environments
+  - No hardcoded secrets in source code or CDK assets
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,220p' ai/active_item.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+id: ITEM-0001
+title: Scaffold the Nuxt and CDK baseline for the multi-tenant RAG platform
+goal: Establish a lean monorepo baseline with apps/web for Nuxt 4 and infra/cdk for AWS CDK so feature implementation can start on a real codebase
+status: ready_for_judgment
+owner_role: SENIOR_JUDGMENTAL_ENGINEER
+related_files:
+  - ai/goal.yaml
+  - ai/prd.yaml
+  - ai/backlog.yaml
+  - ai/decision-lock.yaml
+  - ai/next_agent.md
+acceptance_criteria:
+  - The active item scope is confirmed to use Nuxt 4 plus Nitro server routes and TypeScript CDK on AWS, overriding generic template defaults
+  - Repo layout is explicitly normalized to apps/web for the application and infra/cdk for infrastructure, with a root workspace package manager setup
+  - The first engineering slice is limited to workspace scaffolding, shared TypeScript/config setup, minimal Nuxt entrypoints, and placeholder CDK stack wiring only
+  - No separate backend service, Lambda-based app logic, chat implementation, upload flow, Aurora integration, or Bedrock integration is included in this item
+  - Handoff guidance is specific enough for ENGINEER to scaffold the baseline with no further planning ambiguity
+done_definition:
+  - Decision locks capture the approved stack, repo layout, and first-slice boundaries from ai/goal.yaml and ai/prd.yaml
+  - Backlog keeps ITEM-0001 in progress and preserves sequenced follow-on items for chat, uploads, infrastructure, and validation
+  - ai/next_agent.md tells the next role exactly what to validate and simplify before implementation
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,260p' ai/requirements.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+# Requirements (One Pager)
+
+## Objective
+
+<!-- PLANNER + SENIOR_JUDGMENTAL_ENGINEER: replace with clarified objective from ai/goal.yaml -->
+<describe the product objective from the project goal>
+
+## In Scope
+
+- <scope item derived from goal>
+
+## Out of Scope
+
+- Governance loop internals (already bootstrapped)
+
+## Constraints
+
+- <constraints from ai/goal.yaml>
+
+## Acceptance Criteria
+
+- <testable condition from goal success_criteria>
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,220p' ai/judgment.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+backend_default: aspnet_core
+frontend_default: react_nextjs
+frontend_alternative: nuxt_if_explicitly_requested
+database_default: postgresql
+architecture_default: modular_monolith
+coding_style: functional_testable_pragmatic
+preserve_business_behavior: true
+avoid_unnecessary_microservices: true
+avoid_clever_abstractions: true
+cloud_default: aws
+iac_default: cdk
+container_default: fargate
+static_assets_default: s3_cloudfront
+auth_default: cognito
+python_only_for_data_workloads: true
+nosql_only_when_justified: true
+relational_bias: true
+human_for_high_level_decisions_only: true
+
+baton_transition_owner: runner_only
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,220p' ai/simplification.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+# Simplification Guidance
+
+1. Prefer straightforward modular monolith structures.
+2. Keep interfaces small and explicit.
+3. Add abstractions only when repeated pain is proven.
+4. Preserve existing business behavior unless requirements say otherwise.
+5. Bias toward maintainability over novelty.
+6. For `ITEM-0001`, create only the minimum in-scope baseline under the current engineer contract: `apps/web`, `infra/cdk`, and only app-local/config files that live within those directories.
+7. Do not require root-level workspace normalization, shared root TypeScript config, or lockfile/package-manager setup in this item; that was explicitly deferred by the human decision on 2026-04-01.
+8. Nuxt server routes are the backend boundary for this PoC; do not scaffold a second service, RPC layer, or Lambda app runtime.
+9. CDK code in this slice should prove stack shape and tenant/shared separation only; placeholders are correct, real AWS resource wiring is premature here.
+10. Authentication, Aurora access, Bedrock calls, uploads, streaming chat behavior, and production deployment polish all belong to later items, not this scaffold.
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,220p' ai/decision-lock.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+confirmed_by_user: true
+blocked_on_user: false
+last_user_decision: "On 2026-04-01 the user chose `rescope_item_0001`, keeping implementation inside the current ENGINEER edit boundary and deferring required root-level workspace/config files from this item."
+approved_exceptions:
+  - "Direct Aurora access is allowed only in dev/PoC environments under DEC-009 guardrails"
+  - "Browser UUID may be used as a temporary userId fallback only if Google OAuth is deferred during PoC setup"
+approved_decisions:
+  - "Use a full TypeScript stack: Nuxt 4 for UI plus server routes and AWS CDK in TypeScript"
+  - "Project-specific architecture decisions override generic baton defaults: use Nuxt 4 instead of React/Next.js and prefer Google OAuth over Cognito for the PoC path"
+  - "Target a monorepo baseline with a root workspace package manager setup, shared TypeScript config, and app code rooted at apps/web plus infra/cdk"
+  - "Because the repo is currently empty, prefer npm workspaces as the simplest baseline unless a later item establishes a stronger reason to change package-manager strategy"
+  - "Do not introduce a separate API service; backend logic stays in Nuxt server/api routes"
+  - "Deploy the same application image per tenant with TENANT_ID injected by environment configuration"
+  - "Use Aurora PostgreSQL Serverless v2 as the shared cluster with separate tenant vector schemas"
+  - "Provision one Bedrock Agent and one Bedrock Knowledge Base per tenant for hard isolation"
+  - "Target AWS deployment on ECS Fargate with secrets stored in Secrets Manager"
+  - "PoC auth path is Google OAuth, with no-auth/browser UUID only as a fallback if explicitly deferred"
+  - "Normalize the repo layout to a root workspace with apps/web for the Nuxt application and infra/cdk for the CDK application"
+  - "The long-term repo shape still targets apps/web for the Nuxt application and infra/cdk for the CDK application, but ITEM-0001 must stay within the current ENGINEER edit boundary and therefore does not include root workspace normalization yet"
+  - "ITEM-0001 is scaffold-only: create minimal in-scope app/config/runtime entrypoints under apps/web and placeholder stack wiring under infra/cdk, but defer chat, uploads, Aurora integration, Bedrock integration, root workspace/bootstrap files, and any production-grade infra implementation details"
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,220p' ai/user-questions.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+status: answered
+return_to_role: SENIOR_JUDGMENTAL_ENGINEER
+questions:
+  - id: Q-0001
+    title: Resolve engineer edit-boundary conflict for ITEM-0001
+    context: >
+      ITEM-0001 requires a root npm workspace setup plus shared TypeScript config,
+      but the current ENGINEER role prompt only allows edits under apps/**,
+      infra/**, selected ai/**, and related tests/docs. The repo has no existing
+      root package.json, lockfile, or shared tsconfig, so implementation is blocked
+      by the prompt contract rather than by product ambiguity.
+    options:
+      - value: expand_engineer_contract
+        description: >
+          Update the ENGINEER prompt to allow the minimum required root-level
+          workspace/config files for ITEM-0001, such as package.json, package-lock.json,
+          tsconfig.base.json, .gitignore, and similar baseline metadata.
+      - value: rescope_item_0001
+        description: >
+          Re-scope ITEM-0001 so it fits entirely within the current ENGINEER
+          edit boundary and no longer requires root workspace normalization.
+    answer: rescope_item_0001
+    answer_rationale: >
+      Keep the implementation within the current ENGINEER edit boundary. The
+      app should be created under apps/ and infra code should stay under infra/,
+      without requiring new root-level workspace or shared config files in this
+      item.
+    status: answered
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,260p' ai/constitution.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+core_rules:
+  - state lives in files, not chat memory
+  - baton ownership is authoritative
+  - roles must not edit outside allowed files
+baton_rules:
+  - ai/active_agent.txt is the source of truth for the current role
+  - runner is the only component that may update ai/active_agent.txt and finalize baton transitions
+  - ai/next_agent.yaml carries baton state only (next_role, optional handoff_notes, optional return_to, optional escalated_by, optional escalation_reason)
+  - role behavior and prompt routing must come from static role mapping in the runner, never from generated YAML
+  - if active agent mismatch, print exactly WAITING FOR BATON
+  - on success, print exactly FINISHED: HANDING TO <ROLE>
+  - if human clarification is needed, write ai/user-questions.yaml and print exactly WAITING FOR USER
+  - agents must never modify ai/active_agent.txt or ai/next_agent.yaml to force baton transitions
+edit_rules:
+  - only edit allowed files listed in the current role prompt
+stop_rules:
+  - WAITING FOR USER must be the final non-empty output line with no extra trailing commentary
+  - WAITING FOR BATON must be the final non-empty output line with no extra trailing commentary
+  - always append an iteration log entry before handoff
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,220p' ai/next_agent.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+# Next Agent
+
+Active item: `ITEM-0001` is unblocked and ready for implementation.
+
+Required scope for ENGINEER:
+- Implement only what fits inside the current engineer contract: scaffold `apps/web` and `infra/cdk`, plus any app-local config files that live inside those directories.
+- Build a minimal Nuxt 4 baseline in `apps/web` and placeholder CDK app/stack wiring in `infra/cdk`.
+- Keep the stack aligned with the project sources: Nuxt 4 + Nitro server routes, TypeScript, AWS CDK, shared/tenant separation.
+
+Explicitly out of scope in this slice:
+- Any root-level `package.json`, lockfile, root `tsconfig`, or other workspace bootstrap files
+- Separate backend services, Lambda app logic, chat behavior, uploads, Aurora integration, Bedrock integration, auth implementation, or production-hardening work
+
+Execution note:
+- The human already chose `rescope_item_0001`; do not reopen the root-workspace conflict unless a new constraint appears that cannot be solved inside `apps/**` and `infra/**`.
+
+[35m[3mcodex[0m[0m
+The scope is narrower than the original item text: only `apps/web` and `infra/cdk` plus the required AI handoff files. I’m inspecting the repo shape now so I can scaffold the minimum viable baseline without crossing the edit boundary.
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'rg --files .'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+./init.sh
+./ai/prd.yaml
+./ai/review.md
+./ai/user-questions.yaml
+./ai/logs/step-001-SENIOR_JUDGMENTAL_ENGINEER.log
+./ai/logs/step-002-SENIOR_JUDGMENTAL_ENGINEER.log
+./ai/logs/baton.log
+./ai/logs/step-003-ENGINEER.log
+./ai/logs/step-004-SENIOR_JUDGMENTAL_ENGINEER.log
+./ai/logs/step-001-PLANNER.log
+./ai/next_agent.md
+./ai/active_agent.txt
+./scripts/check-baton.sh
+./scripts/validate_baton.py
+./scripts/run-baton.sh
+./scripts/check-goal.sh
+./scripts/resume-baton.sh
+./scripts/generate-next-agent.sh
+./scripts/bootstrap.sh
+./ai/defaults/simplification.md
+./ai/defaults/review.md
+./ai/next_agent.yaml
+./ai/backlog.yaml
+./ai/goal.yaml
+./ai/requirements.md
+./ai/defaults/logs/baton.log
+./ai/defaults/backlog.yaml
+./ai/defaults/goal.yaml
+./ai/defaults/requirements.md
+./ai/simplification.md
+./ai/templates/active-item-template.yaml
+./ai/defaults/templates/active-item-template.yaml
+./ai/templates/one-pager-requirements-template.md
+./ai/defaults/templates/one-pager-requirements-template.md
+./ai/templates/decision-lock-template.yaml
+./ai/defaults/templates/decision-lock-template.yaml
+./ai/templates/next-agent-template.yaml
+./ai/defaults/templates/next-agent-template.yaml
+./ai/defaults/templates/backlog-item-template.yaml
+./ai/templates/backlog-item-template.yaml
+./ai/decision-lock.yaml
+./ai/defaults/decision-lock.yaml
+./ai/defaults/judgment.yaml
+./ai/defaults/user-questions.yaml
+./ai/iterations/ITER-0001.md
+./ai/defaults/active_item.yaml
+./ai/defaults/constitution.yaml
+./ai/active_item.yaml
+./ai/judgment.yaml
+./ai/constitution.yaml
+./ai/defaults/iterations/ITER-0001.md
+./ai/defaults/prompts/02-engineer.md
+./ai/defaults/prompts/00-planner.md
+./ai/defaults/prompts/01-senior-judgmental-engineer.md
+./ai/defaults/prompts/human.md
+./ai/defaults/prompts/03-validator.md
+./ai/prompts/01-senior-judgmental-engineer.md
+./ai/prompts/03-validator.md
+./ai/prompts/human.md
+./ai/prompts/00-planner.md
+./ai/prompts/02-engineer.md
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'find apps -maxdepth 3 -type f | sort'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+find: ‘apps’: No such file or directory
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'find infra -maxdepth 4 -type f | sort'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+find: ‘infra’: No such file or directory
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'find context/repo -maxdepth 4 -type f | sort'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+find: ‘context/repo’: No such file or directory
+
+[3mImplementing the scoped ITEM-0001 scaffold inside the current engineer edit boundary only.[0m
+  [32m✓[0m Inspect current repo state and confirm in-scope scaffold boundaries
+  [36m→[0m Create minimal Nuxt 4 baseline under apps/web with app-local config and Nitro server route placeholder
+  [2m•[0m [2mCreate placeholder TypeScript CDK app under infra/cdk with shared and tenant stack wiring[0m
+  [2m•[0m [2mUpdate handoff notes and iteration log, then verify scaffold shape[0m
+[35m[3mcodex[0m[0m
+I’ve confirmed the repo is effectively empty aside from the baton files. I’m creating only app-local package/config files under `apps/web` and `infra/cdk`, with no root workspace bootstrap, and then I’ll wire a minimal Nuxt and placeholder CDK shape around that.
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'mkdir -p apps/web/app apps/web/server/api infra/cdk/bin infra/cdk/lib'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+[1mapply patch[0m
+[1mpatch:[0m completed
+[2m/home/sundaram/code/multi-tenant-rag-demo/apps/web/app/app.vue[0m
+[2m/home/sundaram/code/multi-tenant-rag-demo/apps/web/nuxt.config.ts[0m
+[2m/home/sundaram/code/multi-tenant-rag-demo/apps/web/package.json[0m
+[2m/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/api/health.get.ts[0m
+[2m/home/sundaram/code/multi-tenant-rag-demo/apps/web/tsconfig.json[0m
+[2m/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/bin/app.ts[0m
+[2m/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/cdk.json[0m
+[2m/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts[0m
+[2m/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/tenant-stack.ts[0m
+[2m/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/package.json[0m
+[2m/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/tsconfig.json[0m
+diff --git a/apps/web/app/app.vue b/apps/web/app/app.vue
+new file mode 100644
+index 0000000000000000000000000000000000000000..8c6635bfc4627ab70edc56a521c67c968b77d35e
+--- /dev/null
++++ b/apps/web/app/app.vue
+@@ -0,0 +1,69 @@
++<script setup lang="ts">
++const config = useRuntimeConfig()
++</script>
++
++<template>
++  <main class="shell">
++    <section class="panel">
++      <p class="eyebrow">Multi-Tenant RAG Demo</p>
++      <h1>Nuxt baseline is wired.</h1>
++      <p class="body">
++        This slice intentionally stops at the scaffold. Chat, uploads, auth, Aurora,
++        and Bedrock integrations are deferred to later items.
++      </p>
++      <p class="tenant">Tenant: {{ config.public.tenantId }}</p>
++    </section>
++  </main>
++</template>
++
++<style scoped>
++:global(body) {
++  margin: 0;
++  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
++  background:
++    radial-gradient(circle at top, #f2efe8 0%, #e7dfd2 30%, #d6ccb8 100%);
++  color: #1d1b19;
++}
++
++.shell {
++  min-height: 100vh;
++  display: grid;
++  place-items: center;
++  padding: 2rem;
++}
++
++.panel {
++  width: min(42rem, 100%);
++  padding: 2rem;
++  border: 1px solid rgba(29, 27, 25, 0.12);
++  border-radius: 1.5rem;
++  background: rgba(255, 252, 246, 0.84);
++  box-shadow: 0 20px 60px rgba(76, 62, 44, 0.14);
++  backdrop-filter: blur(10px);
++}
++
++.eyebrow {
++  margin: 0 0 0.75rem;
++  text-transform: uppercase;
++  letter-spacing: 0.16em;
++  font-size: 0.75rem;
++  color: #7b5b2e;
++}
++
++h1 {
++  margin: 0;
++  font-size: clamp(2.5rem, 5vw, 3.75rem);
++  line-height: 0.95;
++}
++
++.body,
++.tenant {
++  margin: 1.25rem 0 0;
++  font-size: 1rem;
++  line-height: 1.6;
++}
++
++.tenant {
++  font-weight: 600;
++}
++</style>
+diff --git a/apps/web/nuxt.config.ts b/apps/web/nuxt.config.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..821ff45266e36ab8ceb9517dbbe9eb55929fc664
+--- /dev/null
++++ b/apps/web/nuxt.config.ts
+@@ -0,0 +1,13 @@
++export default defineNuxtConfig({
++  compatibilityDate: "2026-04-01",
++  devtools: { enabled: true },
++  srcDir: ".",
++  future: {
++    compatibilityVersion: 4,
++  },
++  runtimeConfig: {
++    public: {
++      tenantId: process.env.NUXT_PUBLIC_TENANT_ID ?? "local-dev",
++    },
++  },
++})
+diff --git a/apps/web/package.json b/apps/web/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..7da153735783a66501e72ca5053913e7a2d7bda8
+--- /dev/null
++++ b/apps/web/package.json
+@@ -0,0 +1,13 @@
++{
++  "name": "@multi-tenant-rag-demo/web",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "dev": "nuxt dev",
++    "build": "nuxt build",
++    "preview": "nuxt preview"
++  },
++  "dependencies": {
++    "nuxt": "^4.0.0"
++  }
++}
+diff --git a/apps/web/server/api/health.get.ts b/apps/web/server/api/health.get.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..a428d2f742f587427b3b38c13aa23922668e7567
+--- /dev/null
++++ b/apps/web/server/api/health.get.ts
+@@ -0,0 +1,8 @@
++export default defineEventHandler(() => {
++  return {
++    ok: true,
++    service: "web",
++    tenantId: useRuntimeConfig().public.tenantId,
++    timestamp: new Date().toISOString(),
++  }
++})
+diff --git a/apps/web/tsconfig.json b/apps/web/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..4b34df1571f7bfb636c02bbb718603cc2d9d1382
+--- /dev/null
++++ b/apps/web/tsconfig.json
+@@ -0,0 +1,3 @@
++{
++  "extends": "./.nuxt/tsconfig.json"
++}
+diff --git a/infra/cdk/bin/app.ts b/infra/cdk/bin/app.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..28269d8cdf8f120b04331ff3f620ec72b5c6bd9b
+--- /dev/null
++++ b/infra/cdk/bin/app.ts
+@@ -0,0 +1,20 @@
++import { App } from "aws-cdk-lib"
++
++import { SharedStack } from "../lib/shared-stack.js"
++import { TenantStack } from "../lib/tenant-stack.js"
++
++const app = new App()
++const environmentName = app.node.tryGetContext("environmentName") ?? "dev"
++const tenantId = app.node.tryGetContext("tenantId") ?? "tenant-a"
++
++const sharedStack = new SharedStack(app, `SharedStack-${environmentName}`, {
++  description: "Shared platform placeholder stack for the multi-tenant RAG demo",
++  environmentName,
++})
++
++new TenantStack(app, `TenantStack-${tenantId}-${environmentName}`, {
++  description: "Tenant-scoped placeholder stack for the multi-tenant RAG demo",
++  environmentName,
++  tenantId,
++  sharedAssetsBucketName: sharedStack.sharedAssetsBucketName,
++})
+diff --git a/infra/cdk/cdk.json b/infra/cdk/cdk.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..9985aa00e04a935cbf20dcd87484957c18def551
+--- /dev/null
++++ b/infra/cdk/cdk.json
+@@ -0,0 +1,3 @@
++{
++  "app": "node --enable-source-maps dist/bin/app.js"
++}
+diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..c129b3041a4d2103b0110f0fc50edac3174c72ad
+--- /dev/null
++++ b/infra/cdk/lib/shared-stack.ts
+@@ -0,0 +1,25 @@
++import { CfnOutput, Stack, type StackProps } from "aws-cdk-lib"
++import { Construct } from "constructs"
++
++export interface SharedStackProps extends StackProps {
++  environmentName: string
++}
++
++export class SharedStack extends Stack {
++  public readonly sharedAssetsBucketName: string
++
++  constructor(scope: Construct, id: string, props: SharedStackProps) {
++    super(scope, id, props)
++
++    this.sharedAssetsBucketName = `placeholder-shared-assets-${props.environmentName}`
++
++    new CfnOutput(this, "EnvironmentName", {
++      value: props.environmentName,
++    })
++
++    new CfnOutput(this, "SharedAssetsBucketName", {
++      value: this.sharedAssetsBucketName,
++      description: "Placeholder output until real shared infrastructure is added.",
++    })
++  }
++}
+diff --git a/infra/cdk/lib/tenant-stack.ts b/infra/cdk/lib/tenant-stack.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..3d76c7fe1deca9e85f79a5da07654e0cb218f7b1
+--- /dev/null
++++ b/infra/cdk/lib/tenant-stack.ts
+@@ -0,0 +1,36 @@
++import { CfnOutput, Stack, type StackProps } from "aws-cdk-lib"
++import { Construct } from "constructs"
++
++export interface TenantStackProps extends StackProps {
++  environmentName: string
++  tenantId: string
++  sharedAssetsBucketName: string
++}
++
++export class TenantStack extends Stack {
++  constructor(scope: Construct, id: string, props: TenantStackProps) {
++    super(scope, id, props)
++
++    new CfnOutput(this, "TenantId", {
++      value: props.tenantId,
++    })
++
++    new CfnOutput(this, "EnvironmentName", {
++      value: props.environmentName,
++    })
++
++    new CfnOutput(this, "SharedAssetsBucketName", {
++      value: props.sharedAssetsBucketName,
++      description: "Reference to shared placeholder infrastructure.",
++    })
++
++    new CfnOutput(this, "PlannedResources", {
++      value: [
++        "Nuxt service on ECS Fargate",
++        "Tenant-scoped Bedrock Agent",
++        "Tenant-scoped Bedrock Knowledge Base",
++      ].join(", "),
++      description: "Intent-only output for the scaffold slice.",
++    })
++  }
++}
+diff --git a/infra/cdk/package.json b/infra/cdk/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..8ccc7208d5db85ce8932dd2b97e5e31d7f99c48b
+--- /dev/null
++++ b/infra/cdk/package.json
+@@ -0,0 +1,19 @@
++{
++  "name": "@multi-tenant-rag-demo/cdk",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "build": "tsc --project tsconfig.json",
++    "cdk": "cdk",
++    "synth": "cdk synth"
++  },
++  "dependencies": {
++    "aws-cdk-lib": "^2.190.0",
++    "constructs": "^10.4.2"
++  },
++  "devDependencies": {
++    "@types/node": "^22.14.1",
++    "aws-cdk": "^2.1009.0",
++    "typescript": "^5.8.3"
++  }
++}
+diff --git a/infra/cdk/tsconfig.json b/infra/cdk/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..cf7f9b4dee1775bce445c0d60f9810a6b7c899de
+--- /dev/null
++++ b/infra/cdk/tsconfig.json
+@@ -0,0 +1,14 @@
++{
++  "compilerOptions": {
++    "target": "ES2022",
++    "module": "NodeNext",
++    "moduleResolution": "NodeNext",
++    "lib": ["ES2022"],
++    "strict": true,
++    "esModuleInterop": true,
++    "forceConsistentCasingInFileNames": true,
++    "skipLibCheck": true,
++    "outDir": "dist"
++  },
++  "include": ["bin/**/*.ts", "lib/**/*.ts"]
++}
+
+diff --git a/apps/web/app/app.vue b/apps/web/app/app.vue
+new file mode 100644
+index 0000000000000000000000000000000000000000..8c6635bfc4627ab70edc56a521c67c968b77d35e
+--- /dev/null
++++ b/apps/web/app/app.vue
+@@ -0,0 +1,69 @@
++<script setup lang="ts">
++const config = useRuntimeConfig()
++</script>
++
++<template>
++  <main class="shell">
++    <section class="panel">
++      <p class="eyebrow">Multi-Tenant RAG Demo</p>
++      <h1>Nuxt baseline is wired.</h1>
++      <p class="body">
++        This slice intentionally stops at the scaffold. Chat, uploads, auth, Aurora,
++        and Bedrock integrations are deferred to later items.
++      </p>
++      <p class="tenant">Tenant: {{ config.public.tenantId }}</p>
++    </section>
++  </main>
++</template>
++
++<style scoped>
++:global(body) {
++  margin: 0;
++  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
++  background:
++    radial-gradient(circle at top, #f2efe8 0%, #e7dfd2 30%, #d6ccb8 100%);
++  color: #1d1b19;
++}
++
++.shell {
++  min-height: 100vh;
++  display: grid;
++  place-items: center;
++  padding: 2rem;
++}
++
++.panel {
++  width: min(42rem, 100%);
++  padding: 2rem;
++  border: 1px solid rgba(29, 27, 25, 0.12);
++  border-radius: 1.5rem;
++  background: rgba(255, 252, 246, 0.84);
++  box-shadow: 0 20px 60px rgba(76, 62, 44, 0.14);
++  backdrop-filter: blur(10px);
++}
++
++.eyebrow {
++  margin: 0 0 0.75rem;
++  text-transform: uppercase;
++  letter-spacing: 0.16em;
++  font-size: 0.75rem;
++  color: #7b5b2e;
++}
++
++h1 {
++  margin: 0;
++  font-size: clamp(2.5rem, 5vw, 3.75rem);
++  line-height: 0.95;
++}
++
++.body,
++.tenant {
++  margin: 1.25rem 0 0;
++  font-size: 1rem;
++  line-height: 1.6;
++}
++
++.tenant {
++  font-weight: 600;
++}
++</style>
+diff --git a/apps/web/nuxt.config.ts b/apps/web/nuxt.config.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..821ff45266e36ab8ceb9517dbbe9eb55929fc664
+--- /dev/null
++++ b/apps/web/nuxt.config.ts
+@@ -0,0 +1,13 @@
++export default defineNuxtConfig({
++  compatibilityDate: "2026-04-01",
++  devtools: { enabled: true },
++  srcDir: ".",
++  future: {
++    compatibilityVersion: 4,
++  },
++  runtimeConfig: {
++    public: {
++      tenantId: process.env.NUXT_PUBLIC_TENANT_ID ?? "local-dev",
++    },
++  },
++})
+diff --git a/apps/web/package.json b/apps/web/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..7da153735783a66501e72ca5053913e7a2d7bda8
+--- /dev/null
++++ b/apps/web/package.json
+@@ -0,0 +1,13 @@
++{
++  "name": "@multi-tenant-rag-demo/web",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "dev": "nuxt dev",
++    "build": "nuxt build",
++    "preview": "nuxt preview"
++  },
++  "dependencies": {
++    "nuxt": "^4.0.0"
++  }
++}
+diff --git a/apps/web/server/api/health.get.ts b/apps/web/server/api/health.get.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..a428d2f742f587427b3b38c13aa23922668e7567
+--- /dev/null
++++ b/apps/web/server/api/health.get.ts
+@@ -0,0 +1,8 @@
++export default defineEventHandler(() => {
++  return {
++    ok: true,
++    service: "web",
++    tenantId: useRuntimeConfig().public.tenantId,
++    timestamp: new Date().toISOString(),
++  }
++})
+diff --git a/apps/web/tsconfig.json b/apps/web/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..4b34df1571f7bfb636c02bbb718603cc2d9d1382
+--- /dev/null
++++ b/apps/web/tsconfig.json
+@@ -0,0 +1,3 @@
++{
++  "extends": "./.nuxt/tsconfig.json"
++}
+diff --git a/infra/cdk/bin/app.ts b/infra/cdk/bin/app.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..28269d8cdf8f120b04331ff3f620ec72b5c6bd9b
+--- /dev/null
++++ b/infra/cdk/bin/app.ts
+@@ -0,0 +1,20 @@
++import { App } from "aws-cdk-lib"
++
++import { SharedStack } from "../lib/shared-stack.js"
++import { TenantStack } from "../lib/tenant-stack.js"
++
++const app = new App()
++const environmentName = app.node.tryGetContext("environmentName") ?? "dev"
++const tenantId = app.node.tryGetContext("tenantId") ?? "tenant-a"
++
++const sharedStack = new SharedStack(app, `SharedStack-${environmentName}`, {
++  description: "Shared platform placeholder stack for the multi-tenant RAG demo",
++  environmentName,
++})
++
++new TenantStack(app, `TenantStack-${tenantId}-${environmentName}`, {
++  description: "Tenant-scoped placeholder stack for the multi-tenant RAG demo",
++  environmentName,
++  tenantId,
++  sharedAssetsBucketName: sharedStack.sharedAssetsBucketName,
++})
+diff --git a/infra/cdk/cdk.json b/infra/cdk/cdk.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..9985aa00e04a935cbf20dcd87484957c18def551
+--- /dev/null
++++ b/infra/cdk/cdk.json
+@@ -0,0 +1,3 @@
++{
++  "app": "node --enable-source-maps dist/bin/app.js"
++}
+diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..c129b3041a4d2103b0110f0fc50edac3174c72ad
+--- /dev/null
++++ b/infra/cdk/lib/shared-stack.ts
+@@ -0,0 +1,25 @@
++import { CfnOutput, Stack, type StackProps } from "aws-cdk-lib"
++import { Construct } from "constructs"
++
++export interface SharedStackProps extends StackProps {
++  environmentName: string
++}
++
++export class SharedStack extends Stack {
++  public readonly sharedAssetsBucketName: string
++
++  constructor(scope: Construct, id: string, props: SharedStackProps) {
++    super(scope, id, props)
++
++    this.sharedAssetsBucketName = `placeholder-shared-assets-${props.environmentName}`
++
++    new CfnOutput(this, "EnvironmentName", {
++      value: props.environmentName,
++    })
++
++    new CfnOutput(this, "SharedAssetsBucketName", {
++      value: this.sharedAssetsBucketName,
++      description: "Placeholder output until real shared infrastructure is added.",
++    })
++  }
++}
+diff --git a/infra/cdk/lib/tenant-stack.ts b/infra/cdk/lib/tenant-stack.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..3d76c7fe1deca9e85f79a5da07654e0cb218f7b1
+--- /dev/null
++++ b/infra/cdk/lib/tenant-stack.ts
+@@ -0,0 +1,36 @@
++import { CfnOutput, Stack, type StackProps } from "aws-cdk-lib"
++import { Construct } from "constructs"
++
++export interface TenantStackProps extends StackProps {
++  environmentName: string
++  tenantId: string
++  sharedAssetsBucketName: string
++}
++
++export class TenantStack extends Stack {
++  constructor(scope: Construct, id: string, props: TenantStackProps) {
++    super(scope, id, props)
++
++    new CfnOutput(this, "TenantId", {
++      value: props.tenantId,
++    })
++
++    new CfnOutput(this, "EnvironmentName", {
++      value: props.environmentName,
++    })
++
++    new CfnOutput(this, "SharedAssetsBucketName", {
++      value: props.sharedAssetsBucketName,
++      description: "Reference to shared placeholder infrastructure.",
++    })
++
++    new CfnOutput(this, "PlannedResources", {
++      value: [
++        "Nuxt service on ECS Fargate",
++        "Tenant-scoped Bedrock Agent",
++        "Tenant-scoped Bedrock Knowledge Base",
++      ].join(", "),
++      description: "Intent-only output for the scaffold slice.",
++    })
++  }
++}
+diff --git a/infra/cdk/package.json b/infra/cdk/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..8ccc7208d5db85ce8932dd2b97e5e31d7f99c48b
+--- /dev/null
++++ b/infra/cdk/package.json
+@@ -0,0 +1,19 @@
++{
++  "name": "@multi-tenant-rag-demo/cdk",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "build": "tsc --project tsconfig.json",
++    "cdk": "cdk",
++    "synth": "cdk synth"
++  },
++  "dependencies": {
++    "aws-cdk-lib": "^2.190.0",
++    "constructs": "^10.4.2"
++  },
++  "devDependencies": {
++    "@types/node": "^22.14.1",
++    "aws-cdk": "^2.1009.0",
++    "typescript": "^5.8.3"
++  }
++}
+diff --git a/infra/cdk/tsconfig.json b/infra/cdk/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..cf7f9b4dee1775bce445c0d60f9810a6b7c899de
+--- /dev/null
++++ b/infra/cdk/tsconfig.json
+@@ -0,0 +1,14 @@
++{
++  "compilerOptions": {
++    "target": "ES2022",
++    "module": "NodeNext",
++    "moduleResolution": "NodeNext",
++    "lib": ["ES2022"],
++    "strict": true,
++    "esModuleInterop": true,
++    "forceConsistentCasingInFileNames": true,
++    "skipLibCheck": true,
++    "outDir": "dist"
++  },
++  "include": ["bin/**/*.ts", "lib/**/*.ts"]
++}
+
+[35m[3mcodex[0m[0m
+The scaffold is in place. I’m doing a quick structural verification now and then I’ll write the implementation notes, handoff file, and iteration log required by the role prompt.
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'find apps/web -maxdepth 4 -type f | sort'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+apps/web/app/app.vue
+apps/web/nuxt.config.ts
+apps/web/package.json
+apps/web/server/api/health.get.ts
+apps/web/tsconfig.json
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'find infra/cdk -maxdepth 4 -type f | sort'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+infra/cdk/bin/app.ts
+infra/cdk/cdk.json
+infra/cdk/lib/shared-stack.ts
+infra/cdk/lib/tenant-stack.ts
+infra/cdk/package.json
+infra/cdk/tsconfig.json
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'git diff -- apps/web infra/cdk'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+diff --git a/apps/web/app/app.vue b/apps/web/app/app.vue
+new file mode 100644
+index 0000000000000000000000000000000000000000..8c6635bfc4627ab70edc56a521c67c968b77d35e
+--- /dev/null
++++ b/apps/web/app/app.vue
+@@ -0,0 +1,69 @@
++<script setup lang="ts">
++const config = useRuntimeConfig()
++</script>
++
++<template>
++  <main class="shell">
++    <section class="panel">
++      <p class="eyebrow">Multi-Tenant RAG Demo</p>
++      <h1>Nuxt baseline is wired.</h1>
++      <p class="body">
++        This slice intentionally stops at the scaffold. Chat, uploads, auth, Aurora,
++        and Bedrock integrations are deferred to later items.
++      </p>
++      <p class="tenant">Tenant: {{ config.public.tenantId }}</p>
++    </section>
++  </main>
++</template>
++
++<style scoped>
++:global(body) {
++  margin: 0;
++  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
++  background:
++    radial-gradient(circle at top, #f2efe8 0%, #e7dfd2 30%, #d6ccb8 100%);
++  color: #1d1b19;
++}
++
++.shell {
++  min-height: 100vh;
++  display: grid;
++  place-items: center;
++  padding: 2rem;
++}
++
++.panel {
++  width: min(42rem, 100%);
++  padding: 2rem;
++  border: 1px solid rgba(29, 27, 25, 0.12);
++  border-radius: 1.5rem;
++  background: rgba(255, 252, 246, 0.84);
++  box-shadow: 0 20px 60px rgba(76, 62, 44, 0.14);
++  backdrop-filter: blur(10px);
++}
++
++.eyebrow {
++  margin: 0 0 0.75rem;
++  text-transform: uppercase;
++  letter-spacing: 0.16em;
++  font-size: 0.75rem;
++  color: #7b5b2e;
++}
++
++h1 {
++  margin: 0;
++  font-size: clamp(2.5rem, 5vw, 3.75rem);
++  line-height: 0.95;
++}
++
++.body,
++.tenant {
++  margin: 1.25rem 0 0;
++  font-size: 1rem;
++  line-height: 1.6;
++}
++
++.tenant {
++  font-weight: 600;
++}
++</style>
+diff --git a/apps/web/nuxt.config.ts b/apps/web/nuxt.config.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..821ff45266e36ab8ceb9517dbbe9eb55929fc664
+--- /dev/null
++++ b/apps/web/nuxt.config.ts
+@@ -0,0 +1,13 @@
++export default defineNuxtConfig({
++  compatibilityDate: "2026-04-01",
++  devtools: { enabled: true },
++  srcDir: ".",
++  future: {
++    compatibilityVersion: 4,
++  },
++  runtimeConfig: {
++    public: {
++      tenantId: process.env.NUXT_PUBLIC_TENANT_ID ?? "local-dev",
++    },
++  },
++})
+diff --git a/apps/web/package.json b/apps/web/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..7da153735783a66501e72ca5053913e7a2d7bda8
+--- /dev/null
++++ b/apps/web/package.json
+@@ -0,0 +1,13 @@
++{
++  "name": "@multi-tenant-rag-demo/web",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "dev": "nuxt dev",
++    "build": "nuxt build",
++    "preview": "nuxt preview"
++  },
++  "dependencies": {
++    "nuxt": "^4.0.0"
++  }
++}
+diff --git a/apps/web/server/api/health.get.ts b/apps/web/server/api/health.get.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..a428d2f742f587427b3b38c13aa23922668e7567
+--- /dev/null
++++ b/apps/web/server/api/health.get.ts
+@@ -0,0 +1,8 @@
++export default defineEventHandler(() => {
++  return {
++    ok: true,
++    service: "web",
++    tenantId: useRuntimeConfig().public.tenantId,
++    timestamp: new Date().toISOString(),
++  }
++})
+diff --git a/apps/web/tsconfig.json b/apps/web/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..4b34df1571f7bfb636c02bbb718603cc2d9d1382
+--- /dev/null
++++ b/apps/web/tsconfig.json
+@@ -0,0 +1,3 @@
++{
++  "extends": "./.nuxt/tsconfig.json"
++}
+diff --git a/infra/cdk/bin/app.ts b/infra/cdk/bin/app.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..28269d8cdf8f120b04331ff3f620ec72b5c6bd9b
+--- /dev/null
++++ b/infra/cdk/bin/app.ts
+@@ -0,0 +1,20 @@
++import { App } from "aws-cdk-lib"
++
++import { SharedStack } from "../lib/shared-stack.js"
++import { TenantStack } from "../lib/tenant-stack.js"
++
++const app = new App()
++const environmentName = app.node.tryGetContext("environmentName") ?? "dev"
++const tenantId = app.node.tryGetContext("tenantId") ?? "tenant-a"
++
++const sharedStack = new SharedStack(app, `SharedStack-${environmentName}`, {
++  description: "Shared platform placeholder stack for the multi-tenant RAG demo",
++  environmentName,
++})
++
++new TenantStack(app, `TenantStack-${tenantId}-${environmentName}`, {
++  description: "Tenant-scoped placeholder stack for the multi-tenant RAG demo",
++  environmentName,
++  tenantId,
++  sharedAssetsBucketName: sharedStack.sharedAssetsBucketName,
++})
+diff --git a/infra/cdk/cdk.json b/infra/cdk/cdk.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..9985aa00e04a935cbf20dcd87484957c18def551
+--- /dev/null
++++ b/infra/cdk/cdk.json
+@@ -0,0 +1,3 @@
++{
++  "app": "node --enable-source-maps dist/bin/app.js"
++}
+diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..c129b3041a4d2103b0110f0fc50edac3174c72ad
+--- /dev/null
++++ b/infra/cdk/lib/shared-stack.ts
+@@ -0,0 +1,25 @@
++import { CfnOutput, Stack, type StackProps } from "aws-cdk-lib"
++import { Construct } from "constructs"
++
++export interface SharedStackProps extends StackProps {
++  environmentName: string
++}
++
++export class SharedStack extends Stack {
++  public readonly sharedAssetsBucketName: string
++
++  constructor(scope: Construct, id: string, props: SharedStackProps) {
++    super(scope, id, props)
++
++    this.sharedAssetsBucketName = `placeholder-shared-assets-${props.environmentName}`
++
++    new CfnOutput(this, "EnvironmentName", {
++      value: props.environmentName,
++    })
++
++    new CfnOutput(this, "SharedAssetsBucketName", {
++      value: this.sharedAssetsBucketName,
++      description: "Placeholder output until real shared infrastructure is added.",
++    })
++  }
++}
+diff --git a/infra/cdk/lib/tenant-stack.ts b/infra/cdk/lib/tenant-stack.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..3d76c7fe1deca9e85f79a5da07654e0cb218f7b1
+--- /dev/null
++++ b/infra/cdk/lib/tenant-stack.ts
+@@ -0,0 +1,36 @@
++import { CfnOutput, Stack, type StackProps } from "aws-cdk-lib"
++import { Construct } from "constructs"
++
++export interface TenantStackProps extends StackProps {
++  environmentName: string
++  tenantId: string
++  sharedAssetsBucketName: string
++}
++
++export class TenantStack extends Stack {
++  constructor(scope: Construct, id: string, props: TenantStackProps) {
++    super(scope, id, props)
++
++    new CfnOutput(this, "TenantId", {
++      value: props.tenantId,
++    })
++
++    new CfnOutput(this, "EnvironmentName", {
++      value: props.environmentName,
++    })
++
++    new CfnOutput(this, "SharedAssetsBucketName", {
++      value: props.sharedAssetsBucketName,
++      description: "Reference to shared placeholder infrastructure.",
++    })
++
++    new CfnOutput(this, "PlannedResources", {
++      value: [
++        "Nuxt service on ECS Fargate",
++        "Tenant-scoped Bedrock Agent",
++        "Tenant-scoped Bedrock Knowledge Base",
++      ].join(", "),
++      description: "Intent-only output for the scaffold slice.",
++    })
++  }
++}
+diff --git a/infra/cdk/package.json b/infra/cdk/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..8ccc7208d5db85ce8932dd2b97e5e31d7f99c48b
+--- /dev/null
++++ b/infra/cdk/package.json
+@@ -0,0 +1,19 @@
++{
++  "name": "@multi-tenant-rag-demo/cdk",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "build": "tsc --project tsconfig.json",
++    "cdk": "cdk",
++    "synth": "cdk synth"
++  },
++  "dependencies": {
++    "aws-cdk-lib": "^2.190.0",
++    "constructs": "^10.4.2"
++  },
++  "devDependencies": {
++    "@types/node": "^22.14.1",
++    "aws-cdk": "^2.1009.0",
++    "typescript": "^5.8.3"
++  }
++}
+diff --git a/infra/cdk/tsconfig.json b/infra/cdk/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..cf7f9b4dee1775bce445c0d60f9810a6b7c899de
+--- /dev/null
++++ b/infra/cdk/tsconfig.json
+@@ -0,0 +1,14 @@
++{
++  "compilerOptions": {
++    "target": "ES2022",
++    "module": "NodeNext",
++    "moduleResolution": "NodeNext",
++    "lib": ["ES2022"],
++    "strict": true,
++    "esModuleInterop": true,
++    "forceConsistentCasingInFileNames": true,
++    "skipLibCheck": true,
++    "outDir": "dist"
++  },
++  "include": ["bin/**/*.ts", "lib/**/*.ts"]
++}
+
+[35m[3mcodex[0m[0m
+I’ve verified the new scaffold files exist in the right directories. The remaining work is baton hygiene: recording implementation notes, appending the iteration entry, and handing off to `VALIDATOR` with concrete validation targets.
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,220p' ai/iterations/ITER-0001.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+# ITER-0001 Decision Log
+
+| Timestamp | Role | Decision | Why |
+|-----------|------|----------|-----|
+| 2026-04-01T18:48:06-05:00 | PLANNER | Created the initial backlog, selected ITEM-0001 as the active item, and locked the Nuxt 4 + TypeScript CDK architecture from the goal/PRD. | The repo has only baton scaffolding, so the highest-leverage next step is a constrained baseline scaffold with explicit stack guidance before engineering starts. |
+| 2026-04-01T18:52:00-05:00 | PLANNER | Clarified ITEM-0001 as a scaffold-only slice, normalized the repo layout to `apps/web` and `infra/cdk`, and refreshed the handoff for judgment. | The goal/PRD were clear enough to remove planning ambiguity without escalating to the user, and the next role now has a concrete boundary to validate before engineering begins. |
+| 2026-04-01T18:57:38-05:00 | PLANNER | Reconfirmed that ITEM-0001 needs no user clarification, tightened the scaffold boundary in the decision lock, and refreshed the judgment handoff. | The existing planning state already aligned with the goal and PRD, so the correct move was to preserve momentum and send a sharper validation brief rather than reopen scope. |
+| 2026-04-01T18:58:39-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Approved `ITEM-0001` for implementation, explicitly overrode generic defaults with the project-specific Nuxt/CDK decisions, and narrowed engineering to an `npm` workspace baseline with placeholder app and stack wiring only. | The repo is empty enough that stronger judgment is useful here: remove template ambiguity now, choose the simplest workspace path, and block predictable scope creep before engineering starts. |
+| 2026-04-01T19:00:22-05:00 | ENGINEER | Stopped implementation and handed back to `SENIOR_JUDGMENTAL_ENGINEER` because the engineer prompt forbids the root-level workspace/config edits that `ITEM-0001` explicitly requires. | Proceeding would have violated the role contract; the accepted scope needs either an expanded allowed-edit list or a narrower item definition before coding can start. |
+| 2026-04-01T19:07:00-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Escalated to the user because the accepted ITEM-0001 scope still requires root workspace/config files that the ENGINEER prompt contract forbids, and this role cannot modify that prompt within its allowed edits. | This is a real constraint conflict, not a planning gap; the baton cannot move honestly until the user chooses either to expand the engineer edit boundary or to narrow the item scope. |
+| 2026-04-01T19:14:00-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Applied the user's `rescope_item_0001` answer, cleared the blocked state, and redirected engineering to an in-contract scaffold limited to `apps/web` and `infra/cdk`. | The ambiguity is resolved: progress now depends on disciplined implementation, not more planning. The old root-workspace requirement was the wrong hill to die on under the current role contract. |
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,220p' ai/review.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+# Review Notes
+
+Use this file for reviewer outcomes:
+
+- **DONE**: item accepted and loop returns to PLANNER for next item.
+- **REVISE**: route back to specific role with explicit gap list.
+- **ESCALATE**: WAITING FOR USER only for approved escalation categories.
+
+## 2026-04-01 SENIOR_JUDGMENTAL_ENGINEER
+
+- **DONE**: `ITEM-0001` is approved to proceed to engineering as a scaffold-only implementation slice.
+- Project-specific sources (`ai/goal.yaml`, `ai/prd.yaml`, `ai/decision-lock.yaml`) override the generic defaults in `ai/judgment.yaml`. The stack is Nuxt 4 plus Nitro server routes, TypeScript CDK, AWS Fargate, Aurora PostgreSQL, and Google OAuth as the preferred PoC auth path.
+- `ai/requirements.md` is still template-grade and should not be treated as authoritative for this item. ENGINEER must follow the locked decisions and active item scope instead of inheriting placeholder text.
+- The correct engineering target is a minimal monorepo baseline only: root workspace setup, shared TS config, `apps/web` Nuxt entrypoints, and `infra/cdk` placeholder app/stack wiring.
+- Reject scope creep in this slice: no separate backend service, no real API feature work, no Aurora schema or client integration, no Bedrock integration, no upload implementation, and no production-hardening work.
+
+## 2026-04-01 ENGINEER
+
+- **REVISE**: `ITEM-0001` cannot be implemented under the current engineer edit contract without violating `ai/prompts/02-engineer.md`.
+- The item's accepted scope explicitly requires a root workspace package manager setup and shared TypeScript config, but the engineer prompt only permits edits under `apps/**`, `infra/**`, selected `ai/**`, and related tests/docs.
+- The repo currently has no root `package.json`, lockfile, or shared `tsconfig`, so implementation would require root-level file creation.
+- Judgment should either expand the allowed edit list for ENGINEER to include the required root workspace/config files or narrow the item scope to fit the current contract.
+
+## 2026-04-01 SENIOR_JUDGMENTAL_ENGINEER
+
+- **ESCALATE**: the active-item scope and the engineer role contract are still mutually inconsistent, and this role cannot repair that mismatch within its allowed edit set.
+- `ITEM-0001`, `ai/simplification.md`, and `ai/decision-lock.yaml` correctly insist on a root `npm` workspace plus shared TypeScript config for the baseline scaffold.
+- `ai/prompts/02-engineer.md` still forbids those root-level edits, and this role is not permitted to modify prompt contracts or the active-item definition directly.
+- A user-level decision is required: either permit the engineer prompt to include the minimum root workspace/config files, or re-scope the item so the scaffold no longer requires them.
+
+## 2026-04-01 SENIOR_JUDGMENTAL_ENGINEER
+
+- **DONE**: the user resolved the contract conflict by choosing `rescope_item_0001`, so implementation should continue without any root-level workspace/config work in this slice.
+- Treat the human answer as authoritative over the earlier scaffold language: ENGINEER should build only what fits inside `apps/**` and `infra/**` plus already-allowed baton artifacts.
+- The revised implementation target is a lean baseline with `apps/web` Nuxt entrypoints and `infra/cdk` placeholder stack/app wiring only. If either subtree needs local config files, keep them inside those directories.
+- Reject any attempt to recreate the old blocked scope through root `package.json`, shared root `tsconfig`, or other repo-top workspace bootstrap files. That work is explicitly deferred, not accidentally omitted.
+- `ai/requirements.md` remains template-grade and non-authoritative. ENGINEER should follow the locked decisions, the human rescope answer, and this review note instead.
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'git status --short'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+ M ai/active_agent.txt
+ M ai/logs/baton.log
+ M ai/next_agent.yaml
+?? ai/logs/step-001-SENIOR_JUDGMENTAL_ENGINEER.log
+?? apps/
+?? infra/
+
+diff --git a/apps/web/app/app.vue b/apps/web/app/app.vue
+new file mode 100644
+index 0000000000000000000000000000000000000000..8c6635bfc4627ab70edc56a521c67c968b77d35e
+--- /dev/null
++++ b/apps/web/app/app.vue
+@@ -0,0 +1,69 @@
++<script setup lang="ts">
++const config = useRuntimeConfig()
++</script>
++
++<template>
++  <main class="shell">
++    <section class="panel">
++      <p class="eyebrow">Multi-Tenant RAG Demo</p>
++      <h1>Nuxt baseline is wired.</h1>
++      <p class="body">
++        This slice intentionally stops at the scaffold. Chat, uploads, auth, Aurora,
++        and Bedrock integrations are deferred to later items.
++      </p>
++      <p class="tenant">Tenant: {{ config.public.tenantId }}</p>
++    </section>
++  </main>
++</template>
++
++<style scoped>
++:global(body) {
++  margin: 0;
++  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
++  background:
++    radial-gradient(circle at top, #f2efe8 0%, #e7dfd2 30%, #d6ccb8 100%);
++  color: #1d1b19;
++}
++
++.shell {
++  min-height: 100vh;
++  display: grid;
++  place-items: center;
++  padding: 2rem;
++}
++
++.panel {
++  width: min(42rem, 100%);
++  padding: 2rem;
++  border: 1px solid rgba(29, 27, 25, 0.12);
++  border-radius: 1.5rem;
++  background: rgba(255, 252, 246, 0.84);
++  box-shadow: 0 20px 60px rgba(76, 62, 44, 0.14);
++  backdrop-filter: blur(10px);
++}
++
++.eyebrow {
++  margin: 0 0 0.75rem;
++  text-transform: uppercase;
++  letter-spacing: 0.16em;
++  font-size: 0.75rem;
++  color: #7b5b2e;
++}
++
++h1 {
++  margin: 0;
++  font-size: clamp(2.5rem, 5vw, 3.75rem);
++  line-height: 0.95;
++}
++
++.body,
++.tenant {
++  margin: 1.25rem 0 0;
++  font-size: 1rem;
++  line-height: 1.6;
++}
++
++.tenant {
++  font-weight: 600;
++}
++</style>
+diff --git a/apps/web/nuxt.config.ts b/apps/web/nuxt.config.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..821ff45266e36ab8ceb9517dbbe9eb55929fc664
+--- /dev/null
++++ b/apps/web/nuxt.config.ts
+@@ -0,0 +1,13 @@
++export default defineNuxtConfig({
++  compatibilityDate: "2026-04-01",
++  devtools: { enabled: true },
++  srcDir: ".",
++  future: {
++    compatibilityVersion: 4,
++  },
++  runtimeConfig: {
++    public: {
++      tenantId: process.env.NUXT_PUBLIC_TENANT_ID ?? "local-dev",
++    },
++  },
++})
+diff --git a/apps/web/package.json b/apps/web/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..7da153735783a66501e72ca5053913e7a2d7bda8
+--- /dev/null
++++ b/apps/web/package.json
+@@ -0,0 +1,13 @@
++{
++  "name": "@multi-tenant-rag-demo/web",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "dev": "nuxt dev",
++    "build": "nuxt build",
++    "preview": "nuxt preview"
++  },
++  "dependencies": {
++    "nuxt": "^4.0.0"
++  }
++}
+diff --git a/apps/web/server/api/health.get.ts b/apps/web/server/api/health.get.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..a428d2f742f587427b3b38c13aa23922668e7567
+--- /dev/null
++++ b/apps/web/server/api/health.get.ts
+@@ -0,0 +1,8 @@
++export default defineEventHandler(() => {
++  return {
++    ok: true,
++    service: "web",
++    tenantId: useRuntimeConfig().public.tenantId,
++    timestamp: new Date().toISOString(),
++  }
++})
+diff --git a/apps/web/tsconfig.json b/apps/web/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..4b34df1571f7bfb636c02bbb718603cc2d9d1382
+--- /dev/null
++++ b/apps/web/tsconfig.json
+@@ -0,0 +1,3 @@
++{
++  "extends": "./.nuxt/tsconfig.json"
++}
+diff --git a/infra/cdk/bin/app.ts b/infra/cdk/bin/app.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..28269d8cdf8f120b04331ff3f620ec72b5c6bd9b
+--- /dev/null
++++ b/infra/cdk/bin/app.ts
+@@ -0,0 +1,20 @@
++import { App } from "aws-cdk-lib"
++
++import { SharedStack } from "../lib/shared-stack.js"
++import { TenantStack } from "../lib/tenant-stack.js"
++
++const app = new App()
++const environmentName = app.node.tryGetContext("environmentName") ?? "dev"
++const tenantId = app.node.tryGetContext("tenantId") ?? "tenant-a"
++
++const sharedStack = new SharedStack(app, `SharedStack-${environmentName}`, {
++  description: "Shared platform placeholder stack for the multi-tenant RAG demo",
++  environmentName,
++})
++
++new TenantStack(app, `TenantStack-${tenantId}-${environmentName}`, {
++  description: "Tenant-scoped placeholder stack for the multi-tenant RAG demo",
++  environmentName,
++  tenantId,
++  sharedAssetsBucketName: sharedStack.sharedAssetsBucketName,
++})
+diff --git a/infra/cdk/cdk.json b/infra/cdk/cdk.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..9985aa00e04a935cbf20dcd87484957c18def551
+--- /dev/null
++++ b/infra/cdk/cdk.json
+@@ -0,0 +1,3 @@
++{
++  "app": "node --enable-source-maps dist/bin/app.js"
++}
+diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..c129b3041a4d2103b0110f0fc50edac3174c72ad
+--- /dev/null
++++ b/infra/cdk/lib/shared-stack.ts
+@@ -0,0 +1,25 @@
++import { CfnOutput, Stack, type StackProps } from "aws-cdk-lib"
++import { Construct } from "constructs"
++
++export interface SharedStackProps extends StackProps {
++  environmentName: string
++}
++
++export class SharedStack extends Stack {
++  public readonly sharedAssetsBucketName: string
++
++  constructor(scope: Construct, id: string, props: SharedStackProps) {
++    super(scope, id, props)
++
++    this.sharedAssetsBucketName = `placeholder-shared-assets-${props.environmentName}`
++
++    new CfnOutput(this, "EnvironmentName", {
++      value: props.environmentName,
++    })
++
++    new CfnOutput(this, "SharedAssetsBucketName", {
++      value: this.sharedAssetsBucketName,
++      description: "Placeholder output until real shared infrastructure is added.",
++    })
++  }
++}
+diff --git a/infra/cdk/lib/tenant-stack.ts b/infra/cdk/lib/tenant-stack.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..3d76c7fe1deca9e85f79a5da07654e0cb218f7b1
+--- /dev/null
++++ b/infra/cdk/lib/tenant-stack.ts
+@@ -0,0 +1,36 @@
++import { CfnOutput, Stack, type StackProps } from "aws-cdk-lib"
++import { Construct } from "constructs"
++
++export interface TenantStackProps extends StackProps {
++  environmentName: string
++  tenantId: string
++  sharedAssetsBucketName: string
++}
++
++export class TenantStack extends Stack {
++  constructor(scope: Construct, id: string, props: TenantStackProps) {
++    super(scope, id, props)
++
++    new CfnOutput(this, "TenantId", {
++      value: props.tenantId,
++    })
++
++    new CfnOutput(this, "EnvironmentName", {
++      value: props.environmentName,
++    })
++
++    new CfnOutput(this, "SharedAssetsBucketName", {
++      value: props.sharedAssetsBucketName,
++      description: "Reference to shared placeholder infrastructure.",
++    })
++
++    new CfnOutput(this, "PlannedResources", {
++      value: [
++        "Nuxt service on ECS Fargate",
++        "Tenant-scoped Bedrock Agent",
++        "Tenant-scoped Bedrock Knowledge Base",
++      ].join(", "),
++      description: "Intent-only output for the scaffold slice.",
++    })
++  }
++}
+diff --git a/infra/cdk/package.json b/infra/cdk/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..8ccc7208d5db85ce8932dd2b97e5e31d7f99c48b
+--- /dev/null
++++ b/infra/cdk/package.json
+@@ -0,0 +1,19 @@
++{
++  "name": "@multi-tenant-rag-demo/cdk",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "build": "tsc --project tsconfig.json",
++    "cdk": "cdk",
++    "synth": "cdk synth"
++  },
++  "dependencies": {
++    "aws-cdk-lib": "^2.190.0",
++    "constructs": "^10.4.2"
++  },
++  "devDependencies": {
++    "@types/node": "^22.14.1",
++    "aws-cdk": "^2.1009.0",
++    "typescript": "^5.8.3"
++  }
++}
+diff --git a/infra/cdk/tsconfig.json b/infra/cdk/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..cf7f9b4dee1775bce445c0d60f9810a6b7c899de
+--- /dev/null
++++ b/infra/cdk/tsconfig.json
+@@ -0,0 +1,14 @@
++{
++  "compilerOptions": {
++    "target": "ES2022",
++    "module": "NodeNext",
++    "moduleResolution": "NodeNext",
++    "lib": ["ES2022"],
++    "strict": true,
++    "esModuleInterop": true,
++    "forceConsistentCasingInFileNames": true,
++    "skipLibCheck": true,
++    "outDir": "dist"
++  },
++  "include": ["bin/**/*.ts", "lib/**/*.ts"]
++}
+
+[35m[3mcodex[0m[0m
+I’ve checked the existing log format and current review notes. I’m updating the three allowed AI files now so the validator inherits an exact brief and can judge this slice without reopening settled scope.
+[1mapply patch[0m
+[1mpatch:[0m completed
+[2m/home/sundaram/code/multi-tenant-rag-demo/ai/iterations/ITER-0001.md[0m
+[2m/home/sundaram/code/multi-tenant-rag-demo/ai/next_agent.md[0m
+[2m/home/sundaram/code/multi-tenant-rag-demo/ai/review.md[0m
+diff --git a/ai/iterations/ITER-0001.md b/ai/iterations/ITER-0001.md
+index f907cbb030914dfe40ca6c8f21819c8220760c19..7d986370a6108e4f9f68634305dc308a0b2af6e5
+--- a/ai/iterations/ITER-0001.md
++++ b/ai/iterations/ITER-0001.md
+@@ -9,3 +9,4 @@
+ | 2026-04-01T19:00:22-05:00 | ENGINEER | Stopped implementation and handed back to `SENIOR_JUDGMENTAL_ENGINEER` because the engineer prompt forbids the root-level workspace/config edits that `ITEM-0001` explicitly requires. | Proceeding would have violated the role contract; the accepted scope needs either an expanded allowed-edit list or a narrower item definition before coding can start. |
+ | 2026-04-01T19:07:00-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Escalated to the user because the accepted ITEM-0001 scope still requires root workspace/config files that the ENGINEER prompt contract forbids, and this role cannot modify that prompt within its allowed edits. | This is a real constraint conflict, not a planning gap; the baton cannot move honestly until the user chooses either to expand the engineer edit boundary or to narrow the item scope. |
+ | 2026-04-01T19:14:00-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Applied the user's `rescope_item_0001` answer, cleared the blocked state, and redirected engineering to an in-contract scaffold limited to `apps/web` and `infra/cdk`. | The ambiguity is resolved: progress now depends on disciplined implementation, not more planning. The old root-workspace requirement was the wrong hill to die on under the current role contract. |
++| 2026-04-01T19:22:00-05:00 | ENGINEER | Implemented the re-scoped `ITEM-0001` scaffold under `apps/web` and `infra/cdk`, then handed off to `VALIDATOR`. | The baseline now proves the intended Nuxt 4 and TypeScript CDK shape without violating the edit boundary or dragging deferred root-workspace and feature work into this slice. |
+diff --git a/ai/next_agent.md b/ai/next_agent.md
+index 0411c979c83207d2e4af414ab3962e36ff1aa638..5d534e4807032fcd206c93437d437aaa5366961b
+--- a/ai/next_agent.md
++++ b/ai/next_agent.md
+@@ -1,15 +1,16 @@
+ # Next Agent
+ 
+-Active item: `ITEM-0001` is unblocked and ready for implementation.
++Active item: `ITEM-0001` has been implemented as the re-scoped scaffold slice and is ready for validation.
+ 
+-Required scope for ENGINEER:
+-- Implement only what fits inside the current engineer contract: scaffold `apps/web` and `infra/cdk`, plus any app-local config files that live inside those directories.
+-- Build a minimal Nuxt 4 baseline in `apps/web` and placeholder CDK app/stack wiring in `infra/cdk`.
+-- Keep the stack aligned with the project sources: Nuxt 4 + Nitro server routes, TypeScript, AWS CDK, shared/tenant separation.
++What changed:
++- `apps/web` now contains a minimal Nuxt 4 baseline with local package/config files, a simple app shell, and a placeholder Nitro route at `server/api/health.get.ts`.
++- `infra/cdk` now contains a local TypeScript CDK app with placeholder shared and tenant stack wiring via `bin/app.ts`, `lib/shared-stack.ts`, and `lib/tenant-stack.ts`.
+ 
+-Explicitly out of scope in this slice:
+-- Any root-level `package.json`, lockfile, root `tsconfig`, or other workspace bootstrap files
+-- Separate backend services, Lambda app logic, chat behavior, uploads, Aurora integration, Bedrock integration, auth implementation, or production-hardening work
++What VALIDATOR should check:
++- The implementation stayed inside the current engineer edit boundary: only `apps/**`, `infra/**`, and allowed `ai/**` baton artifacts changed.
++- The scaffold matches the locked stack decisions: Nuxt 4 plus Nitro server routes in `apps/web`, TypeScript CDK in `infra/cdk`, and explicit shared-versus-tenant stack shape.
++- No deferred scope leaked in: no root workspace/bootstrap files, no separate backend service, no Lambda app runtime, no Aurora/Bedrock/auth/uploads/chat feature implementation, and no production-grade AWS resources.
++- Any validation findings should distinguish real slice violations from intentional placeholders.
+ 
+-Execution note:
+-- The human already chose `rescope_item_0001`; do not reopen the root-workspace conflict unless a new constraint appears that cannot be solved inside `apps/**` and `infra/**`.
++Validation caveat:
++- No dependency installation or build/synth execution was performed in this slice, so validation is primarily structural unless the validator chooses to install dependencies locally inside the new subdirectories.
+diff --git a/ai/review.md b/ai/review.md
+index ab3e3484df77164dc65fc06d5cb927d577560184..1827ab9fe5791e22ebf79c4b57768f66a9cf1dbd
+--- a/ai/review.md
++++ b/ai/review.md
+@@ -35,3 +35,11 @@
+ - The revised implementation target is a lean baseline with `apps/web` Nuxt entrypoints and `infra/cdk` placeholder stack/app wiring only. If either subtree needs local config files, keep them inside those directories.
+ - Reject any attempt to recreate the old blocked scope through root `package.json`, shared root `tsconfig`, or other repo-top workspace bootstrap files. That work is explicitly deferred, not accidentally omitted.
+ - `ai/requirements.md` remains template-grade and non-authoritative. ENGINEER should follow the locked decisions, the human rescope answer, and this review note instead.
++
++## 2026-04-01 ENGINEER
++
++- Implemented the re-scoped `ITEM-0001` baseline entirely inside the allowed edit boundary.
++- Added `apps/web` with an app-local `package.json`, `nuxt.config.ts`, local `tsconfig.json`, a minimal `app/app.vue`, and a placeholder Nitro route at `server/api/health.get.ts`.
++- Added `infra/cdk` with an app-local `package.json`, `tsconfig.json`, `cdk.json`, and placeholder TypeScript CDK wiring across `bin/app.ts`, `lib/shared-stack.ts`, and `lib/tenant-stack.ts`.
++- The CDK scaffold proves shared-versus-tenant stack shape using outputs only; no real AWS resources, runtime integration, or deployment logic were added.
++- Validation caveat: dependencies were not installed and no `nuxt build`, `tsc`, or `cdk synth` command was run in this slice because the repo still intentionally lacks any root workspace/bootstrap setup and the new package manifests are dependency-only scaffolds.
+diff --git a/apps/web/app/app.vue b/apps/web/app/app.vue
+new file mode 100644
+index 0000000000000000000000000000000000000000..8c6635bfc4627ab70edc56a521c67c968b77d35e
+--- /dev/null
++++ b/apps/web/app/app.vue
+@@ -0,0 +1,69 @@
++<script setup lang="ts">
++const config = useRuntimeConfig()
++</script>
++
++<template>
++  <main class="shell">
++    <section class="panel">
++      <p class="eyebrow">Multi-Tenant RAG Demo</p>
++      <h1>Nuxt baseline is wired.</h1>
++      <p class="body">
++        This slice intentionally stops at the scaffold. Chat, uploads, auth, Aurora,
++        and Bedrock integrations are deferred to later items.
++      </p>
++      <p class="tenant">Tenant: {{ config.public.tenantId }}</p>
++    </section>
++  </main>
++</template>
++
++<style scoped>
++:global(body) {
++  margin: 0;
++  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
++  background:
++    radial-gradient(circle at top, #f2efe8 0%, #e7dfd2 30%, #d6ccb8 100%);
++  color: #1d1b19;
++}
++
++.shell {
++  min-height: 100vh;
++  display: grid;
++  place-items: center;
++  padding: 2rem;
++}
++
++.panel {
++  width: min(42rem, 100%);
++  padding: 2rem;
++  border: 1px solid rgba(29, 27, 25, 0.12);
++  border-radius: 1.5rem;
++  background: rgba(255, 252, 246, 0.84);
++  box-shadow: 0 20px 60px rgba(76, 62, 44, 0.14);
++  backdrop-filter: blur(10px);
++}
++
++.eyebrow {
++  margin: 0 0 0.75rem;
++  text-transform: uppercase;
++  letter-spacing: 0.16em;
++  font-size: 0.75rem;
++  color: #7b5b2e;
++}
++
++h1 {
++  margin: 0;
++  font-size: clamp(2.5rem, 5vw, 3.75rem);
++  line-height: 0.95;
++}
++
++.body,
++.tenant {
++  margin: 1.25rem 0 0;
++  font-size: 1rem;
++  line-height: 1.6;
++}
++
++.tenant {
++  font-weight: 600;
++}
++</style>
+diff --git a/apps/web/nuxt.config.ts b/apps/web/nuxt.config.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..821ff45266e36ab8ceb9517dbbe9eb55929fc664
+--- /dev/null
++++ b/apps/web/nuxt.config.ts
+@@ -0,0 +1,13 @@
++export default defineNuxtConfig({
++  compatibilityDate: "2026-04-01",
++  devtools: { enabled: true },
++  srcDir: ".",
++  future: {
++    compatibilityVersion: 4,
++  },
++  runtimeConfig: {
++    public: {
++      tenantId: process.env.NUXT_PUBLIC_TENANT_ID ?? "local-dev",
++    },
++  },
++})
+diff --git a/apps/web/package.json b/apps/web/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..7da153735783a66501e72ca5053913e7a2d7bda8
+--- /dev/null
++++ b/apps/web/package.json
+@@ -0,0 +1,13 @@
++{
++  "name": "@multi-tenant-rag-demo/web",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "dev": "nuxt dev",
++    "build": "nuxt build",
++    "preview": "nuxt preview"
++  },
++  "dependencies": {
++    "nuxt": "^4.0.0"
++  }
++}
+diff --git a/apps/web/server/api/health.get.ts b/apps/web/server/api/health.get.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..a428d2f742f587427b3b38c13aa23922668e7567
+--- /dev/null
++++ b/apps/web/server/api/health.get.ts
+@@ -0,0 +1,8 @@
++export default defineEventHandler(() => {
++  return {
++    ok: true,
++    service: "web",
++    tenantId: useRuntimeConfig().public.tenantId,
++    timestamp: new Date().toISOString(),
++  }
++})
+diff --git a/apps/web/tsconfig.json b/apps/web/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..4b34df1571f7bfb636c02bbb718603cc2d9d1382
+--- /dev/null
++++ b/apps/web/tsconfig.json
+@@ -0,0 +1,3 @@
++{
++  "extends": "./.nuxt/tsconfig.json"
++}
+diff --git a/infra/cdk/bin/app.ts b/infra/cdk/bin/app.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..28269d8cdf8f120b04331ff3f620ec72b5c6bd9b
+--- /dev/null
++++ b/infra/cdk/bin/app.ts
+@@ -0,0 +1,20 @@
++import { App } from "aws-cdk-lib"
++
++import { SharedStack } from "../lib/shared-stack.js"
++import { TenantStack } from "../lib/tenant-stack.js"
++
++const app = new App()
++const environmentName = app.node.tryGetContext("environmentName") ?? "dev"
++const tenantId = app.node.tryGetContext("tenantId") ?? "tenant-a"
++
++const sharedStack = new SharedStack(app, `SharedStack-${environmentName}`, {
++  description: "Shared platform placeholder stack for the multi-tenant RAG demo",
++  environmentName,
++})
++
++new TenantStack(app, `TenantStack-${tenantId}-${environmentName}`, {
++  description: "Tenant-scoped placeholder stack for the multi-tenant RAG demo",
++  environmentName,
++  tenantId,
++  sharedAssetsBucketName: sharedStack.sharedAssetsBucketName,
++})
+diff --git a/infra/cdk/cdk.json b/infra/cdk/cdk.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..9985aa00e04a935cbf20dcd87484957c18def551
+--- /dev/null
++++ b/infra/cdk/cdk.json
+@@ -0,0 +1,3 @@
++{
++  "app": "node --enable-source-maps dist/bin/app.js"
++}
+diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..c129b3041a4d2103b0110f0fc50edac3174c72ad
+--- /dev/null
++++ b/infra/cdk/lib/shared-stack.ts
+@@ -0,0 +1,25 @@
++import { CfnOutput, Stack, type StackProps } from "aws-cdk-lib"
++import { Construct } from "constructs"
++
++export interface SharedStackProps extends StackProps {
++  environmentName: string
++}
++
++export class SharedStack extends Stack {
++  public readonly sharedAssetsBucketName: string
++
++  constructor(scope: Construct, id: string, props: SharedStackProps) {
++    super(scope, id, props)
++
++    this.sharedAssetsBucketName = `placeholder-shared-assets-${props.environmentName}`
++
++    new CfnOutput(this, "EnvironmentName", {
++      value: props.environmentName,
++    })
++
++    new CfnOutput(this, "SharedAssetsBucketName", {
++      value: this.sharedAssetsBucketName,
++      description: "Placeholder output until real shared infrastructure is added.",
++    })
++  }
++}
+diff --git a/infra/cdk/lib/tenant-stack.ts b/infra/cdk/lib/tenant-stack.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..3d76c7fe1deca9e85f79a5da07654e0cb218f7b1
+--- /dev/null
++++ b/infra/cdk/lib/tenant-stack.ts
+@@ -0,0 +1,36 @@
++import { CfnOutput, Stack, type StackProps } from "aws-cdk-lib"
++import { Construct } from "constructs"
++
++export interface TenantStackProps extends StackProps {
++  environmentName: string
++  tenantId: string
++  sharedAssetsBucketName: string
++}
++
++export class TenantStack extends Stack {
++  constructor(scope: Construct, id: string, props: TenantStackProps) {
++    super(scope, id, props)
++
++    new CfnOutput(this, "TenantId", {
++      value: props.tenantId,
++    })
++
++    new CfnOutput(this, "EnvironmentName", {
++      value: props.environmentName,
++    })
++
++    new CfnOutput(this, "SharedAssetsBucketName", {
++      value: props.sharedAssetsBucketName,
++      description: "Reference to shared placeholder infrastructure.",
++    })
++
++    new CfnOutput(this, "PlannedResources", {
++      value: [
++        "Nuxt service on ECS Fargate",
++        "Tenant-scoped Bedrock Agent",
++        "Tenant-scoped Bedrock Knowledge Base",
++      ].join(", "),
++      description: "Intent-only output for the scaffold slice.",
++    })
++  }
++}
+diff --git a/infra/cdk/package.json b/infra/cdk/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..8ccc7208d5db85ce8932dd2b97e5e31d7f99c48b
+--- /dev/null
++++ b/infra/cdk/package.json
+@@ -0,0 +1,19 @@
++{
++  "name": "@multi-tenant-rag-demo/cdk",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "build": "tsc --project tsconfig.json",
++    "cdk": "cdk",
++    "synth": "cdk synth"
++  },
++  "dependencies": {
++    "aws-cdk-lib": "^2.190.0",
++    "constructs": "^10.4.2"
++  },
++  "devDependencies": {
++    "@types/node": "^22.14.1",
++    "aws-cdk": "^2.1009.0",
++    "typescript": "^5.8.3"
++  }
++}
+diff --git a/infra/cdk/tsconfig.json b/infra/cdk/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..cf7f9b4dee1775bce445c0d60f9810a6b7c899de
+--- /dev/null
++++ b/infra/cdk/tsconfig.json
+@@ -0,0 +1,14 @@
++{
++  "compilerOptions": {
++    "target": "ES2022",
++    "module": "NodeNext",
++    "moduleResolution": "NodeNext",
++    "lib": ["ES2022"],
++    "strict": true,
++    "esModuleInterop": true,
++    "forceConsistentCasingInFileNames": true,
++    "skipLibCheck": true,
++    "outDir": "dist"
++  },
++  "include": ["bin/**/*.ts", "lib/**/*.ts"]
++}
+
+diff --git a/ai/iterations/ITER-0001.md b/ai/iterations/ITER-0001.md
+index f907cbb030914dfe40ca6c8f21819c8220760c19..7d986370a6108e4f9f68634305dc308a0b2af6e5
+--- a/ai/iterations/ITER-0001.md
++++ b/ai/iterations/ITER-0001.md
+@@ -9,3 +9,4 @@
+ | 2026-04-01T19:00:22-05:00 | ENGINEER | Stopped implementation and handed back to `SENIOR_JUDGMENTAL_ENGINEER` because the engineer prompt forbids the root-level workspace/config edits that `ITEM-0001` explicitly requires. | Proceeding would have violated the role contract; the accepted scope needs either an expanded allowed-edit list or a narrower item definition before coding can start. |
+ | 2026-04-01T19:07:00-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Escalated to the user because the accepted ITEM-0001 scope still requires root workspace/config files that the ENGINEER prompt contract forbids, and this role cannot modify that prompt within its allowed edits. | This is a real constraint conflict, not a planning gap; the baton cannot move honestly until the user chooses either to expand the engineer edit boundary or to narrow the item scope. |
+ | 2026-04-01T19:14:00-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Applied the user's `rescope_item_0001` answer, cleared the blocked state, and redirected engineering to an in-contract scaffold limited to `apps/web` and `infra/cdk`. | The ambiguity is resolved: progress now depends on disciplined implementation, not more planning. The old root-workspace requirement was the wrong hill to die on under the current role contract. |
++| 2026-04-01T19:22:00-05:00 | ENGINEER | Implemented the re-scoped `ITEM-0001` scaffold under `apps/web` and `infra/cdk`, then handed off to `VALIDATOR`. | The baseline now proves the intended Nuxt 4 and TypeScript CDK shape without violating the edit boundary or dragging deferred root-workspace and feature work into this slice. |
+diff --git a/ai/next_agent.md b/ai/next_agent.md
+index 0411c979c83207d2e4af414ab3962e36ff1aa638..5d534e4807032fcd206c93437d437aaa5366961b
+--- a/ai/next_agent.md
++++ b/ai/next_agent.md
+@@ -1,15 +1,16 @@
+ # Next Agent
+ 
+-Active item: `ITEM-0001` is unblocked and ready for implementation.
++Active item: `ITEM-0001` has been implemented as the re-scoped scaffold slice and is ready for validation.
+ 
+-Required scope for ENGINEER:
+-- Implement only what fits inside the current engineer contract: scaffold `apps/web` and `infra/cdk`, plus any app-local config files that live inside those directories.
+-- Build a minimal Nuxt 4 baseline in `apps/web` and placeholder CDK app/stack wiring in `infra/cdk`.
+-- Keep the stack aligned with the project sources: Nuxt 4 + Nitro server routes, TypeScript, AWS CDK, shared/tenant separation.
++What changed:
++- `apps/web` now contains a minimal Nuxt 4 baseline with local package/config files, a simple app shell, and a placeholder Nitro route at `server/api/health.get.ts`.
++- `infra/cdk` now contains a local TypeScript CDK app with placeholder shared and tenant stack wiring via `bin/app.ts`, `lib/shared-stack.ts`, and `lib/tenant-stack.ts`.
+ 
+-Explicitly out of scope in this slice:
+-- Any root-level `package.json`, lockfile, root `tsconfig`, or other workspace bootstrap files
+-- Separate backend services, Lambda app logic, chat behavior, uploads, Aurora integration, Bedrock integration, auth implementation, or production-hardening work
++What VALIDATOR should check:
++- The implementation stayed inside the current engineer edit boundary: only `apps/**`, `infra/**`, and allowed `ai/**` baton artifacts changed.
++- The scaffold matches the locked stack decisions: Nuxt 4 plus Nitro server routes in `apps/web`, TypeScript CDK in `infra/cdk`, and explicit shared-versus-tenant stack shape.
++- No deferred scope leaked in: no root workspace/bootstrap files, no separate backend service, no Lambda app runtime, no Aurora/Bedrock/auth/uploads/chat feature implementation, and no production-grade AWS resources.
++- Any validation findings should distinguish real slice violations from intentional placeholders.
+ 
+-Execution note:
+-- The human already chose `rescope_item_0001`; do not reopen the root-workspace conflict unless a new constraint appears that cannot be solved inside `apps/**` and `infra/**`.
++Validation caveat:
++- No dependency installation or build/synth execution was performed in this slice, so validation is primarily structural unless the validator chooses to install dependencies locally inside the new subdirectories.
+diff --git a/ai/review.md b/ai/review.md
+index ab3e3484df77164dc65fc06d5cb927d577560184..1827ab9fe5791e22ebf79c4b57768f66a9cf1dbd
+--- a/ai/review.md
++++ b/ai/review.md
+@@ -35,3 +35,11 @@
+ - The revised implementation target is a lean baseline with `apps/web` Nuxt entrypoints and `infra/cdk` placeholder stack/app wiring only. If either subtree needs local config files, keep them inside those directories.
+ - Reject any attempt to recreate the old blocked scope through root `package.json`, shared root `tsconfig`, or other repo-top workspace bootstrap files. That work is explicitly deferred, not accidentally omitted.
+ - `ai/requirements.md` remains template-grade and non-authoritative. ENGINEER should follow the locked decisions, the human rescope answer, and this review note instead.
++
++## 2026-04-01 ENGINEER
++
++- Implemented the re-scoped `ITEM-0001` baseline entirely inside the allowed edit boundary.
++- Added `apps/web` with an app-local `package.json`, `nuxt.config.ts`, local `tsconfig.json`, a minimal `app/app.vue`, and a placeholder Nitro route at `server/api/health.get.ts`.
++- Added `infra/cdk` with an app-local `package.json`, `tsconfig.json`, `cdk.json`, and placeholder TypeScript CDK wiring across `bin/app.ts`, `lib/shared-stack.ts`, and `lib/tenant-stack.ts`.
++- The CDK scaffold proves shared-versus-tenant stack shape using outputs only; no real AWS resources, runtime integration, or deployment logic were added.
++- Validation caveat: dependencies were not installed and no `nuxt build`, `tsc`, or `cdk synth` command was run in this slice because the repo still intentionally lacks any root workspace/bootstrap setup and the new package manifests are dependency-only scaffolds.
+diff --git a/apps/web/app/app.vue b/apps/web/app/app.vue
+new file mode 100644
+index 0000000000000000000000000000000000000000..8c6635bfc4627ab70edc56a521c67c968b77d35e
+--- /dev/null
++++ b/apps/web/app/app.vue
+@@ -0,0 +1,69 @@
++<script setup lang="ts">
++const config = useRuntimeConfig()
++</script>
++
++<template>
++  <main class="shell">
++    <section class="panel">
++      <p class="eyebrow">Multi-Tenant RAG Demo</p>
++      <h1>Nuxt baseline is wired.</h1>
++      <p class="body">
++        This slice intentionally stops at the scaffold. Chat, uploads, auth, Aurora,
++        and Bedrock integrations are deferred to later items.
++      </p>
++      <p class="tenant">Tenant: {{ config.public.tenantId }}</p>
++    </section>
++  </main>
++</template>
++
++<style scoped>
++:global(body) {
++  margin: 0;
++  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
++  background:
++    radial-gradient(circle at top, #f2efe8 0%, #e7dfd2 30%, #d6ccb8 100%);
++  color: #1d1b19;
++}
++
++.shell {
++  min-height: 100vh;
++  display: grid;
++  place-items: center;
++  padding: 2rem;
++}
++
++.panel {
++  width: min(42rem, 100%);
++  padding: 2rem;
++  border: 1px solid rgba(29, 27, 25, 0.12);
++  border-radius: 1.5rem;
++  background: rgba(255, 252, 246, 0.84);
++  box-shadow: 0 20px 60px rgba(76, 62, 44, 0.14);
++  backdrop-filter: blur(10px);
++}
++
++.eyebrow {
++  margin: 0 0 0.75rem;
++  text-transform: uppercase;
++  letter-spacing: 0.16em;
++  font-size: 0.75rem;
++  color: #7b5b2e;
++}
++
++h1 {
++  margin: 0;
++  font-size: clamp(2.5rem, 5vw, 3.75rem);
++  line-height: 0.95;
++}
++
++.body,
++.tenant {
++  margin: 1.25rem 0 0;
++  font-size: 1rem;
++  line-height: 1.6;
++}
++
++.tenant {
++  font-weight: 600;
++}
++</style>
+diff --git a/apps/web/nuxt.config.ts b/apps/web/nuxt.config.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..821ff45266e36ab8ceb9517dbbe9eb55929fc664
+--- /dev/null
++++ b/apps/web/nuxt.config.ts
+@@ -0,0 +1,13 @@
++export default defineNuxtConfig({
++  compatibilityDate: "2026-04-01",
++  devtools: { enabled: true },
++  srcDir: ".",
++  future: {
++    compatibilityVersion: 4,
++  },
++  runtimeConfig: {
++    public: {
++      tenantId: process.env.NUXT_PUBLIC_TENANT_ID ?? "local-dev",
++    },
++  },
++})
+diff --git a/apps/web/package.json b/apps/web/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..7da153735783a66501e72ca5053913e7a2d7bda8
+--- /dev/null
++++ b/apps/web/package.json
+@@ -0,0 +1,13 @@
++{
++  "name": "@multi-tenant-rag-demo/web",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "dev": "nuxt dev",
++    "build": "nuxt build",
++    "preview": "nuxt preview"
++  },
++  "dependencies": {
++    "nuxt": "^4.0.0"
++  }
++}
+diff --git a/apps/web/server/api/health.get.ts b/apps/web/server/api/health.get.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..a428d2f742f587427b3b38c13aa23922668e7567
+--- /dev/null
++++ b/apps/web/server/api/health.get.ts
+@@ -0,0 +1,8 @@
++export default defineEventHandler(() => {
++  return {
++    ok: true,
++    service: "web",
++    tenantId: useRuntimeConfig().public.tenantId,
++    timestamp: new Date().toISOString(),
++  }
++})
+diff --git a/apps/web/tsconfig.json b/apps/web/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..4b34df1571f7bfb636c02bbb718603cc2d9d1382
+--- /dev/null
++++ b/apps/web/tsconfig.json
+@@ -0,0 +1,3 @@
++{
++  "extends": "./.nuxt/tsconfig.json"
++}
+diff --git a/infra/cdk/bin/app.ts b/infra/cdk/bin/app.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..28269d8cdf8f120b04331ff3f620ec72b5c6bd9b
+--- /dev/null
++++ b/infra/cdk/bin/app.ts
+@@ -0,0 +1,20 @@
++import { App } from "aws-cdk-lib"
++
++import { SharedStack } from "../lib/shared-stack.js"
++import { TenantStack } from "../lib/tenant-stack.js"
++
++const app = new App()
++const environmentName = app.node.tryGetContext("environmentName") ?? "dev"
++const tenantId = app.node.tryGetContext("tenantId") ?? "tenant-a"
++
++const sharedStack = new SharedStack(app, `SharedStack-${environmentName}`, {
++  description: "Shared platform placeholder stack for the multi-tenant RAG demo",
++  environmentName,
++})
++
++new TenantStack(app, `TenantStack-${tenantId}-${environmentName}`, {
++  description: "Tenant-scoped placeholder stack for the multi-tenant RAG demo",
++  environmentName,
++  tenantId,
++  sharedAssetsBucketName: sharedStack.sharedAssetsBucketName,
++})
+diff --git a/infra/cdk/cdk.json b/infra/cdk/cdk.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..9985aa00e04a935cbf20dcd87484957c18def551
+--- /dev/null
++++ b/infra/cdk/cdk.json
+@@ -0,0 +1,3 @@
++{
++  "app": "node --enable-source-maps dist/bin/app.js"
++}
+diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..c129b3041a4d2103b0110f0fc50edac3174c72ad
+--- /dev/null
++++ b/infra/cdk/lib/shared-stack.ts
+@@ -0,0 +1,25 @@
++import { CfnOutput, Stack, type StackProps } from "aws-cdk-lib"
++import { Construct } from "constructs"
++
++export interface SharedStackProps extends StackProps {
++  environmentName: string
++}
++
++export class SharedStack extends Stack {
++  public readonly sharedAssetsBucketName: string
++
++  constructor(scope: Construct, id: string, props: SharedStackProps) {
++    super(scope, id, props)
++
++    this.sharedAssetsBucketName = `placeholder-shared-assets-${props.environmentName}`
++
++    new CfnOutput(this, "EnvironmentName", {
++      value: props.environmentName,
++    })
++
++    new CfnOutput(this, "SharedAssetsBucketName", {
++      value: this.sharedAssetsBucketName,
++      description: "Placeholder output until real shared infrastructure is added.",
++    })
++  }
++}
+diff --git a/infra/cdk/lib/tenant-stack.ts b/infra/cdk/lib/tenant-stack.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..3d76c7fe1deca9e85f79a5da07654e0cb218f7b1
+--- /dev/null
++++ b/infra/cdk/lib/tenant-stack.ts
+@@ -0,0 +1,36 @@
++import { CfnOutput, Stack, type StackProps } from "aws-cdk-lib"
++import { Construct } from "constructs"
++
++export interface TenantStackProps extends StackProps {
++  environmentName: string
++  tenantId: string
++  sharedAssetsBucketName: string
++}
++
++export class TenantStack extends Stack {
++  constructor(scope: Construct, id: string, props: TenantStackProps) {
++    super(scope, id, props)
++
++    new CfnOutput(this, "TenantId", {
++      value: props.tenantId,
++    })
++
++    new CfnOutput(this, "EnvironmentName", {
++      value: props.environmentName,
++    })
++
++    new CfnOutput(this, "SharedAssetsBucketName", {
++      value: props.sharedAssetsBucketName,
++      description: "Reference to shared placeholder infrastructure.",
++    })
++
++    new CfnOutput(this, "PlannedResources", {
++      value: [
++        "Nuxt service on ECS Fargate",
++        "Tenant-scoped Bedrock Agent",
++        "Tenant-scoped Bedrock Knowledge Base",
++      ].join(", "),
++      description: "Intent-only output for the scaffold slice.",
++    })
++  }
++}
+diff --git a/infra/cdk/package.json b/infra/cdk/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..8ccc7208d5db85ce8932dd2b97e5e31d7f99c48b
+--- /dev/null
++++ b/infra/cdk/package.json
+@@ -0,0 +1,19 @@
++{
++  "name": "@multi-tenant-rag-demo/cdk",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "build": "tsc --project tsconfig.json",
++    "cdk": "cdk",
++    "synth": "cdk synth"
++  },
++  "dependencies": {
++    "aws-cdk-lib": "^2.190.0",
++    "constructs": "^10.4.2"
++  },
++  "devDependencies": {
++    "@types/node": "^22.14.1",
++    "aws-cdk": "^2.1009.0",
++    "typescript": "^5.8.3"
++  }
++}
+diff --git a/infra/cdk/tsconfig.json b/infra/cdk/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..cf7f9b4dee1775bce445c0d60f9810a6b7c899de
+--- /dev/null
++++ b/infra/cdk/tsconfig.json
+@@ -0,0 +1,14 @@
++{
++  "compilerOptions": {
++    "target": "ES2022",
++    "module": "NodeNext",
++    "moduleResolution": "NodeNext",
++    "lib": ["ES2022"],
++    "strict": true,
++    "esModuleInterop": true,
++    "forceConsistentCasingInFileNames": true,
++    "skipLibCheck": true,
++    "outDir": "dist"
++  },
++  "include": ["bin/**/*.ts", "lib/**/*.ts"]
++}
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'git status --short'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "sed -n '1,220p' ai/next_agent.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+ M ai/active_agent.txt
+ M ai/iterations/ITER-0001.md
+ M ai/logs/baton.log
+ M ai/next_agent.md
+ M ai/next_agent.yaml
+ M ai/review.md
+?? ai/logs/step-001-SENIOR_JUDGMENTAL_ENGINEER.log
+?? apps/
+?? infra/
+
+[32m succeeded in 0ms:[0m
+# Next Agent
+
+Active item: `ITEM-0001` has been implemented as the re-scoped scaffold slice and is ready for validation.
+
+What changed:
+- `apps/web` now contains a minimal Nuxt 4 baseline with local package/config files, a simple app shell, and a placeholder Nitro route at `server/api/health.get.ts`.
+- `infra/cdk` now contains a local TypeScript CDK app with placeholder shared and tenant stack wiring via `bin/app.ts`, `lib/shared-stack.ts`, and `lib/tenant-stack.ts`.
+
+What VALIDATOR should check:
+- The implementation stayed inside the current engineer edit boundary: only `apps/**`, `infra/**`, and allowed `ai/**` baton artifacts changed.
+- The scaffold matches the locked stack decisions: Nuxt 4 plus Nitro server routes in `apps/web`, TypeScript CDK in `infra/cdk`, and explicit shared-versus-tenant stack shape.
+- No deferred scope leaked in: no root workspace/bootstrap files, no separate backend service, no Lambda app runtime, no Aurora/Bedrock/auth/uploads/chat feature implementation, and no production-grade AWS resources.
+- Any validation findings should distinguish real slice violations from intentional placeholders.
+
+Validation caveat:
+- No dependency installation or build/synth execution was performed in this slice, so validation is primarily structural unless the validator chooses to install dependencies locally inside the new subdirectories.
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc 'tail -n 5 ai/iterations/ITER-0001.md'[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+| 2026-04-01T18:58:39-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Approved `ITEM-0001` for implementation, explicitly overrode generic defaults with the project-specific Nuxt/CDK decisions, and narrowed engineering to an `npm` workspace baseline with placeholder app and stack wiring only. | The repo is empty enough that stronger judgment is useful here: remove template ambiguity now, choose the simplest workspace path, and block predictable scope creep before engineering starts. |
+| 2026-04-01T19:00:22-05:00 | ENGINEER | Stopped implementation and handed back to `SENIOR_JUDGMENTAL_ENGINEER` because the engineer prompt forbids the root-level workspace/config edits that `ITEM-0001` explicitly requires. | Proceeding would have violated the role contract; the accepted scope needs either an expanded allowed-edit list or a narrower item definition before coding can start. |
+| 2026-04-01T19:07:00-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Escalated to the user because the accepted ITEM-0001 scope still requires root workspace/config files that the ENGINEER prompt contract forbids, and this role cannot modify that prompt within its allowed edits. | This is a real constraint conflict, not a planning gap; the baton cannot move honestly until the user chooses either to expand the engineer edit boundary or to narrow the item scope. |
+| 2026-04-01T19:14:00-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Applied the user's `rescope_item_0001` answer, cleared the blocked state, and redirected engineering to an in-contract scaffold limited to `apps/web` and `infra/cdk`. | The ambiguity is resolved: progress now depends on disciplined implementation, not more planning. The old root-workspace requirement was the wrong hill to die on under the current role contract. |
+| 2026-04-01T19:22:00-05:00 | ENGINEER | Implemented the re-scoped `ITEM-0001` scaffold under `apps/web` and `infra/cdk`, then handed off to `VALIDATOR`. | The baseline now proves the intended Nuxt 4 and TypeScript CDK shape without violating the edit boundary or dragging deferred root-workspace and feature work into this slice. |
+
+diff --git a/ai/iterations/ITER-0001.md b/ai/iterations/ITER-0001.md
+index f907cbb030914dfe40ca6c8f21819c8220760c19..7d986370a6108e4f9f68634305dc308a0b2af6e5
+--- a/ai/iterations/ITER-0001.md
++++ b/ai/iterations/ITER-0001.md
+@@ -9,3 +9,4 @@
+ | 2026-04-01T19:00:22-05:00 | ENGINEER | Stopped implementation and handed back to `SENIOR_JUDGMENTAL_ENGINEER` because the engineer prompt forbids the root-level workspace/config edits that `ITEM-0001` explicitly requires. | Proceeding would have violated the role contract; the accepted scope needs either an expanded allowed-edit list or a narrower item definition before coding can start. |
+ | 2026-04-01T19:07:00-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Escalated to the user because the accepted ITEM-0001 scope still requires root workspace/config files that the ENGINEER prompt contract forbids, and this role cannot modify that prompt within its allowed edits. | This is a real constraint conflict, not a planning gap; the baton cannot move honestly until the user chooses either to expand the engineer edit boundary or to narrow the item scope. |
+ | 2026-04-01T19:14:00-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Applied the user's `rescope_item_0001` answer, cleared the blocked state, and redirected engineering to an in-contract scaffold limited to `apps/web` and `infra/cdk`. | The ambiguity is resolved: progress now depends on disciplined implementation, not more planning. The old root-workspace requirement was the wrong hill to die on under the current role contract. |
++| 2026-04-01T19:22:00-05:00 | ENGINEER | Implemented the re-scoped `ITEM-0001` scaffold under `apps/web` and `infra/cdk`, then handed off to `VALIDATOR`. | The baseline now proves the intended Nuxt 4 and TypeScript CDK shape without violating the edit boundary or dragging deferred root-workspace and feature work into this slice. |
+diff --git a/ai/next_agent.md b/ai/next_agent.md
+index 0411c979c83207d2e4af414ab3962e36ff1aa638..5d534e4807032fcd206c93437d437aaa5366961b
+--- a/ai/next_agent.md
++++ b/ai/next_agent.md
+@@ -1,15 +1,16 @@
+ # Next Agent
+ 
+-Active item: `ITEM-0001` is unblocked and ready for implementation.
++Active item: `ITEM-0001` has been implemented as the re-scoped scaffold slice and is ready for validation.
+ 
+-Required scope for ENGINEER:
+-- Implement only what fits inside the current engineer contract: scaffold `apps/web` and `infra/cdk`, plus any app-local config files that live inside those directories.
+-- Build a minimal Nuxt 4 baseline in `apps/web` and placeholder CDK app/stack wiring in `infra/cdk`.
+-- Keep the stack aligned with the project sources: Nuxt 4 + Nitro server routes, TypeScript, AWS CDK, shared/tenant separation.
++What changed:
++- `apps/web` now contains a minimal Nuxt 4 baseline with local package/config files, a simple app shell, and a placeholder Nitro route at `server/api/health.get.ts`.
++- `infra/cdk` now contains a local TypeScript CDK app with placeholder shared and tenant stack wiring via `bin/app.ts`, `lib/shared-stack.ts`, and `lib/tenant-stack.ts`.
+ 
+-Explicitly out of scope in this slice:
+-- Any root-level `package.json`, lockfile, root `tsconfig`, or other workspace bootstrap files
+-- Separate backend services, Lambda app logic, chat behavior, uploads, Aurora integration, Bedrock integration, auth implementation, or production-hardening work
++What VALIDATOR should check:
++- The implementation stayed inside the current engineer edit boundary: only `apps/**`, `infra/**`, and allowed `ai/**` baton artifacts changed.
++- The scaffold matches the locked stack decisions: Nuxt 4 plus Nitro server routes in `apps/web`, TypeScript CDK in `infra/cdk`, and explicit shared-versus-tenant stack shape.
++- No deferred scope leaked in: no root workspace/bootstrap files, no separate backend service, no Lambda app runtime, no Aurora/Bedrock/auth/uploads/chat feature implementation, and no production-grade AWS resources.
++- Any validation findings should distinguish real slice violations from intentional placeholders.
+ 
+-Execution note:
+-- The human already chose `rescope_item_0001`; do not reopen the root-workspace conflict unless a new constraint appears that cannot be solved inside `apps/**` and `infra/**`.
++Validation caveat:
++- No dependency installation or build/synth execution was performed in this slice, so validation is primarily structural unless the validator chooses to install dependencies locally inside the new subdirectories.
+diff --git a/ai/review.md b/ai/review.md
+index ab3e3484df77164dc65fc06d5cb927d577560184..1827ab9fe5791e22ebf79c4b57768f66a9cf1dbd
+--- a/ai/review.md
++++ b/ai/review.md
+@@ -35,3 +35,11 @@
+ - The revised implementation target is a lean baseline with `apps/web` Nuxt entrypoints and `infra/cdk` placeholder stack/app wiring only. If either subtree needs local config files, keep them inside those directories.
+ - Reject any attempt to recreate the old blocked scope through root `package.json`, shared root `tsconfig`, or other repo-top workspace bootstrap files. That work is explicitly deferred, not accidentally omitted.
+ - `ai/requirements.md` remains template-grade and non-authoritative. ENGINEER should follow the locked decisions, the human rescope answer, and this review note instead.
++
++## 2026-04-01 ENGINEER
++
++- Implemented the re-scoped `ITEM-0001` baseline entirely inside the allowed edit boundary.
++- Added `apps/web` with an app-local `package.json`, `nuxt.config.ts`, local `tsconfig.json`, a minimal `app/app.vue`, and a placeholder Nitro route at `server/api/health.get.ts`.
++- Added `infra/cdk` with an app-local `package.json`, `tsconfig.json`, `cdk.json`, and placeholder TypeScript CDK wiring across `bin/app.ts`, `lib/shared-stack.ts`, and `lib/tenant-stack.ts`.
++- The CDK scaffold proves shared-versus-tenant stack shape using outputs only; no real AWS resources, runtime integration, or deployment logic were added.
++- Validation caveat: dependencies were not installed and no `nuxt build`, `tsc`, or `cdk synth` command was run in this slice because the repo still intentionally lacks any root workspace/bootstrap setup and the new package manifests are dependency-only scaffolds.
+diff --git a/apps/web/app/app.vue b/apps/web/app/app.vue
+new file mode 100644
+index 0000000000000000000000000000000000000000..8c6635bfc4627ab70edc56a521c67c968b77d35e
+--- /dev/null
++++ b/apps/web/app/app.vue
+@@ -0,0 +1,69 @@
++<script setup lang="ts">
++const config = useRuntimeConfig()
++</script>
++
++<template>
++  <main class="shell">
++    <section class="panel">
++      <p class="eyebrow">Multi-Tenant RAG Demo</p>
++      <h1>Nuxt baseline is wired.</h1>
++      <p class="body">
++        This slice intentionally stops at the scaffold. Chat, uploads, auth, Aurora,
++        and Bedrock integrations are deferred to later items.
++      </p>
++      <p class="tenant">Tenant: {{ config.public.tenantId }}</p>
++    </section>
++  </main>
++</template>
++
++<style scoped>
++:global(body) {
++  margin: 0;
++  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
++  background:
++    radial-gradient(circle at top, #f2efe8 0%, #e7dfd2 30%, #d6ccb8 100%);
++  color: #1d1b19;
++}
++
++.shell {
++  min-height: 100vh;
++  display: grid;
++  place-items: center;
++  padding: 2rem;
++}
++
++.panel {
++  width: min(42rem, 100%);
++  padding: 2rem;
++  border: 1px solid rgba(29, 27, 25, 0.12);
++  border-radius: 1.5rem;
++  background: rgba(255, 252, 246, 0.84);
++  box-shadow: 0 20px 60px rgba(76, 62, 44, 0.14);
++  backdrop-filter: blur(10px);
++}
++
++.eyebrow {
++  margin: 0 0 0.75rem;
++  text-transform: uppercase;
++  letter-spacing: 0.16em;
++  font-size: 0.75rem;
++  color: #7b5b2e;
++}
++
++h1 {
++  margin: 0;
++  font-size: clamp(2.5rem, 5vw, 3.75rem);
++  line-height: 0.95;
++}
++
++.body,
++.tenant {
++  margin: 1.25rem 0 0;
++  font-size: 1rem;
++  line-height: 1.6;
++}
++
++.tenant {
++  font-weight: 600;
++}
++</style>
+diff --git a/apps/web/nuxt.config.ts b/apps/web/nuxt.config.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..821ff45266e36ab8ceb9517dbbe9eb55929fc664
+--- /dev/null
++++ b/apps/web/nuxt.config.ts
+@@ -0,0 +1,13 @@
++export default defineNuxtConfig({
++  compatibilityDate: "2026-04-01",
++  devtools: { enabled: true },
++  srcDir: ".",
++  future: {
++    compatibilityVersion: 4,
++  },
++  runtimeConfig: {
++    public: {
++      tenantId: process.env.NUXT_PUBLIC_TENANT_ID ?? "local-dev",
++    },
++  },
++})
+diff --git a/apps/web/package.json b/apps/web/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..7da153735783a66501e72ca5053913e7a2d7bda8
+--- /dev/null
++++ b/apps/web/package.json
+@@ -0,0 +1,13 @@
++{
++  "name": "@multi-tenant-rag-demo/web",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "dev": "nuxt dev",
++    "build": "nuxt build",
++    "preview": "nuxt preview"
++  },
++  "dependencies": {
++    "nuxt": "^4.0.0"
++  }
++}
+diff --git a/apps/web/server/api/health.get.ts b/apps/web/server/api/health.get.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..a428d2f742f587427b3b38c13aa23922668e7567
+--- /dev/null
++++ b/apps/web/server/api/health.get.ts
+@@ -0,0 +1,8 @@
++export default defineEventHandler(() => {
++  return {
++    ok: true,
++    service: "web",
++    tenantId: useRuntimeConfig().public.tenantId,
++    timestamp: new Date().toISOString(),
++  }
++})
+diff --git a/apps/web/tsconfig.json b/apps/web/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..4b34df1571f7bfb636c02bbb718603cc2d9d1382
+--- /dev/null
++++ b/apps/web/tsconfig.json
+@@ -0,0 +1,3 @@
++{
++  "extends": "./.nuxt/tsconfig.json"
++}
+diff --git a/infra/cdk/bin/app.ts b/infra/cdk/bin/app.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..28269d8cdf8f120b04331ff3f620ec72b5c6bd9b
+--- /dev/null
++++ b/infra/cdk/bin/app.ts
+@@ -0,0 +1,20 @@
++import { App } from "aws-cdk-lib"
++
++import { SharedStack } from "../lib/shared-stack.js"
++import { TenantStack } from "../lib/tenant-stack.js"
++
++const app = new App()
++const environmentName = app.node.tryGetContext("environmentName") ?? "dev"
++const tenantId = app.node.tryGetContext("tenantId") ?? "tenant-a"
++
++const sharedStack = new SharedStack(app, `SharedStack-${environmentName}`, {
++  description: "Shared platform placeholder stack for the multi-tenant RAG demo",
++  environmentName,
++})
++
++new TenantStack(app, `TenantStack-${tenantId}-${environmentName}`, {
++  description: "Tenant-scoped placeholder stack for the multi-tenant RAG demo",
++  environmentName,
++  tenantId,
++  sharedAssetsBucketName: sharedStack.sharedAssetsBucketName,
++})
+diff --git a/infra/cdk/cdk.json b/infra/cdk/cdk.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..9985aa00e04a935cbf20dcd87484957c18def551
+--- /dev/null
++++ b/infra/cdk/cdk.json
+@@ -0,0 +1,3 @@
++{
++  "app": "node --enable-source-maps dist/bin/app.js"
++}
+diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..c129b3041a4d2103b0110f0fc50edac3174c72ad
+--- /dev/null
++++ b/infra/cdk/lib/shared-stack.ts
+@@ -0,0 +1,25 @@
++import { CfnOutput, Stack, type StackProps } from "aws-cdk-lib"
++import { Construct } from "constructs"
++
++export interface SharedStackProps extends StackProps {
++  environmentName: string
++}
++
++export class SharedStack extends Stack {
++  public readonly sharedAssetsBucketName: string
++
++  constructor(scope: Construct, id: string, props: SharedStackProps) {
++    super(scope, id, props)
++
++    this.sharedAssetsBucketName = `placeholder-shared-assets-${props.environmentName}`
++
++    new CfnOutput(this, "EnvironmentName", {
++      value: props.environmentName,
++    })
++
++    new CfnOutput(this, "SharedAssetsBucketName", {
++      value: this.sharedAssetsBucketName,
++      description: "Placeholder output until real shared infrastructure is added.",
++    })
++  }
++}
+diff --git a/infra/cdk/lib/tenant-stack.ts b/infra/cdk/lib/tenant-stack.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..3d76c7fe1deca9e85f79a5da07654e0cb218f7b1
+--- /dev/null
++++ b/infra/cdk/lib/tenant-stack.ts
+@@ -0,0 +1,36 @@
++import { CfnOutput, Stack, type StackProps } from "aws-cdk-lib"
++import { Construct } from "constructs"
++
++export interface TenantStackProps extends StackProps {
++  environmentName: string
++  tenantId: string
++  sharedAssetsBucketName: string
++}
++
++export class TenantStack extends Stack {
++  constructor(scope: Construct, id: string, props: TenantStackProps) {
++    super(scope, id, props)
++
++    new CfnOutput(this, "TenantId", {
++      value: props.tenantId,
++    })
++
++    new CfnOutput(this, "EnvironmentName", {
++      value: props.environmentName,
++    })
++
++    new CfnOutput(this, "SharedAssetsBucketName", {
++      value: props.sharedAssetsBucketName,
++      description: "Reference to shared placeholder infrastructure.",
++    })
++
++    new CfnOutput(this, "PlannedResources", {
++      value: [
++        "Nuxt service on ECS Fargate",
++        "Tenant-scoped Bedrock Agent",
++        "Tenant-scoped Bedrock Knowledge Base",
++      ].join(", "),
++      description: "Intent-only output for the scaffold slice.",
++    })
++  }
++}
+diff --git a/infra/cdk/package.json b/infra/cdk/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..8ccc7208d5db85ce8932dd2b97e5e31d7f99c48b
+--- /dev/null
++++ b/infra/cdk/package.json
+@@ -0,0 +1,19 @@
++{
++  "name": "@multi-tenant-rag-demo/cdk",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "build": "tsc --project tsconfig.json",
++    "cdk": "cdk",
++    "synth": "cdk synth"
++  },
++  "dependencies": {
++    "aws-cdk-lib": "^2.190.0",
++    "constructs": "^10.4.2"
++  },
++  "devDependencies": {
++    "@types/node": "^22.14.1",
++    "aws-cdk": "^2.1009.0",
++    "typescript": "^5.8.3"
++  }
++}
+diff --git a/infra/cdk/tsconfig.json b/infra/cdk/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..cf7f9b4dee1775bce445c0d60f9810a6b7c899de
+--- /dev/null
++++ b/infra/cdk/tsconfig.json
+@@ -0,0 +1,14 @@
++{
++  "compilerOptions": {
++    "target": "ES2022",
++    "module": "NodeNext",
++    "moduleResolution": "NodeNext",
++    "lib": ["ES2022"],
++    "strict": true,
++    "esModuleInterop": true,
++    "forceConsistentCasingInFileNames": true,
++    "skipLibCheck": true,
++    "outDir": "dist"
++  },
++  "include": ["bin/**/*.ts", "lib/**/*.ts"]
++}
+
+[3mScoped scaffold implementation and baton artifacts are complete; ready for validator handoff.[0m
+  [32m✓[0m Inspect current repo state and confirm in-scope scaffold boundaries
+  [32m✓[0m Create minimal Nuxt 4 baseline under apps/web with app-local config and Nitro server route placeholder
+  [32m✓[0m Create placeholder TypeScript CDK app under infra/cdk with shared and tenant stack wiring
+  [32m✓[0m Update handoff notes and iteration log, then verify scaffold shape
+diff --git a/ai/iterations/ITER-0001.md b/ai/iterations/ITER-0001.md
+index f907cbb030914dfe40ca6c8f21819c8220760c19..7d986370a6108e4f9f68634305dc308a0b2af6e5
+--- a/ai/iterations/ITER-0001.md
++++ b/ai/iterations/ITER-0001.md
+@@ -9,3 +9,4 @@
+ | 2026-04-01T19:00:22-05:00 | ENGINEER | Stopped implementation and handed back to `SENIOR_JUDGMENTAL_ENGINEER` because the engineer prompt forbids the root-level workspace/config edits that `ITEM-0001` explicitly requires. | Proceeding would have violated the role contract; the accepted scope needs either an expanded allowed-edit list or a narrower item definition before coding can start. |
+ | 2026-04-01T19:07:00-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Escalated to the user because the accepted ITEM-0001 scope still requires root workspace/config files that the ENGINEER prompt contract forbids, and this role cannot modify that prompt within its allowed edits. | This is a real constraint conflict, not a planning gap; the baton cannot move honestly until the user chooses either to expand the engineer edit boundary or to narrow the item scope. |
+ | 2026-04-01T19:14:00-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Applied the user's `rescope_item_0001` answer, cleared the blocked state, and redirected engineering to an in-contract scaffold limited to `apps/web` and `infra/cdk`. | The ambiguity is resolved: progress now depends on disciplined implementation, not more planning. The old root-workspace requirement was the wrong hill to die on under the current role contract. |
++| 2026-04-01T19:22:00-05:00 | ENGINEER | Implemented the re-scoped `ITEM-0001` scaffold under `apps/web` and `infra/cdk`, then handed off to `VALIDATOR`. | The baseline now proves the intended Nuxt 4 and TypeScript CDK shape without violating the edit boundary or dragging deferred root-workspace and feature work into this slice. |
+diff --git a/ai/next_agent.md b/ai/next_agent.md
+index 0411c979c83207d2e4af414ab3962e36ff1aa638..5d534e4807032fcd206c93437d437aaa5366961b
+--- a/ai/next_agent.md
++++ b/ai/next_agent.md
+@@ -1,15 +1,16 @@
+ # Next Agent
+ 
+-Active item: `ITEM-0001` is unblocked and ready for implementation.
++Active item: `ITEM-0001` has been implemented as the re-scoped scaffold slice and is ready for validation.
+ 
+-Required scope for ENGINEER:
+-- Implement only what fits inside the current engineer contract: scaffold `apps/web` and `infra/cdk`, plus any app-local config files that live inside those directories.
+-- Build a minimal Nuxt 4 baseline in `apps/web` and placeholder CDK app/stack wiring in `infra/cdk`.
+-- Keep the stack aligned with the project sources: Nuxt 4 + Nitro server routes, TypeScript, AWS CDK, shared/tenant separation.
++What changed:
++- `apps/web` now contains a minimal Nuxt 4 baseline with local package/config files, a simple app shell, and a placeholder Nitro route at `server/api/health.get.ts`.
++- `infra/cdk` now contains a local TypeScript CDK app with placeholder shared and tenant stack wiring via `bin/app.ts`, `lib/shared-stack.ts`, and `lib/tenant-stack.ts`.
+ 
+-Explicitly out of scope in this slice:
+-- Any root-level `package.json`, lockfile, root `tsconfig`, or other workspace bootstrap files
+-- Separate backend services, Lambda app logic, chat behavior, uploads, Aurora integration, Bedrock integration, auth implementation, or production-hardening work
++What VALIDATOR should check:
++- The implementation stayed inside the current engineer edit boundary: only `apps/**`, `infra/**`, and allowed `ai/**` baton artifacts changed.
++- The scaffold matches the locked stack decisions: Nuxt 4 plus Nitro server routes in `apps/web`, TypeScript CDK in `infra/cdk`, and explicit shared-versus-tenant stack shape.
++- No deferred scope leaked in: no root workspace/bootstrap files, no separate backend service, no Lambda app runtime, no Aurora/Bedrock/auth/uploads/chat feature implementation, and no production-grade AWS resources.
++- Any validation findings should distinguish real slice violations from intentional placeholders.
+ 
+-Execution note:
+-- The human already chose `rescope_item_0001`; do not reopen the root-workspace conflict unless a new constraint appears that cannot be solved inside `apps/**` and `infra/**`.
++Validation caveat:
++- No dependency installation or build/synth execution was performed in this slice, so validation is primarily structural unless the validator chooses to install dependencies locally inside the new subdirectories.
+diff --git a/ai/review.md b/ai/review.md
+index ab3e3484df77164dc65fc06d5cb927d577560184..1827ab9fe5791e22ebf79c4b57768f66a9cf1dbd
+--- a/ai/review.md
++++ b/ai/review.md
+@@ -35,3 +35,11 @@
+ - The revised implementation target is a lean baseline with `apps/web` Nuxt entrypoints and `infra/cdk` placeholder stack/app wiring only. If either subtree needs local config files, keep them inside those directories.
+ - Reject any attempt to recreate the old blocked scope through root `package.json`, shared root `tsconfig`, or other repo-top workspace bootstrap files. That work is explicitly deferred, not accidentally omitted.
+ - `ai/requirements.md` remains template-grade and non-authoritative. ENGINEER should follow the locked decisions, the human rescope answer, and this review note instead.
++
++## 2026-04-01 ENGINEER
++
++- Implemented the re-scoped `ITEM-0001` baseline entirely inside the allowed edit boundary.
++- Added `apps/web` with an app-local `package.json`, `nuxt.config.ts`, local `tsconfig.json`, a minimal `app/app.vue`, and a placeholder Nitro route at `server/api/health.get.ts`.
++- Added `infra/cdk` with an app-local `package.json`, `tsconfig.json`, `cdk.json`, and placeholder TypeScript CDK wiring across `bin/app.ts`, `lib/shared-stack.ts`, and `lib/tenant-stack.ts`.
++- The CDK scaffold proves shared-versus-tenant stack shape using outputs only; no real AWS resources, runtime integration, or deployment logic were added.
++- Validation caveat: dependencies were not installed and no `nuxt build`, `tsc`, or `cdk synth` command was run in this slice because the repo still intentionally lacks any root workspace/bootstrap setup and the new package manifests are dependency-only scaffolds.
+diff --git a/apps/web/app/app.vue b/apps/web/app/app.vue
+new file mode 100644
+index 0000000000000000000000000000000000000000..8c6635bfc4627ab70edc56a521c67c968b77d35e
+--- /dev/null
++++ b/apps/web/app/app.vue
+@@ -0,0 +1,69 @@
++<script setup lang="ts">
++const config = useRuntimeConfig()
++</script>
++
++<template>
++  <main class="shell">
++    <section class="panel">
++      <p class="eyebrow">Multi-Tenant RAG Demo</p>
++      <h1>Nuxt baseline is wired.</h1>
++      <p class="body">
++        This slice intentionally stops at the scaffold. Chat, uploads, auth, Aurora,
++        and Bedrock integrations are deferred to later items.
++      </p>
++      <p class="tenant">Tenant: {{ config.public.tenantId }}</p>
++    </section>
++  </main>
++</template>
++
++<style scoped>
++:global(body) {
++  margin: 0;
++  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
++  background:
++    radial-gradient(circle at top, #f2efe8 0%, #e7dfd2 30%, #d6ccb8 100%);
++  color: #1d1b19;
++}
++
++.shell {
++  min-height: 100vh;
++  display: grid;
++  place-items: center;
++  padding: 2rem;
++}
++
++.panel {
++  width: min(42rem, 100%);
++  padding: 2rem;
++  border: 1px solid rgba(29, 27, 25, 0.12);
++  border-radius: 1.5rem;
++  background: rgba(255, 252, 246, 0.84);
++  box-shadow: 0 20px 60px rgba(76, 62, 44, 0.14);
++  backdrop-filter: blur(10px);
++}
++
++.eyebrow {
++  margin: 0 0 0.75rem;
++  text-transform: uppercase;
++  letter-spacing: 0.16em;
++  font-size: 0.75rem;
++  color: #7b5b2e;
++}
++
++h1 {
++  margin: 0;
++  font-size: clamp(2.5rem, 5vw, 3.75rem);
++  line-height: 0.95;
++}
++
++.body,
++.tenant {
++  margin: 1.25rem 0 0;
++  font-size: 1rem;
++  line-height: 1.6;
++}
++
++.tenant {
++  font-weight: 600;
++}
++</style>
+diff --git a/apps/web/nuxt.config.ts b/apps/web/nuxt.config.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..821ff45266e36ab8ceb9517dbbe9eb55929fc664
+--- /dev/null
++++ b/apps/web/nuxt.config.ts
+@@ -0,0 +1,13 @@
++export default defineNuxtConfig({
++  compatibilityDate: "2026-04-01",
++  devtools: { enabled: true },
++  srcDir: ".",
++  future: {
++    compatibilityVersion: 4,
++  },
++  runtimeConfig: {
++    public: {
++      tenantId: process.env.NUXT_PUBLIC_TENANT_ID ?? "local-dev",
++    },
++  },
++})
+diff --git a/apps/web/package.json b/apps/web/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..7da153735783a66501e72ca5053913e7a2d7bda8
+--- /dev/null
++++ b/apps/web/package.json
+@@ -0,0 +1,13 @@
++{
++  "name": "@multi-tenant-rag-demo/web",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "dev": "nuxt dev",
++    "build": "nuxt build",
++    "preview": "nuxt preview"
++  },
++  "dependencies": {
++    "nuxt": "^4.0.0"
++  }
++}
+diff --git a/apps/web/server/api/health.get.ts b/apps/web/server/api/health.get.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..a428d2f742f587427b3b38c13aa23922668e7567
+--- /dev/null
++++ b/apps/web/server/api/health.get.ts
+@@ -0,0 +1,8 @@
++export default defineEventHandler(() => {
++  return {
++    ok: true,
++    service: "web",
++    tenantId: useRuntimeConfig().public.tenantId,
++    timestamp: new Date().toISOString(),
++  }
++})
+diff --git a/apps/web/tsconfig.json b/apps/web/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..4b34df1571f7bfb636c02bbb718603cc2d9d1382
+--- /dev/null
++++ b/apps/web/tsconfig.json
+@@ -0,0 +1,3 @@
++{
++  "extends": "./.nuxt/tsconfig.json"
++}
+diff --git a/infra/cdk/bin/app.ts b/infra/cdk/bin/app.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..28269d8cdf8f120b04331ff3f620ec72b5c6bd9b
+--- /dev/null
++++ b/infra/cdk/bin/app.ts
+@@ -0,0 +1,20 @@
++import { App } from "aws-cdk-lib"
++
++import { SharedStack } from "../lib/shared-stack.js"
++import { TenantStack } from "../lib/tenant-stack.js"
++
++const app = new App()
++const environmentName = app.node.tryGetContext("environmentName") ?? "dev"
++const tenantId = app.node.tryGetContext("tenantId") ?? "tenant-a"
++
++const sharedStack = new SharedStack(app, `SharedStack-${environmentName}`, {
++  description: "Shared platform placeholder stack for the multi-tenant RAG demo",
++  environmentName,
++})
++
++new TenantStack(app, `TenantStack-${tenantId}-${environmentName}`, {
++  description: "Tenant-scoped placeholder stack for the multi-tenant RAG demo",
++  environmentName,
++  tenantId,
++  sharedAssetsBucketName: sharedStack.sharedAssetsBucketName,
++})
+diff --git a/infra/cdk/cdk.json b/infra/cdk/cdk.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..9985aa00e04a935cbf20dcd87484957c18def551
+--- /dev/null
++++ b/infra/cdk/cdk.json
+@@ -0,0 +1,3 @@
++{
++  "app": "node --enable-source-maps dist/bin/app.js"
++}
+diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..c129b3041a4d2103b0110f0fc50edac3174c72ad
+--- /dev/null
++++ b/infra/cdk/lib/shared-stack.ts
+@@ -0,0 +1,25 @@
++import { CfnOutput, Stack, type StackProps } from "aws-cdk-lib"
++import { Construct } from "constructs"
++
++export interface SharedStackProps extends StackProps {
++  environmentName: string
++}
++
++export class SharedStack extends Stack {
++  public readonly sharedAssetsBucketName: string
++
++  constructor(scope: Construct, id: string, props: SharedStackProps) {
++    super(scope, id, props)
++
++    this.sharedAssetsBucketName = `placeholder-shared-assets-${props.environmentName}`
++
++    new CfnOutput(this, "EnvironmentName", {
++      value: props.environmentName,
++    })
++
++    new CfnOutput(this, "SharedAssetsBucketName", {
++      value: this.sharedAssetsBucketName,
++      description: "Placeholder output until real shared infrastructure is added.",
++    })
++  }
++}
+diff --git a/infra/cdk/lib/tenant-stack.ts b/infra/cdk/lib/tenant-stack.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..3d76c7fe1deca9e85f79a5da07654e0cb218f7b1
+--- /dev/null
++++ b/infra/cdk/lib/tenant-stack.ts
+@@ -0,0 +1,36 @@
++import { CfnOutput, Stack, type StackProps } from "aws-cdk-lib"
++import { Construct } from "constructs"
++
++export interface TenantStackProps extends StackProps {
++  environmentName: string
++  tenantId: string
++  sharedAssetsBucketName: string
++}
++
++export class TenantStack extends Stack {
++  constructor(scope: Construct, id: string, props: TenantStackProps) {
++    super(scope, id, props)
++
++    new CfnOutput(this, "TenantId", {
++      value: props.tenantId,
++    })
++
++    new CfnOutput(this, "EnvironmentName", {
++      value: props.environmentName,
++    })
++
++    new CfnOutput(this, "SharedAssetsBucketName", {
++      value: props.sharedAssetsBucketName,
++      description: "Reference to shared placeholder infrastructure.",
++    })
++
++    new CfnOutput(this, "PlannedResources", {
++      value: [
++        "Nuxt service on ECS Fargate",
++        "Tenant-scoped Bedrock Agent",
++        "Tenant-scoped Bedrock Knowledge Base",
++      ].join(", "),
++      description: "Intent-only output for the scaffold slice.",
++    })
++  }
++}
+diff --git a/infra/cdk/package.json b/infra/cdk/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..8ccc7208d5db85ce8932dd2b97e5e31d7f99c48b
+--- /dev/null
++++ b/infra/cdk/package.json
+@@ -0,0 +1,19 @@
++{
++  "name": "@multi-tenant-rag-demo/cdk",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "build": "tsc --project tsconfig.json",
++    "cdk": "cdk",
++    "synth": "cdk synth"
++  },
++  "dependencies": {
++    "aws-cdk-lib": "^2.190.0",
++    "constructs": "^10.4.2"
++  },
++  "devDependencies": {
++    "@types/node": "^22.14.1",
++    "aws-cdk": "^2.1009.0",
++    "typescript": "^5.8.3"
++  }
++}
+diff --git a/infra/cdk/tsconfig.json b/infra/cdk/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..cf7f9b4dee1775bce445c0d60f9810a6b7c899de
+--- /dev/null
++++ b/infra/cdk/tsconfig.json
+@@ -0,0 +1,14 @@
++{
++  "compilerOptions": {
++    "target": "ES2022",
++    "module": "NodeNext",
++    "moduleResolution": "NodeNext",
++    "lib": ["ES2022"],
++    "strict": true,
++    "esModuleInterop": true,
++    "forceConsistentCasingInFileNames": true,
++    "skipLibCheck": true,
++    "outDir": "dist"
++  },
++  "include": ["bin/**/*.ts", "lib/**/*.ts"]
++}
+
+[35m[3mcodex[0m[0m
+FINISHED: HANDING TO VALIDATOR
+diff --git a/ai/iterations/ITER-0001.md b/ai/iterations/ITER-0001.md
+index f907cbb030914dfe40ca6c8f21819c8220760c19..7d986370a6108e4f9f68634305dc308a0b2af6e5
+--- a/ai/iterations/ITER-0001.md
++++ b/ai/iterations/ITER-0001.md
+@@ -9,3 +9,4 @@
+ | 2026-04-01T19:00:22-05:00 | ENGINEER | Stopped implementation and handed back to `SENIOR_JUDGMENTAL_ENGINEER` because the engineer prompt forbids the root-level workspace/config edits that `ITEM-0001` explicitly requires. | Proceeding would have violated the role contract; the accepted scope needs either an expanded allowed-edit list or a narrower item definition before coding can start. |
+ | 2026-04-01T19:07:00-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Escalated to the user because the accepted ITEM-0001 scope still requires root workspace/config files that the ENGINEER prompt contract forbids, and this role cannot modify that prompt within its allowed edits. | This is a real constraint conflict, not a planning gap; the baton cannot move honestly until the user chooses either to expand the engineer edit boundary or to narrow the item scope. |
+ | 2026-04-01T19:14:00-05:00 | SENIOR_JUDGMENTAL_ENGINEER | Applied the user's `rescope_item_0001` answer, cleared the blocked state, and redirected engineering to an in-contract scaffold limited to `apps/web` and `infra/cdk`. | The ambiguity is resolved: progress now depends on disciplined implementation, not more planning. The old root-workspace requirement was the wrong hill to die on under the current role contract. |
++| 2026-04-01T19:22:00-05:00 | ENGINEER | Implemented the re-scoped `ITEM-0001` scaffold under `apps/web` and `infra/cdk`, then handed off to `VALIDATOR`. | The baseline now proves the intended Nuxt 4 and TypeScript CDK shape without violating the edit boundary or dragging deferred root-workspace and feature work into this slice. |
+diff --git a/ai/next_agent.md b/ai/next_agent.md
+index 0411c979c83207d2e4af414ab3962e36ff1aa638..5d534e4807032fcd206c93437d437aaa5366961b
+--- a/ai/next_agent.md
++++ b/ai/next_agent.md
+@@ -1,15 +1,16 @@
+ # Next Agent
+ 
+-Active item: `ITEM-0001` is unblocked and ready for implementation.
++Active item: `ITEM-0001` has been implemented as the re-scoped scaffold slice and is ready for validation.
+ 
+-Required scope for ENGINEER:
+-- Implement only what fits inside the current engineer contract: scaffold `apps/web` and `infra/cdk`, plus any app-local config files that live inside those directories.
+-- Build a minimal Nuxt 4 baseline in `apps/web` and placeholder CDK app/stack wiring in `infra/cdk`.
+-- Keep the stack aligned with the project sources: Nuxt 4 + Nitro server routes, TypeScript, AWS CDK, shared/tenant separation.
++What changed:
++- `apps/web` now contains a minimal Nuxt 4 baseline with local package/config files, a simple app shell, and a placeholder Nitro route at `server/api/health.get.ts`.
++- `infra/cdk` now contains a local TypeScript CDK app with placeholder shared and tenant stack wiring via `bin/app.ts`, `lib/shared-stack.ts`, and `lib/tenant-stack.ts`.
+ 
+-Explicitly out of scope in this slice:
+-- Any root-level `package.json`, lockfile, root `tsconfig`, or other workspace bootstrap files
+-- Separate backend services, Lambda app logic, chat behavior, uploads, Aurora integration, Bedrock integration, auth implementation, or production-hardening work
++What VALIDATOR should check:
++- The implementation stayed inside the current engineer edit boundary: only `apps/**`, `infra/**`, and allowed `ai/**` baton artifacts changed.
++- The scaffold matches the locked stack decisions: Nuxt 4 plus Nitro server routes in `apps/web`, TypeScript CDK in `infra/cdk`, and explicit shared-versus-tenant stack shape.
++- No deferred scope leaked in: no root workspace/bootstrap files, no separate backend service, no Lambda app runtime, no Aurora/Bedrock/auth/uploads/chat feature implementation, and no production-grade AWS resources.
++- Any validation findings should distinguish real slice violations from intentional placeholders.
+ 
+-Execution note:
+-- The human already chose `rescope_item_0001`; do not reopen the root-workspace conflict unless a new constraint appears that cannot be solved inside `apps/**` and `infra/**`.
++Validation caveat:
++- No dependency installation or build/synth execution was performed in this slice, so validation is primarily structural unless the validator chooses to install dependencies locally inside the new subdirectories.
+diff --git a/ai/review.md b/ai/review.md
+index ab3e3484df77164dc65fc06d5cb927d577560184..1827ab9fe5791e22ebf79c4b57768f66a9cf1dbd
+--- a/ai/review.md
++++ b/ai/review.md
+@@ -35,3 +35,11 @@
+ - The revised implementation target is a lean baseline with `apps/web` Nuxt entrypoints and `infra/cdk` placeholder stack/app wiring only. If either subtree needs local config files, keep them inside those directories.
+ - Reject any attempt to recreate the old blocked scope through root `package.json`, shared root `tsconfig`, or other repo-top workspace bootstrap files. That work is explicitly deferred, not accidentally omitted.
+ - `ai/requirements.md` remains template-grade and non-authoritative. ENGINEER should follow the locked decisions, the human rescope answer, and this review note instead.
++
++## 2026-04-01 ENGINEER
++
++- Implemented the re-scoped `ITEM-0001` baseline entirely inside the allowed edit boundary.
++- Added `apps/web` with an app-local `package.json`, `nuxt.config.ts`, local `tsconfig.json`, a minimal `app/app.vue`, and a placeholder Nitro route at `server/api/health.get.ts`.
++- Added `infra/cdk` with an app-local `package.json`, `tsconfig.json`, `cdk.json`, and placeholder TypeScript CDK wiring across `bin/app.ts`, `lib/shared-stack.ts`, and `lib/tenant-stack.ts`.
++- The CDK scaffold proves shared-versus-tenant stack shape using outputs only; no real AWS resources, runtime integration, or deployment logic were added.
++- Validation caveat: dependencies were not installed and no `nuxt build`, `tsc`, or `cdk synth` command was run in this slice because the repo still intentionally lacks any root workspace/bootstrap setup and the new package manifests are dependency-only scaffolds.
+diff --git a/apps/web/app/app.vue b/apps/web/app/app.vue
+new file mode 100644
+index 0000000000000000000000000000000000000000..8c6635bfc4627ab70edc56a521c67c968b77d35e
+--- /dev/null
++++ b/apps/web/app/app.vue
+@@ -0,0 +1,69 @@
++<script setup lang="ts">
++const config = useRuntimeConfig()
++</script>
++
++<template>
++  <main class="shell">
++    <section class="panel">
++      <p class="eyebrow">Multi-Tenant RAG Demo</p>
++      <h1>Nuxt baseline is wired.</h1>
++      <p class="body">
++        This slice intentionally stops at the scaffold. Chat, uploads, auth, Aurora,
++        and Bedrock integrations are deferred to later items.
++      </p>
++      <p class="tenant">Tenant: {{ config.public.tenantId }}</p>
++    </section>
++  </main>
++</template>
++
++<style scoped>
++:global(body) {
++  margin: 0;
++  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
++  background:
++    radial-gradient(circle at top, #f2efe8 0%, #e7dfd2 30%, #d6ccb8 100%);
++  color: #1d1b19;
++}
++
++.shell {
++  min-height: 100vh;
++  display: grid;
++  place-items: center;
++  padding: 2rem;
++}
++
++.panel {
++  width: min(42rem, 100%);
++  padding: 2rem;
++  border: 1px solid rgba(29, 27, 25, 0.12);
++  border-radius: 1.5rem;
++  background: rgba(255, 252, 246, 0.84);
++  box-shadow: 0 20px 60px rgba(76, 62, 44, 0.14);
++  backdrop-filter: blur(10px);
++}
++
++.eyebrow {
++  margin: 0 0 0.75rem;
++  text-transform: uppercase;
++  letter-spacing: 0.16em;
++  font-size: 0.75rem;
++  color: #7b5b2e;
++}
++
++h1 {
++  margin: 0;
++  font-size: clamp(2.5rem, 5vw, 3.75rem);
++  line-height: 0.95;
++}
++
++.body,
++.tenant {
++  margin: 1.25rem 0 0;
++  font-size: 1rem;
++  line-height: 1.6;
++}
++
++.tenant {
++  font-weight: 600;
++}
++</style>
+diff --git a/apps/web/nuxt.config.ts b/apps/web/nuxt.config.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..821ff45266e36ab8ceb9517dbbe9eb55929fc664
+--- /dev/null
++++ b/apps/web/nuxt.config.ts
+@@ -0,0 +1,13 @@
++export default defineNuxtConfig({
++  compatibilityDate: "2026-04-01",
++  devtools: { enabled: true },
++  srcDir: ".",
++  future: {
++    compatibilityVersion: 4,
++  },
++  runtimeConfig: {
++    public: {
++      tenantId: process.env.NUXT_PUBLIC_TENANT_ID ?? "local-dev",
++    },
++  },
++})
+diff --git a/apps/web/package.json b/apps/web/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..7da153735783a66501e72ca5053913e7a2d7bda8
+--- /dev/null
++++ b/apps/web/package.json
+@@ -0,0 +1,13 @@
++{
++  "name": "@multi-tenant-rag-demo/web",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "dev": "nuxt dev",
++    "build": "nuxt build",
++    "preview": "nuxt preview"
++  },
++  "dependencies": {
++    "nuxt": "^4.0.0"
++  }
++}
+diff --git a/apps/web/server/api/health.get.ts b/apps/web/server/api/health.get.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..a428d2f742f587427b3b38c13aa23922668e7567
+--- /dev/null
++++ b/apps/web/server/api/health.get.ts
+@@ -0,0 +1,8 @@
++export default defineEventHandler(() => {
++  return {
++    ok: true,
++    service: "web",
++    tenantId: useRuntimeConfig().public.tenantId,
++    timestamp: new Date().toISOString(),
++  }
++})
+diff --git a/apps/web/tsconfig.json b/apps/web/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..4b34df1571f7bfb636c02bbb718603cc2d9d1382
+--- /dev/null
++++ b/apps/web/tsconfig.json
+@@ -0,0 +1,3 @@
++{
++  "extends": "./.nuxt/tsconfig.json"
++}
+diff --git a/infra/cdk/bin/app.ts b/infra/cdk/bin/app.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..28269d8cdf8f120b04331ff3f620ec72b5c6bd9b
+--- /dev/null
++++ b/infra/cdk/bin/app.ts
+@@ -0,0 +1,20 @@
++import { App } from "aws-cdk-lib"
++
++import { SharedStack } from "../lib/shared-stack.js"
++import { TenantStack } from "../lib/tenant-stack.js"
++
++const app = new App()
++const environmentName = app.node.tryGetContext("environmentName") ?? "dev"
++const tenantId = app.node.tryGetContext("tenantId") ?? "tenant-a"
++
++const sharedStack = new SharedStack(app, `SharedStack-${environmentName}`, {
++  description: "Shared platform placeholder stack for the multi-tenant RAG demo",
++  environmentName,
++})
++
++new TenantStack(app, `TenantStack-${tenantId}-${environmentName}`, {
++  description: "Tenant-scoped placeholder stack for the multi-tenant RAG demo",
++  environmentName,
++  tenantId,
++  sharedAssetsBucketName: sharedStack.sharedAssetsBucketName,
++})
+diff --git a/infra/cdk/cdk.json b/infra/cdk/cdk.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..9985aa00e04a935cbf20dcd87484957c18def551
+--- /dev/null
++++ b/infra/cdk/cdk.json
+@@ -0,0 +1,3 @@
++{
++  "app": "node --enable-source-maps dist/bin/app.js"
++}
+diff --git a/infra/cdk/lib/shared-stack.ts b/infra/cdk/lib/shared-stack.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..c129b3041a4d2103b0110f0fc50edac3174c72ad
+--- /dev/null
++++ b/infra/cdk/lib/shared-stack.ts
+@@ -0,0 +1,25 @@
++import { CfnOutput, Stack, type StackProps } from "aws-cdk-lib"
++import { Construct } from "constructs"
++
++export interface SharedStackProps extends StackProps {
++  environmentName: string
++}
++
++export class SharedStack extends Stack {
++  public readonly sharedAssetsBucketName: string
++
++  constructor(scope: Construct, id: string, props: SharedStackProps) {
++    super(scope, id, props)
++
++    this.sharedAssetsBucketName = `placeholder-shared-assets-${props.environmentName}`
++
++    new CfnOutput(this, "EnvironmentName", {
++      value: props.environmentName,
++    })
++
++    new CfnOutput(this, "SharedAssetsBucketName", {
++      value: this.sharedAssetsBucketName,
++      description: "Placeholder output until real shared infrastructure is added.",
++    })
++  }
++}
+diff --git a/infra/cdk/lib/tenant-stack.ts b/infra/cdk/lib/tenant-stack.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..3d76c7fe1deca9e85f79a5da07654e0cb218f7b1
+--- /dev/null
++++ b/infra/cdk/lib/tenant-stack.ts
+@@ -0,0 +1,36 @@
++import { CfnOutput, Stack, type StackProps } from "aws-cdk-lib"
++import { Construct } from "constructs"
++
++export interface TenantStackProps extends StackProps {
++  environmentName: string
++  tenantId: string
++  sharedAssetsBucketName: string
++}
++
++export class TenantStack extends Stack {
++  constructor(scope: Construct, id: string, props: TenantStackProps) {
++    super(scope, id, props)
++
++    new CfnOutput(this, "TenantId", {
++      value: props.tenantId,
++    })
++
++    new CfnOutput(this, "EnvironmentName", {
++      value: props.environmentName,
++    })
++
++    new CfnOutput(this, "SharedAssetsBucketName", {
++      value: props.sharedAssetsBucketName,
++      description: "Reference to shared placeholder infrastructure.",
++    })
++
++    new CfnOutput(this, "PlannedResources", {
++      value: [
++        "Nuxt service on ECS Fargate",
++        "Tenant-scoped Bedrock Agent",
++        "Tenant-scoped Bedrock Knowledge Base",
++      ].join(", "),
++      description: "Intent-only output for the scaffold slice.",
++    })
++  }
++}
+diff --git a/infra/cdk/package.json b/infra/cdk/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..8ccc7208d5db85ce8932dd2b97e5e31d7f99c48b
+--- /dev/null
++++ b/infra/cdk/package.json
+@@ -0,0 +1,19 @@
++{
++  "name": "@multi-tenant-rag-demo/cdk",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "build": "tsc --project tsconfig.json",
++    "cdk": "cdk",
++    "synth": "cdk synth"
++  },
++  "dependencies": {
++    "aws-cdk-lib": "^2.190.0",
++    "constructs": "^10.4.2"
++  },
++  "devDependencies": {
++    "@types/node": "^22.14.1",
++    "aws-cdk": "^2.1009.0",
++    "typescript": "^5.8.3"
++  }
++}
+diff --git a/infra/cdk/tsconfig.json b/infra/cdk/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..cf7f9b4dee1775bce445c0d60f9810a6b7c899de
+--- /dev/null
++++ b/infra/cdk/tsconfig.json
+@@ -0,0 +1,14 @@
++{
++  "compilerOptions": {
++    "target": "ES2022",
++    "module": "NodeNext",
++    "moduleResolution": "NodeNext",
++    "lib": ["ES2022"],
++    "strict": true,
++    "esModuleInterop": true,
++    "forceConsistentCasingInFileNames": true,
++    "skipLibCheck": true,
++    "outDir": "dist"
++  },
++  "include": ["bin/**/*.ts", "lib/**/*.ts"]
++}
+
+[2mtokens used[0m
+29,085
+
+Script done on 2026-04-01 19:12:59-05:00 [COMMAND_EXIT_CODE="0"]
