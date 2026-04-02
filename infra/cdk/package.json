@@ -1,0 +1,19 @@
+{
+  "name": "@multi-tenant-rag-demo/cdk",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "cdk": "cdk",
+    "synth": "npm run build && cdk synth"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.190.0",
+    "constructs": "^10.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "aws-cdk": "^2.1009.0",
+    "typescript": "^5.8.3"
+  }
+}

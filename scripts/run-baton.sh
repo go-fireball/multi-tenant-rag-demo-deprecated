@@ -82,11 +82,13 @@ check_cli() {
 
 build_exec_cmd() {
   local prompt="$1"
+  local output_last_message_file="${2:-}"
   cmd=()
   case "$EXECUTOR" in
     codex)
       cmd=("codex" "exec" "--model" "$MODEL")
       [[ $FULL_AUTO -eq 1 ]] && cmd+=("--dangerously-bypass-approvals-and-sandbox")
+      [[ -n "$output_last_message_file" ]] && cmd+=("--output-last-message" "$output_last_message_file")
       cmd+=("$prompt")
       ;;
     claude)
@@ -229,7 +231,16 @@ Strict terminal contract (must output exactly one when ending):
 
   echo "[$ts] STEP $step START role=$current_role executor=$EXECUTOR model=$MODEL" | tee -a ai/logs/baton.log
 
-  build_exec_cmd "$prompt"
+  output_last_message_file=""
+  if [[ "$EXECUTOR" == "codex" ]]; then
+    if [[ $DRY_RUN -eq 1 ]]; then
+      output_last_message_file="OUTPUT_LAST_MESSAGE_FILE"
+    else
+      output_last_message_file="$(mktemp)"
+    fi
+  fi
+
+  build_exec_cmd "$prompt" "$output_last_message_file"
   if [[ $DRY_RUN -eq 1 ]]; then
     echo "DRY RUN: would invoke: ${cmd[*]}"
     exit 0
@@ -256,19 +267,25 @@ Strict terminal contract (must output exactly one when ending):
   fi
 
   recent_nonempty_lines="$(awk 'NF { print }' "$step_log" | tr -d '\r' | tail -n 40)"
+  final_contract_source="$recent_nonempty_lines"
+  if [[ -n "$output_last_message_file" && -s "$output_last_message_file" ]]; then
+    final_contract_source="$(awk 'NF { print }' "$output_last_message_file" | tr -d '\r')"
+  fi
 
-  if printf '%s\n' "$recent_nonempty_lines" | grep -Fxq "WAITING FOR BATON"; then
+  if printf '%s\n' "$final_contract_source" | grep -Fxq "WAITING FOR BATON"; then
     echo "[$end_ts] STEP $step END role=$current_role result=WAITING_FOR_BATON" | tee -a ai/logs/baton.log
     commit_step "$step" "$current_role (waiting for baton)"
     rm -f "$step_log"
+    [[ -z "$output_last_message_file" ]] || rm -f "$output_last_message_file"
     exit 0
   fi
 
-  if printf '%s\n' "$recent_nonempty_lines" | grep -Fxq "WAITING FOR USER"; then
+  if printf '%s\n' "$final_contract_source" | grep -Fxq "WAITING FOR USER"; then
     if ! user_questions_waiting_for_role "$current_role"; then
       echo "[$end_ts] STEP $step END role=$current_role result=INVALID_WAITING_FOR_USER missing_or_incomplete_user_questions" | tee -a ai/logs/baton.log
       commit_step "$step" "$current_role (invalid waiting-for-user)"
       rm -f "$step_log"
+      [[ -z "$output_last_message_file" ]] || rm -f "$output_last_message_file"
       echo "Agent output requested WAITING FOR USER, but ai/user-questions.yaml was not populated with a waiting question set for $current_role."
       exit 1
     fi
@@ -282,10 +299,11 @@ Strict terminal contract (must output exactly one when ending):
     echo "[$end_ts] STEP $step END role=$current_role result=WAITING_FOR_USER" | tee -a ai/logs/baton.log
     commit_step "$step" "$current_role (waiting for user)"
     rm -f "$step_log"
+    [[ -z "$output_last_message_file" ]] || rm -f "$output_last_message_file"
     exit 0
   fi
 
-  handoff_line="$(printf '%s\n' "$recent_nonempty_lines" | sed -n 's/^FINISHED: HANDING TO \([A-Z_][A-Z_]*\)$/\1/p' | tail -n 1)"
+  handoff_line="$(printf '%s\n' "$final_contract_source" | sed -n 's/^FINISHED: HANDING TO \([A-Z_][A-Z_]*\)$/\1/p' | tail -n 1)"
   if [[ -n "$handoff_line" ]]; then
     next_role="$handoff_line"
     found=0
@@ -322,6 +340,7 @@ Strict terminal contract (must output exactly one when ending):
     echo "[$end_ts] STEP $step END role=$current_role result=HANDOFF to=$next_role" | tee -a ai/logs/baton.log
     commit_step "$step" "$current_role"
     rm -f "$step_log"
+    [[ -z "$output_last_message_file" ]] || rm -f "$output_last_message_file"
     [[ $FULL_AUTO -eq 1 ]] || exit 0
     continue
   fi
@@ -329,6 +348,7 @@ Strict terminal contract (must output exactly one when ending):
   echo "[$end_ts] STEP $step END role=$current_role result=INVALID_OUTPUT" | tee -a ai/logs/baton.log
   commit_step "$step" "$current_role (invalid output)"
   rm -f "$step_log"
+  [[ -z "$output_last_message_file" ]] || rm -f "$output_last_message_file"
   echo "Agent output did not include a valid terminal contract line."
   echo "Expected one of:"
   echo "  FINISHED: HANDING TO <ROLE>"

@@ -1,12 +1,17 @@
 # Next Agent
 
-Active item: `ITEM-0001` is the repo baseline scaffold.
+Awaiting user response to `Q-CLOSEOUT-001` in `ai/user-questions.yaml`.
 
-What needs judgment now:
-- Treat `ai/goal.yaml` and `ai/prd.yaml` as authoritative over the generic template defaults in `ai/judgment.yaml`.
-- Confirm the implementation should start with a lean Nuxt 4 app workspace plus TypeScript CDK workspace under `apps/` and `infra/`.
-- Keep the first slice narrow: baseline structure, shared configuration, and minimal app/infra entrypoints only. Do not jump ahead to full chat, upload, or Bedrock integration in this item.
+`SENIOR_JUDGMENTAL_ENGINEER` has issued the final closeout judgment:
 
-What the following ENGINEER handoff should enable:
-- Create the repo structure and baseline files needed for later session/chat/upload/CDK work.
-- Preserve the modular-monolith constraint and avoid any separate backend service or unnecessary abstraction layers.
+- All five backlog items (`ITEM-0001` through `ITEM-0005`) are `done`.
+- Local evidence is coherent and the validator found no contradiction after multiple re-runs.
+- The baton loop has been cycling in no-op mode; no engineering changes have been made since `ITEM-0005` was accepted.
+- External proof gaps (real AWS deployment, Bedrock grounding, live Aurora/S3/Secrets Manager/OAuth) are correctly categorized as external work, not hidden local defects.
+
+**Do not reopen engineering or loop through ENGINEER → VALIDATOR → PLANNER without a user answer to `Q-CLOSEOUT-001`.**
+
+When the user responds:
+- Option (a): PLANNER should create a new `ITEM-0006` scoped to real AWS deployment and live validation.
+- Option (b): PLANNER should create a new scoped item based on the user's specified feature or fix.
+- Option (c): Mark `ITEM-0005` as the final deliverable and terminate the loop.

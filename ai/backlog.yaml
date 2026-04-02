@@ -3,29 +3,37 @@ items:
     title: Scaffold the Nuxt and CDK baseline for the multi-tenant RAG platform
     goal: Establish the application and infrastructure workspace so feature work can proceed in-repo
     type: feature
-    status: in_progress
+    status: done
     priority: high
     dependencies: []
     notes:
       - Repo currently contains only baton/planning assets; no apps/ or infra/ implementation exists yet
       - Baseline must follow the explicit goal stack, not the generic defaults in ai/judgment.yaml
       - Keep initial scaffold lean but production-shaped enough for follow-on API, chat, upload, and CDK work
+      - Normalize the repo layout to apps/web for the Nuxt 4 app and infra/cdk for the TypeScript CDK app
+      - Limit this item to workspace scaffolding, shared config, minimal runtime entrypoints, and placeholder stack/app wiring
+      - Defer real chat routes, Aurora persistence, Bedrock integration, and upload handling to later items
   - id: ITEM-0002
     title: Implement tenant-scoped chat sessions and streaming response route
     goal: Provide the core chat experience with persisted sessions/messages and streamed assistant responses
     type: feature
-    status: todo
+    status: done
     priority: high
     dependencies:
       - ITEM-0001
     notes:
       - Implement in Nuxt server routes only
+      - Keep the slice inside apps/web plus already-allowed baton files; do not reopen deferred root-workspace work
+      - Scope includes the minimal persistence contract needed for sessions and messages plus the streaming chat route contract
+      - Use tenantId from server-side environment/config only, never from a caller-supplied request field
+      - Streaming should follow the locked POST plus ReadableStream pattern, not EventSource
+      - Real Bedrock integration may be stubbed or adapter-backed if needed, but the route shape must preserve the future grounded-response contract
       - Session history must load from Aurora-compatible persistence contracts
   - id: ITEM-0003
     title: Add session file upload flow with S3-backed metadata and limits
     goal: Allow PDF, DOCX, and TXT files to be attached to a chat session under the stated guardrails
     type: feature
-    status: todo
+    status: done
     priority: high
     dependencies:
       - ITEM-0001
@@ -33,29 +41,44 @@ items:
     notes:
       - Enforce max file count, per-file size, and MIME validation server-side
       - Store metadata for subsequent Bedrock reference in-session
+      - Keep the implementation inside apps/web plus allowed baton files; do not reopen infra delivery, root workspace work, or full Bedrock integration
+      - Extend the existing chat persistence and assistant seams rather than creating a separate upload-only data path
+      - A local/dev object-storage adapter is acceptable if its metadata remains S3-shaped and replaceable by real bucket wiring later
+      - Scope includes chat contract changes needed to submit fileIds with messages and preserve session attachment context for subsequent turns
+      - Defer presigned download URLs, lifecycle cleanup jobs, virus scanning, and production S3/IAM wiring unless a thin placeholder is required for coherence
   - id: ITEM-0004
     title: Provision shared and tenant AWS infrastructure with CDK
     goal: Define SharedStack, TenantStack, and UIStack for deployable PoC infrastructure
     type: feature
-    status: todo
+    status: done
     priority: high
     dependencies:
       - ITEM-0001
     notes:
-      - Must include Aurora, ECS/Fargate, Secrets Manager, tenant S3 buckets, and Bedrock resources
-      - cdk deploy --all should be the intended deployment path
+      - Build this slice primarily inside infra/cdk, with app-local deployment files under apps/web only if the ECS image contract requires them
+      - Replace the current placeholder outputs with real stack resources for SharedStack, TenantStack, and UIStack while keeping the same-image-per-tenant deployment model
+      - Must include the shared platform baseline: VPC, ECS cluster, ALB, Aurora Serverless v2, Secrets Manager-backed database/admin secret, ECR repository, shared attachment bucket, and shared log/parameter resources as appropriate for the PoC
+      - Must include the tenant baseline: tenant documents bucket, Bedrock KB + Agent + alias, tenant Aurora schema setup/custom-resource path, scheduler for KB sync, and tenant-scoped IAM/log resources
+      - Must include the UI baseline: one ECS/Fargate service per tenant wired to the shared ALB with deploy-time tenant env vars and secret injection into the Nuxt task
+      - cdk deploy --all should be the intended path from the local infra/cdk package without requiring ad hoc console setup
+      - Defer CI/CD automation, production hardening, custom domains/certificates beyond a coherent placeholder strategy, and any non-CDK operational runbooks unless needed to keep the stacks internally consistent
+      - Current revise scope is narrow: align the shared Aurora app-schema DDL with the existing Nuxt persistence contract without changing the accepted stack boundaries, scheduler path, or container-asset deploy path
   - id: ITEM-0005
     title: Validate tenant isolation, grounding behavior, and end-to-end acceptance
     goal: Prove the platform meets the stated PoC success criteria and key guardrails
     type: validation
-    status: todo
+    status: done
     priority: medium
     dependencies:
       - ITEM-0002
       - ITEM-0003
       - ITEM-0004
     notes:
-      - Include no-relevant-content behavior and cross-tenant isolation checks
+      - Validate the accepted `apps/web` and `infra/cdk` slices together rather than reopening implementation scope
+      - Include runtime-tenant isolation checks across at least two tenant deployments/configurations and confirm no cross-tenant content appears in chat responses, persistence, or attachment metadata
+      - Include no-relevant-content behavior and verify the assistant returns the KB limitation path rather than fabricated grounded citations when content is absent
+      - Cover the end-to-end acceptance path: session persistence, attachment-aware chat flow, and CDK synth/deployability evidence appropriate to the current PoC codebase
+      - Prefer concrete executable validation artifacts already available in-repo; if a success criterion cannot be fully proven locally, identify the exact remaining external dependency rather than broadening implementation scope
 # Example format — PLANNER creates and curates concrete items from ai/goal.yaml:
 #  - id: ITEM-0001
 #    title: Build user authentication

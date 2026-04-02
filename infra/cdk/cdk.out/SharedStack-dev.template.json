@@ -1,0 +1,2132 @@
+{
+ "Description": "Shared platform baseline for the multi-tenant RAG demo",
+ "Resources": {
+  "Vpc8378EB38": {
+   "Type": "AWS::EC2::VPC",
+   "Properties": {
+    "CidrBlock": "10.0.0.0/16",
+    "EnableDnsHostnames": true,
+    "EnableDnsSupport": true,
+    "InstanceTenancy": "default",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SharedStack-dev/Vpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/Resource"
+   }
+  },
+  "VpcpublicSubnet1Subnet2BB74ED7": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": {
+     "Fn::Select": [
+      0,
+      {
+       "Fn::GetAZs": ""
+      }
+     ]
+    },
+    "CidrBlock": "10.0.0.0/24",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "SharedStack-dev/Vpc/publicSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/publicSubnet1/Subnet"
+   }
+  },
+  "VpcpublicSubnet1RouteTable15C15F8E": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SharedStack-dev/Vpc/publicSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/publicSubnet1/RouteTable"
+   }
+  },
+  "VpcpublicSubnet1RouteTableAssociation4E83B6E4": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "VpcpublicSubnet1RouteTable15C15F8E"
+    },
+    "SubnetId": {
+     "Ref": "VpcpublicSubnet1Subnet2BB74ED7"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/publicSubnet1/RouteTableAssociation"
+   }
+  },
+  "VpcpublicSubnet1DefaultRouteB88F9E93": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "VpcIGWD7BA715C"
+    },
+    "RouteTableId": {
+     "Ref": "VpcpublicSubnet1RouteTable15C15F8E"
+    }
+   },
+   "DependsOn": [
+    "VpcVPCGWBF912B6E"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/publicSubnet1/DefaultRoute"
+   }
+  },
+  "VpcpublicSubnet1EIP411541E6": {
+   "Type": "AWS::EC2::EIP",
+   "Properties": {
+    "Domain": "vpc",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SharedStack-dev/Vpc/publicSubnet1"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/publicSubnet1/EIP"
+   }
+  },
+  "VpcpublicSubnet1NATGatewayA036E8A6": {
+   "Type": "AWS::EC2::NatGateway",
+   "Properties": {
+    "AllocationId": {
+     "Fn::GetAtt": [
+      "VpcpublicSubnet1EIP411541E6",
+      "AllocationId"
+     ]
+    },
+    "SubnetId": {
+     "Ref": "VpcpublicSubnet1Subnet2BB74ED7"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SharedStack-dev/Vpc/publicSubnet1"
+     }
+    ]
+   },
+   "DependsOn": [
+    "VpcpublicSubnet1DefaultRouteB88F9E93",
+    "VpcpublicSubnet1RouteTableAssociation4E83B6E4"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/publicSubnet1/NATGateway"
+   }
+  },
+  "VpcpublicSubnet2SubnetE34B022A": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": {
+     "Fn::Select": [
+      1,
+      {
+       "Fn::GetAZs": ""
+      }
+     ]
+    },
+    "CidrBlock": "10.0.1.0/24",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "SharedStack-dev/Vpc/publicSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/publicSubnet2/Subnet"
+   }
+  },
+  "VpcpublicSubnet2RouteTableC5A6DF77": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SharedStack-dev/Vpc/publicSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/publicSubnet2/RouteTable"
+   }
+  },
+  "VpcpublicSubnet2RouteTableAssociationCCE257FF": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "VpcpublicSubnet2RouteTableC5A6DF77"
+    },
+    "SubnetId": {
+     "Ref": "VpcpublicSubnet2SubnetE34B022A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/publicSubnet2/RouteTableAssociation"
+   }
+  },
+  "VpcpublicSubnet2DefaultRoute732F0BEB": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "VpcIGWD7BA715C"
+    },
+    "RouteTableId": {
+     "Ref": "VpcpublicSubnet2RouteTableC5A6DF77"
+    }
+   },
+   "DependsOn": [
+    "VpcVPCGWBF912B6E"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/publicSubnet2/DefaultRoute"
+   }
+  },
+  "VpcprivateSubnet1SubnetCEAD3716": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": {
+     "Fn::Select": [
+      0,
+      {
+       "Fn::GetAZs": ""
+      }
+     ]
+    },
+    "CidrBlock": "10.0.2.0/24",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Name",
+      "Value": "SharedStack-dev/Vpc/privateSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/privateSubnet1/Subnet"
+   }
+  },
+  "VpcprivateSubnet1RouteTable1979EACB": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SharedStack-dev/Vpc/privateSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/privateSubnet1/RouteTable"
+   }
+  },
+  "VpcprivateSubnet1RouteTableAssociationEEBD93CE": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "VpcprivateSubnet1RouteTable1979EACB"
+    },
+    "SubnetId": {
+     "Ref": "VpcprivateSubnet1SubnetCEAD3716"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/privateSubnet1/RouteTableAssociation"
+   }
+  },
+  "VpcprivateSubnet1DefaultRouteB506891A": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "VpcpublicSubnet1NATGatewayA036E8A6"
+    },
+    "RouteTableId": {
+     "Ref": "VpcprivateSubnet1RouteTable1979EACB"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/privateSubnet1/DefaultRoute"
+   }
+  },
+  "VpcprivateSubnet2Subnet2DE7549C": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": {
+     "Fn::Select": [
+      1,
+      {
+       "Fn::GetAZs": ""
+      }
+     ]
+    },
+    "CidrBlock": "10.0.3.0/24",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Name",
+      "Value": "SharedStack-dev/Vpc/privateSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/privateSubnet2/Subnet"
+   }
+  },
+  "VpcprivateSubnet2RouteTable4D0FFC8C": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SharedStack-dev/Vpc/privateSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/privateSubnet2/RouteTable"
+   }
+  },
+  "VpcprivateSubnet2RouteTableAssociationB691E645": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "VpcprivateSubnet2RouteTable4D0FFC8C"
+    },
+    "SubnetId": {
+     "Ref": "VpcprivateSubnet2Subnet2DE7549C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/privateSubnet2/RouteTableAssociation"
+   }
+  },
+  "VpcprivateSubnet2DefaultRouteBAC3C1C3": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "VpcpublicSubnet1NATGatewayA036E8A6"
+    },
+    "RouteTableId": {
+     "Ref": "VpcprivateSubnet2RouteTable4D0FFC8C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/privateSubnet2/DefaultRoute"
+   }
+  },
+  "VpcIGWD7BA715C": {
+   "Type": "AWS::EC2::InternetGateway",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SharedStack-dev/Vpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/IGW"
+   }
+  },
+  "VpcVPCGWBF912B6E": {
+   "Type": "AWS::EC2::VPCGatewayAttachment",
+   "Properties": {
+    "InternetGatewayId": {
+     "Ref": "VpcIGWD7BA715C"
+    },
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Vpc/VPCGW"
+   }
+  },
+  "SharedLogGroup74BE6F74": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/platform/chat/dev/shared",
+    "RetentionInDays": 7
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/SharedLogGroup/Resource"
+   }
+  },
+  "ClusterEB0386A7": {
+   "Type": "AWS::ECS::Cluster",
+   "Properties": {
+    "ClusterName": "rag-platform-dev",
+    "ClusterSettings": [
+     {
+      "Name": "containerInsights",
+      "Value": "enabled"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Cluster/Resource"
+   }
+  },
+  "AlbSecurityGroup86A59E99": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Internet-facing ALB security group",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow public HTTP traffic",
+      "FromPort": 80,
+      "IpProtocol": "tcp",
+      "ToPort": 80
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/AlbSecurityGroup/Resource"
+   }
+  },
+  "LoadBalancerBE9EEC3A": {
+   "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+   "Properties": {
+    "LoadBalancerAttributes": [
+     {
+      "Key": "deletion_protection.enabled",
+      "Value": "false"
+     }
+    ],
+    "Name": "rag-dev",
+    "Scheme": "internet-facing",
+    "SecurityGroups": [
+     {
+      "Fn::GetAtt": [
+       "AlbSecurityGroup86A59E99",
+       "GroupId"
+      ]
+     }
+    ],
+    "Subnets": [
+     {
+      "Ref": "VpcpublicSubnet1Subnet2BB74ED7"
+     },
+     {
+      "Ref": "VpcpublicSubnet2SubnetE34B022A"
+     }
+    ],
+    "Type": "application"
+   },
+   "DependsOn": [
+    "VpcpublicSubnet1DefaultRouteB88F9E93",
+    "VpcpublicSubnet1RouteTableAssociation4E83B6E4",
+    "VpcpublicSubnet2DefaultRoute732F0BEB",
+    "VpcpublicSubnet2RouteTableAssociationCCE257FF"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/LoadBalancer/Resource"
+   }
+  },
+  "LoadBalancerHttpListener22970844": {
+   "Type": "AWS::ElasticLoadBalancingV2::Listener",
+   "Properties": {
+    "DefaultActions": [
+     {
+      "FixedResponseConfig": {
+       "ContentType": "application/json",
+       "MessageBody": "{\"message\":\"Tenant route not configured\"}",
+       "StatusCode": "404"
+      },
+      "Type": "fixed-response"
+     }
+    ],
+    "LoadBalancerArn": {
+     "Ref": "LoadBalancerBE9EEC3A"
+    },
+    "Port": 80,
+    "Protocol": "HTTP"
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/LoadBalancer/HttpListener/Resource"
+   }
+  },
+  "LoadBalancerHttpListenerTenantTraffictenantaGroupB10E595B": {
+   "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+   "Properties": {
+    "HealthCheckEnabled": true,
+    "HealthCheckIntervalSeconds": 30,
+    "HealthCheckPath": "/api/health",
+    "Matcher": {
+     "HttpCode": "200"
+    },
+    "Port": 3000,
+    "Protocol": "HTTP",
+    "TargetGroupAttributes": [
+     {
+      "Key": "stickiness.enabled",
+      "Value": "false"
+     }
+    ],
+    "TargetType": "ip",
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/LoadBalancer/HttpListener/TenantTraffictenant-aGroup/Resource"
+   }
+  },
+  "LoadBalancerHttpListenerTenantTraffictenantaRule2AA9CE4E": {
+   "Type": "AWS::ElasticLoadBalancingV2::ListenerRule",
+   "Properties": {
+    "Actions": [
+     {
+      "TargetGroupArn": {
+       "Ref": "LoadBalancerHttpListenerTenantTraffictenantaGroupB10E595B"
+      },
+      "Type": "forward"
+     }
+    ],
+    "Conditions": [
+     {
+      "Field": "host-header",
+      "HostHeaderConfig": {
+       "Values": [
+        "tenant-a.dev.platform.local"
+       ]
+      }
+     }
+    ],
+    "ListenerArn": {
+     "Ref": "LoadBalancerHttpListener22970844"
+    },
+    "Priority": 100
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/LoadBalancer/HttpListener/TenantTraffictenant-aRule/Resource"
+   }
+  },
+  "LoadBalancerHttpListenerTenantTraffictenantbGroupB20507E6": {
+   "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+   "Properties": {
+    "HealthCheckEnabled": true,
+    "HealthCheckIntervalSeconds": 30,
+    "HealthCheckPath": "/api/health",
+    "Matcher": {
+     "HttpCode": "200"
+    },
+    "Port": 3000,
+    "Protocol": "HTTP",
+    "TargetGroupAttributes": [
+     {
+      "Key": "stickiness.enabled",
+      "Value": "false"
+     }
+    ],
+    "TargetType": "ip",
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/LoadBalancer/HttpListener/TenantTraffictenant-bGroup/Resource"
+   }
+  },
+  "LoadBalancerHttpListenerTenantTraffictenantbRuleAD37BBDB": {
+   "Type": "AWS::ElasticLoadBalancingV2::ListenerRule",
+   "Properties": {
+    "Actions": [
+     {
+      "TargetGroupArn": {
+       "Ref": "LoadBalancerHttpListenerTenantTraffictenantbGroupB20507E6"
+      },
+      "Type": "forward"
+     }
+    ],
+    "Conditions": [
+     {
+      "Field": "host-header",
+      "HostHeaderConfig": {
+       "Values": [
+        "tenant-b.dev.platform.local"
+       ]
+      }
+     }
+    ],
+    "ListenerArn": {
+     "Ref": "LoadBalancerHttpListener22970844"
+    },
+    "Priority": 110
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/LoadBalancer/HttpListener/TenantTraffictenant-bRule/Resource"
+   }
+  },
+  "DatabaseSecurityGroup7319C0F6": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Aurora security group",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": {
+       "Fn::GetAtt": [
+        "Vpc8378EB38",
+        "CidrBlock"
+       ]
+      },
+      "Description": "Allow Aurora access from private VPC address space",
+      "FromPort": 5432,
+      "IpProtocol": "tcp",
+      "ToPort": 5432
+     }
+    ],
+    "VpcId": {
+     "Ref": "Vpc8378EB38"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/DatabaseSecurityGroup/Resource"
+   }
+  },
+  "DatabaseClusterSubnets7FAE1846": {
+   "Type": "AWS::RDS::DBSubnetGroup",
+   "Properties": {
+    "DBSubnetGroupDescription": "Subnets for DatabaseCluster database",
+    "SubnetIds": [
+     {
+      "Ref": "VpcprivateSubnet1SubnetCEAD3716"
+     },
+     {
+      "Ref": "VpcprivateSubnet2Subnet2DE7549C"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/DatabaseCluster/Subnets/Default"
+   }
+  },
+  "SharedStackdevDatabaseClusterSecretC43BE4D13fdaad7efa858a3daf9490cf0a702aeb": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Generated by the CDK for stack: ",
+       {
+        "Ref": "AWS::StackName"
+       }
+      ]
+     ]
+    },
+    "GenerateSecretString": {
+     "ExcludeCharacters": " %+~`#$&*()|[]{}:;<>?!'/@\"\\",
+     "GenerateStringKey": "password",
+     "PasswordLength": 30,
+     "SecretStringTemplate": "{\"username\":\"app_admin\"}"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/DatabaseCluster/Secret/Resource"
+   }
+  },
+  "DatabaseClusterSecretAttachmentB8BF2F7B": {
+   "Type": "AWS::SecretsManager::SecretTargetAttachment",
+   "Properties": {
+    "SecretId": {
+     "Ref": "SharedStackdevDatabaseClusterSecretC43BE4D13fdaad7efa858a3daf9490cf0a702aeb"
+    },
+    "TargetId": {
+     "Ref": "DatabaseCluster68FC2945"
+    },
+    "TargetType": "AWS::RDS::DBCluster"
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/DatabaseCluster/Secret/Attachment/Resource"
+   }
+  },
+  "DatabaseCluster68FC2945": {
+   "Type": "AWS::RDS::DBCluster",
+   "Properties": {
+    "BackupRetentionPeriod": 7,
+    "CopyTagsToSnapshot": true,
+    "DBClusterIdentifier": "rag-dev",
+    "DBClusterParameterGroupName": "default.aurora-postgresql16",
+    "DBSubnetGroupName": {
+     "Ref": "DatabaseClusterSubnets7FAE1846"
+    },
+    "DatabaseName": "ragplatform",
+    "DeletionProtection": false,
+    "EnableCloudwatchLogsExports": [
+     "postgresql"
+    ],
+    "EnableHttpEndpoint": true,
+    "Engine": "aurora-postgresql",
+    "EngineVersion": "16.4",
+    "MasterUserPassword": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "SharedStackdevDatabaseClusterSecretC43BE4D13fdaad7efa858a3daf9490cf0a702aeb"
+       },
+       ":SecretString:password::}}"
+      ]
+     ]
+    },
+    "MasterUsername": "app_admin",
+    "Port": 5432,
+    "ServerlessV2ScalingConfiguration": {
+     "MaxCapacity": 4,
+     "MinCapacity": 0.5
+    },
+    "VpcSecurityGroupIds": [
+     {
+      "Fn::GetAtt": [
+       "DatabaseSecurityGroup7319C0F6",
+       "GroupId"
+      ]
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/DatabaseCluster/Resource"
+   }
+  },
+  "DatabaseClusterLogRetentionpostgresql6A93C1EB": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/rds/cluster/",
+       {
+        "Ref": "DatabaseCluster68FC2945"
+       },
+       "/postgresql"
+      ]
+     ]
+    },
+    "RetentionInDays": 7
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/DatabaseCluster/LogRetentionpostgresql/Resource"
+   }
+  },
+  "DatabaseClusterwriterBFB14A66": {
+   "Type": "AWS::RDS::DBInstance",
+   "Properties": {
+    "DBClusterIdentifier": {
+     "Ref": "DatabaseCluster68FC2945"
+    },
+    "DBInstanceClass": "db.serverless",
+    "Engine": "aurora-postgresql",
+    "PromotionTier": 0,
+    "PubliclyAccessible": false
+   },
+   "DependsOn": [
+    "VpcprivateSubnet1DefaultRouteB506891A",
+    "VpcprivateSubnet1RouteTableAssociationEEBD93CE",
+    "VpcprivateSubnet2DefaultRouteBAC3C1C3",
+    "VpcprivateSubnet2RouteTableAssociationB691E645"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/DatabaseCluster/writer/Resource"
+   }
+  },
+  "DatabaseClusterreader5C259C82": {
+   "Type": "AWS::RDS::DBInstance",
+   "Properties": {
+    "DBClusterIdentifier": {
+     "Ref": "DatabaseCluster68FC2945"
+    },
+    "DBInstanceClass": "db.serverless",
+    "Engine": "aurora-postgresql",
+    "PromotionTier": 1,
+    "PubliclyAccessible": false
+   },
+   "DependsOn": [
+    "DatabaseClusterwriterBFB14A66",
+    "VpcprivateSubnet1DefaultRouteB506891A",
+    "VpcprivateSubnet1RouteTableAssociationEEBD93CE",
+    "VpcprivateSubnet2DefaultRouteBAC3C1C3",
+    "VpcprivateSubnet2RouteTableAssociationB691E645"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/DatabaseCluster/reader/Resource"
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource"
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "logs:PutRetentionPolicy",
+        "logs:DeleteRetentionPolicy"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+    "Roles": [
+     {
+      "Ref": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Handler": "index.handler",
+    "Runtime": "nodejs22.x",
+    "Timeout": 900,
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
+      "Arn"
+     ]
+    }
+   },
+   "DependsOn": [
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource",
+    "aws:asset:path": "asset.2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "SharedSchemaHandlerServiceRole7E7F3B16": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/SharedSchema/Handler/ServiceRole/Resource"
+   }
+  },
+  "SharedSchemaHandlerServiceRoleDefaultPolicy5DE05DCA": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "rds-data:ExecuteStatement",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":rds:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":cluster:",
+          {
+           "Ref": "DatabaseCluster68FC2945"
+          }
+         ]
+        ]
+       }
+      },
+      {
+       "Action": "secretsmanager:GetSecretValue",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "DatabaseClusterSecretAttachmentB8BF2F7B"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "SharedSchemaHandlerServiceRoleDefaultPolicy5DE05DCA",
+    "Roles": [
+     {
+      "Ref": "SharedSchemaHandlerServiceRole7E7F3B16"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/SharedSchema/Handler/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "SharedSchemaHandler3FC80F8D": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "ZipFile": "\nconst { RDSDataClient, ExecuteStatementCommand } = require(\"@aws-sdk/client-rds-data\");\n\nconst client = new RDSDataClient({});\n\nexports.handler = async (event) => {\n  const physicalResourceId =\n    event.ResourceProperties.physicalResourceId ||\n    event.PhysicalResourceId ||\n    event.LogicalResourceId;\n\n  if (event.RequestType === \"Delete\") {\n    return { PhysicalResourceId: physicalResourceId };\n  }\n\n  const statements = Array.isArray(event.ResourceProperties.statements)\n    ? event.ResourceProperties.statements\n    : [];\n\n  for (const statement of statements) {\n    const sql = typeof statement === \"string\" ? statement.trim() : \"\";\n\n    if (!sql) {\n      continue;\n    }\n\n    await client.send(new ExecuteStatementCommand({\n      resourceArn: event.ResourceProperties.clusterArn,\n      secretArn: event.ResourceProperties.secretArn,\n      database: event.ResourceProperties.databaseName,\n      sql,\n    }));\n  }\n\n  return { PhysicalResourceId: physicalResourceId };\n};\n      "
+    },
+    "Handler": "index.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "SharedSchemaHandlerServiceRole7E7F3B16",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Timeout": 120
+   },
+   "DependsOn": [
+    "SharedSchemaHandlerServiceRoleDefaultPolicy5DE05DCA",
+    "SharedSchemaHandlerServiceRole7E7F3B16"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/SharedSchema/Handler/Resource"
+   }
+  },
+  "SharedSchemaProviderframeworkonEventServiceRole263581DE": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/SharedSchema/Provider/framework-onEvent/ServiceRole/Resource"
+   }
+  },
+  "SharedSchemaProviderframeworkonEventServiceRoleDefaultPolicyD6C85138": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "SharedSchemaHandler3FC80F8D",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "SharedSchemaHandler3FC80F8D",
+             "Arn"
+            ]
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "lambda:GetFunction",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "SharedSchemaHandler3FC80F8D",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "SharedSchemaProviderframeworkonEventServiceRoleDefaultPolicyD6C85138",
+    "Roles": [
+     {
+      "Ref": "SharedSchemaProviderframeworkonEventServiceRole263581DE"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/SharedSchema/Provider/framework-onEvent/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "SharedSchemaProviderframeworkonEvent74EBE10C": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "07a90cc3efdfc34da22208dcd9d211f06f5b0e01b21e778edc7c3966b1f61d57.zip"
+    },
+    "Description": "AWS CDK resource provider framework - onEvent (SharedStack-dev/SharedSchema/Provider)",
+    "Environment": {
+     "Variables": {
+      "USER_ON_EVENT_FUNCTION_ARN": {
+       "Fn::GetAtt": [
+        "SharedSchemaHandler3FC80F8D",
+        "Arn"
+       ]
+      }
+     }
+    },
+    "Handler": "framework.onEvent",
+    "LoggingConfig": {
+     "ApplicationLogLevel": "FATAL",
+     "LogFormat": "JSON"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "SharedSchemaProviderframeworkonEventServiceRole263581DE",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Timeout": 900
+   },
+   "DependsOn": [
+    "SharedSchemaProviderframeworkonEventServiceRoleDefaultPolicyD6C85138",
+    "SharedSchemaProviderframeworkonEventServiceRole263581DE"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/SharedSchema/Provider/framework-onEvent/Resource",
+    "aws:asset:path": "asset.07a90cc3efdfc34da22208dcd9d211f06f5b0e01b21e778edc7c3966b1f61d57",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "SharedSchemaA73CBC9C": {
+   "Type": "AWS::CloudFormation::CustomResource",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "SharedSchemaProviderframeworkonEvent74EBE10C",
+      "Arn"
+     ]
+    },
+    "clusterArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":rds:",
+       {
+        "Ref": "AWS::Region"
+       },
+       ":",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":cluster:",
+       {
+        "Ref": "DatabaseCluster68FC2945"
+       }
+      ]
+     ]
+    },
+    "secretArn": {
+     "Ref": "DatabaseClusterSecretAttachmentB8BF2F7B"
+    },
+    "databaseName": "ragplatform",
+    "statements": [
+     "CREATE SCHEMA IF NOT EXISTS app;",
+     "CREATE EXTENSION IF NOT EXISTS vector;",
+     "CREATE TABLE IF NOT EXISTS app.sessions (\n      id uuid PRIMARY KEY,\n      tenant_id text NOT NULL,\n      user_id text NOT NULL,\n      title text NOT NULL DEFAULT 'New chat',\n      created_at timestamptz NOT NULL DEFAULT now(),\n      updated_at timestamptz NOT NULL DEFAULT now()\n    );",
+     "CREATE TABLE IF NOT EXISTS app.messages (\n      id uuid PRIMARY KEY,\n      tenant_id text NOT NULL,\n      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,\n      user_id text NOT NULL,\n      role text NOT NULL,\n      content text NOT NULL,\n      citations jsonb NOT NULL DEFAULT '[]'::jsonb,\n      attached_files jsonb NOT NULL DEFAULT '[]'::jsonb,\n      created_at timestamptz NOT NULL DEFAULT now()\n    );",
+     "CREATE TABLE IF NOT EXISTS app.session_files (\n      file_id uuid PRIMARY KEY,\n      tenant_id text NOT NULL,\n      session_id uuid NOT NULL REFERENCES app.sessions(id) ON DELETE CASCADE,\n      user_id text NOT NULL,\n      original_name text NOT NULL,\n      sanitized_name text NOT NULL,\n      content_type text NOT NULL,\n      size_bytes bigint NOT NULL,\n      storage_bucket text NOT NULL,\n      storage_key text NOT NULL,\n      status text NOT NULL,\n      created_at timestamptz NOT NULL DEFAULT now(),\n      updated_at timestamptz NOT NULL DEFAULT now()\n    );"
+    ],
+    "physicalResourceId": "shared-schema-dev"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/SharedSchema/Resource/Default"
+   }
+  },
+  "Repository22E53BBD": {
+   "Type": "AWS::ECR::Repository",
+   "Properties": {
+    "EmptyOnDelete": true,
+    "ImageScanningConfiguration": {
+     "ScanOnPush": true
+    },
+    "LifecyclePolicy": {
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"selection\":{\"tagStatus\":\"any\",\"countType\":\"imageCountMoreThan\",\"countNumber\":25},\"action\":{\"type\":\"expire\"}}]}"
+    },
+    "RepositoryName": "chat-platform-dev"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Repository/Resource"
+   }
+  },
+  "AttachmentsBucket8E14A36F": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "BucketEncryption": {
+     "ServerSideEncryptionConfiguration": [
+      {
+       "ServerSideEncryptionByDefault": {
+        "SSEAlgorithm": "AES256"
+       }
+      }
+     ]
+    },
+    "LifecycleConfiguration": {
+     "Rules": [
+      {
+       "ExpirationInDays": 90,
+       "Status": "Enabled"
+      }
+     ]
+    },
+    "PublicAccessBlockConfiguration": {
+     "BlockPublicAcls": true,
+     "BlockPublicPolicy": true,
+     "IgnorePublicAcls": true,
+     "RestrictPublicBuckets": true
+    },
+    "Tags": [
+     {
+      "Key": "aws-cdk:auto-delete-objects",
+      "Value": "true"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/AttachmentsBucket/Resource"
+   }
+  },
+  "AttachmentsBucketPolicy66DD7E0A": {
+   "Type": "AWS::S3::BucketPolicy",
+   "Properties": {
+    "Bucket": {
+     "Ref": "AttachmentsBucket8E14A36F"
+    },
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "s3:*",
+       "Condition": {
+        "Bool": {
+         "aws:SecureTransport": "false"
+        }
+       },
+       "Effect": "Deny",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "AttachmentsBucket8E14A36F",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "AttachmentsBucket8E14A36F",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "s3:PutBucketPolicy",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "AttachmentsBucket8E14A36F",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "AttachmentsBucket8E14A36F",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/AttachmentsBucket/Policy/Resource"
+   }
+  },
+  "AttachmentsBucketAutoDeleteObjectsCustomResourceB9032B7E": {
+   "Type": "Custom::S3AutoDeleteObjects",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+      "Arn"
+     ]
+    },
+    "BucketName": {
+     "Ref": "AttachmentsBucket8E14A36F"
+    }
+   },
+   "DependsOn": [
+    "AttachmentsBucketPolicy66DD7E0A"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/AttachmentsBucket/AutoDeleteObjectsCustomResource/Default"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ]
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip"
+    },
+    "Timeout": 900,
+    "MemorySize": 128,
+    "Handler": "index.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Lambda function for auto-deleting objects in ",
+       {
+        "Ref": "AttachmentsBucket8E14A36F"
+       },
+       " S3 bucket."
+      ]
+     ]
+    }
+   },
+   "DependsOn": [
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler",
+    "aws:asset:path": "asset.faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6",
+    "aws:asset:property": "Code"
+   }
+  },
+  "Guardrail": {
+   "Type": "AWS::Bedrock::Guardrail",
+   "Properties": {
+    "BlockedInputMessaging": "Your request could not be processed under the current tenant guardrail policy.",
+    "BlockedOutputsMessaging": "The response was blocked because it was not sufficiently grounded in tenant content.",
+    "Description": "Shared PoC grounding guardrail for tenant-isolated assistants.",
+    "Name": "tenant-rag-dev"
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/Guardrail"
+   }
+  },
+  "GuardrailVersion": {
+   "Type": "AWS::Bedrock::GuardrailVersion",
+   "Properties": {
+    "Description": "Published version for dev",
+    "GuardrailIdentifier": {
+     "Fn::GetAtt": [
+      "Guardrail",
+      "GuardrailId"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/GuardrailVersion"
+   }
+  },
+  "AlbDnsParameter54A8FA44": {
+   "Type": "AWS::SSM::Parameter",
+   "Properties": {
+    "Name": "/multi-tenant-rag-demo/dev/shared/alb-dns-name",
+    "Type": "String",
+    "Value": {
+     "Fn::GetAtt": [
+      "LoadBalancerBE9EEC3A",
+      "DNSName"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/AlbDnsParameter/Resource"
+   }
+  },
+  "RepositoryUriParameter1BC59063": {
+   "Type": "AWS::SSM::Parameter",
+   "Properties": {
+    "Name": "/multi-tenant-rag-demo/dev/shared/repository-uri",
+    "Type": "String",
+    "Value": {
+     "Fn::Join": [
+      "",
+      [
+       {
+        "Fn::Select": [
+         4,
+         {
+          "Fn::Split": [
+           ":",
+           {
+            "Fn::GetAtt": [
+             "Repository22E53BBD",
+             "Arn"
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       ".dkr.ecr.",
+       {
+        "Fn::Select": [
+         3,
+         {
+          "Fn::Split": [
+           ":",
+           {
+            "Fn::GetAtt": [
+             "Repository22E53BBD",
+             "Arn"
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       ".",
+       {
+        "Ref": "AWS::URLSuffix"
+       },
+       "/",
+       {
+        "Ref": "Repository22E53BBD"
+       }
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/RepositoryUriParameter/Resource"
+   }
+  },
+  "AttachmentsBucketParameterC651D29F": {
+   "Type": "AWS::SSM::Parameter",
+   "Properties": {
+    "Name": "/multi-tenant-rag-demo/dev/shared/attachments-bucket",
+    "Type": "String",
+    "Value": {
+     "Ref": "AttachmentsBucket8E14A36F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/AttachmentsBucketParameter/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/5VTTW/bMAz9Lc1Z1bq02GG3fGxFgWI1nKKXYQhomfXUyFIgUukKQ/99kBV/tNhlJ75HPj1TpLyUy5sv8uoCXulS1YdLoyvZ7RjUQcAr7TtUS9k9HZXYPNunYiOKUBmtdqGyyCk3odIFxkeoDE75KbcickoDa2dHcQLf7ooUfgDfAuMrvInC6xMwTsZ3ltFbHAW5kzNbMYP63aJlsUMVvOa3W+/Cse9hnojCuIZkd++aUTDie9eUyGhTe1GgItltTCBGn2RnGAUaINbKOKgrMGCVts1pKbvV8Wi06i9376Be97V89h2f6zQx2rNmwLP6I/gGeex0Tv/hUoY89TmPwtckuy0wVEA43CfPdTTerueJQbxD5fPwt+vZILbrO0uc7hIF9RJqwUKDXnZ53ulUDrnj2XpGwcdKFHS9ByJkkqsUBF3Lbh3UAXkNhCLDZJDRz27R6j/aLr4u5s82vVe6ln2JZJauArstGmR8qF5QMS3ir7Nf4YxWb5Nr5v/hnQ/sGBjTNZJ1FBpa2ZUur6OP03cyisJAW9Ugu+/BquGHGHB6fV52JR4daXa+PzixKCqsvVOHfuC3AXztQRsxJ0/oqXciatO/7LVtCvDQ4nmNI4lRlEgueJXbHXC/hR1Do20jVCB27d6fiyQL7066TlZ9ZXJ4RwdVv8HNs30IfAwchXU1yhf6dFreyM9LeXXxQlpf+mBZtyjLHP8CSgBz2JYEAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "SharedStack-dev/CDKMetadata/Default"
+   },
+   "Condition": "CDKMetadataAvailable"
+  }
+ },
+ "Outputs": {
+  "EnvironmentName": {
+   "Value": "dev"
+  },
+  "LoadBalancerDnsName": {
+   "Value": {
+    "Fn::GetAtt": [
+     "LoadBalancerBE9EEC3A",
+     "DNSName"
+    ]
+   }
+  },
+  "SharedAssetsBucketName": {
+   "Description": "Shared tenant attachments bucket.",
+   "Value": {
+    "Ref": "AttachmentsBucket8E14A36F"
+   }
+  },
+  "DatabaseClusterArn": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "arn:",
+      {
+       "Ref": "AWS::Partition"
+      },
+      ":rds:",
+      {
+       "Ref": "AWS::Region"
+      },
+      ":",
+      {
+       "Ref": "AWS::AccountId"
+      },
+      ":cluster:",
+      {
+       "Ref": "DatabaseCluster68FC2945"
+      }
+     ]
+    ]
+   }
+  },
+  "DatabaseSecretArn": {
+   "Value": {
+    "Ref": "DatabaseClusterSecretAttachmentB8BF2F7B"
+   }
+  },
+  "RepositoryUri": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      {
+       "Fn::Select": [
+        4,
+        {
+         "Fn::Split": [
+          ":",
+          {
+           "Fn::GetAtt": [
+            "Repository22E53BBD",
+            "Arn"
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      ".dkr.ecr.",
+      {
+       "Fn::Select": [
+        3,
+        {
+         "Fn::Split": [
+          ":",
+          {
+           "Fn::GetAtt": [
+            "Repository22E53BBD",
+            "Arn"
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      ".",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "Repository22E53BBD"
+      }
+     ]
+    ]
+   }
+  },
+  "ExportsOutputRefDatabaseCluster68FC2945E5E605EC": {
+   "Value": {
+    "Ref": "DatabaseCluster68FC2945"
+   },
+   "Export": {
+    "Name": "SharedStack-dev:ExportsOutputRefDatabaseCluster68FC2945E5E605EC"
+   }
+  },
+  "ExportsOutputRefDatabaseClusterSecretAttachmentB8BF2F7B4B65CA6B": {
+   "Value": {
+    "Ref": "DatabaseClusterSecretAttachmentB8BF2F7B"
+   },
+   "Export": {
+    "Name": "SharedStack-dev:ExportsOutputRefDatabaseClusterSecretAttachmentB8BF2F7B4B65CA6B"
+   }
+  },
+  "ExportsOutputFnGetAttAttachmentsBucket8E14A36FArn9D712AB8": {
+   "Value": {
+    "Fn::GetAtt": [
+     "AttachmentsBucket8E14A36F",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "SharedStack-dev:ExportsOutputFnGetAttAttachmentsBucket8E14A36FArn9D712AB8"
+   }
+  },
+  "ExportsOutputFnGetAttGuardrailGuardrailId78EA463E": {
+   "Value": {
+    "Fn::GetAtt": [
+     "Guardrail",
+     "GuardrailId"
+    ]
+   },
+   "Export": {
+    "Name": "SharedStack-dev:ExportsOutputFnGetAttGuardrailGuardrailId78EA463E"
+   }
+  },
+  "ExportsOutputFnGetAttGuardrailVersionVersion928F5BEA": {
+   "Value": {
+    "Fn::GetAtt": [
+     "GuardrailVersion",
+     "Version"
+    ]
+   },
+   "Export": {
+    "Name": "SharedStack-dev:ExportsOutputFnGetAttGuardrailVersionVersion928F5BEA"
+   }
+  },
+  "ExportsOutputRefVpc8378EB38272D6E3A": {
+   "Value": {
+    "Ref": "Vpc8378EB38"
+   },
+   "Export": {
+    "Name": "SharedStack-dev:ExportsOutputRefVpc8378EB38272D6E3A"
+   }
+  },
+  "ExportsOutputFnGetAttAlbSecurityGroup86A59E99GroupIdE3A37BC7": {
+   "Value": {
+    "Fn::GetAtt": [
+     "AlbSecurityGroup86A59E99",
+     "GroupId"
+    ]
+   },
+   "Export": {
+    "Name": "SharedStack-dev:ExportsOutputFnGetAttAlbSecurityGroup86A59E99GroupIdE3A37BC7"
+   }
+  },
+  "ExportsOutputFnGetAttRepository22E53BBDArn3AD4E30B": {
+   "Value": {
+    "Fn::GetAtt": [
+     "Repository22E53BBD",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "SharedStack-dev:ExportsOutputFnGetAttRepository22E53BBDArn3AD4E30B"
+   }
+  },
+  "ExportsOutputRefClusterEB0386A796A0E3FE": {
+   "Value": {
+    "Ref": "ClusterEB0386A7"
+   },
+   "Export": {
+    "Name": "SharedStack-dev:ExportsOutputRefClusterEB0386A796A0E3FE"
+   }
+  },
+  "ExportsOutputRefLoadBalancerHttpListenerTenantTraffictenantaGroupB10E595B34C9F1F8": {
+   "Value": {
+    "Ref": "LoadBalancerHttpListenerTenantTraffictenantaGroupB10E595B"
+   },
+   "Export": {
+    "Name": "SharedStack-dev:ExportsOutputRefLoadBalancerHttpListenerTenantTraffictenantaGroupB10E595B34C9F1F8"
+   }
+  },
+  "ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373": {
+   "Value": {
+    "Ref": "VpcprivateSubnet1SubnetCEAD3716"
+   },
+   "Export": {
+    "Name": "SharedStack-dev:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373"
+   }
+  },
+  "ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D": {
+   "Value": {
+    "Ref": "VpcprivateSubnet2Subnet2DE7549C"
+   },
+   "Export": {
+    "Name": "SharedStack-dev:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D"
+   }
+  },
+  "ExportsOutputRefLoadBalancerHttpListenerTenantTraffictenantbGroupB20507E641BD79D7": {
+   "Value": {
+    "Ref": "LoadBalancerHttpListenerTenantTraffictenantbGroupB20507E6"
+   },
+   "Export": {
+    "Name": "SharedStack-dev:ExportsOutputRefLoadBalancerHttpListenerTenantTraffictenantbGroupB20507E641BD79D7"
+   }
+  }
+ },
+ "Conditions": {
+  "CDKMetadataAvailable": {
+   "Fn::Or": [
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "af-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-3"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-south-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-3"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-4"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ca-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ca-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-northwest-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-central-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-south-2"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-3"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "il-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "me-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "me-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "sa-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-west-1"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Equals": [
+      {
+       "Ref": "AWS::Region"
+      },
+      "us-west-2"
+     ]
+    }
+   ]
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

@@ -1,4 +1,4 @@
-Script started on 2026-04-01 18:47:10-05:00 [COMMAND="codex exec --model gpt-5.4 --dangerously-bypass-approvals-and-sandbox $'Current role: PLANNER\nSource of truth: ai/active_agent.txt\nLoad and follow this role prompt exactly: ai/prompts/00-planner.md\nDo not route from ai/next_agent.yaml role config.\nStrict terminal contract (must output exactly one when ending):\n- FINISHED: HANDING TO <ROLE>\n- WAITING FOR USER\n- WAITING FOR BATON' " TERM="xterm-256color" TTY="/dev/pts/1" COLUMNS="184" LINES="43"]
+Script started on 2026-04-01 18:57:01-05:00 [COMMAND="codex exec --model gpt-5.4 --dangerously-bypass-approvals-and-sandbox --output-last-message /tmp/tmp.BGGK5AMdR8 $'Current role: PLANNER\nSource of truth: ai/active_agent.txt\nLoad and follow this role prompt exactly: ai/prompts/00-planner.md\nDo not route from ai/next_agent.yaml role config.\nStrict terminal contract (must output exactly one when ending):\n- FINISHED: HANDING TO <ROLE>\n- WAITING FOR USER\n- WAITING FOR BATON' " TERM="xterm-256color" TTY="/dev/pts/1" COLUMNS="184" LINES="43"]
 OpenAI Codex v0.118.0 (research preview)
 --------
 [1mworkdir:[0m /home/sundaram/code/multi-tenant-rag-demo
@@ -8,7 +8,7 @@ OpenAI Codex v0.118.0 (research preview)
 [1msandbox:[0m danger-full-access
 [1mreasoning effort:[0m medium
 [1mreasoning summaries:[0m none
-[1msession id:[0m 019d4b71-9ea6-79e2-92d2-f97a55c650bf
+[1msession id:[0m 019d4b7a-a4a2-7ca3-b180-944d622c2440
 --------
 [36muser[0m
 Current role: PLANNER
@@ -20,14 +20,14 @@ Strict terminal contract (must output exactly one when ending):
 - WAITING FOR USER
 - WAITING FOR BATON
 [35m[3mcodex[0m[0m
-Loading the planner role prompt from the repo and checking the current handoff state before taking any action.
+I’m loading the planner role prompt and the current active-agent source of truth first, then I’ll follow that workflow exactly and end with the required terminal contract line.
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,200p' ai/active_agent.txt"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc "sed -n '1,220p' ai/active_agent.txt"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 PLANNER
 
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,240p' ai/prompts/00-planner.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc "sed -n '1,260p' ai/prompts/00-planner.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 # ROLE: PLANNER
 
@@ -70,9 +70,9 @@ PLANNER
 - Stop.
 
 [35m[3mcodex[0m[0m
-Reading the planning inputs now so I can update the active item, backlog state, and handoff cleanly.
+I’ve confirmed the baton is with `PLANNER`. Next I’m reading the required planning state files so I can update backlog/active-item state and produce the handoff cleanly.
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,220p' ai/goal.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc "sed -n '1,240p' ai/goal.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 # Edit this file to define your project goal before running the baton loop.
 #
@@ -154,7 +154,67 @@ constraints:
 [35m[3mexec[0m[0m
 [1m/bin/bash -lc "sed -n '1,260p' ai/backlog.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
-items: []
+items:
+  - id: ITEM-0001
+    title: Scaffold the Nuxt and CDK baseline for the multi-tenant RAG platform
+    goal: Establish the application and infrastructure workspace so feature work can proceed in-repo
+    type: feature
+    status: in_progress
+    priority: high
+    dependencies: []
+    notes:
+      - Repo currently contains only baton/planning assets; no apps/ or infra/ implementation exists yet
+      - Baseline must follow the explicit goal stack, not the generic defaults in ai/judgment.yaml
+      - Keep initial scaffold lean but production-shaped enough for follow-on API, chat, upload, and CDK work
+      - Normalize the repo layout to apps/web for the Nuxt 4 app and infra/cdk for the TypeScript CDK app
+      - Limit this item to workspace scaffolding, shared config, minimal runtime entrypoints, and placeholder stack/app wiring
+      - Defer real chat routes, Aurora persistence, Bedrock integration, and upload handling to later items
+  - id: ITEM-0002
+    title: Implement tenant-scoped chat sessions and streaming response route
+    goal: Provide the core chat experience with persisted sessions/messages and streamed assistant responses
+    type: feature
+    status: todo
+    priority: high
+    dependencies:
+      - ITEM-0001
+    notes:
+      - Implement in Nuxt server routes only
+      - Session history must load from Aurora-compatible persistence contracts
+  - id: ITEM-0003
+    title: Add session file upload flow with S3-backed metadata and limits
+    goal: Allow PDF, DOCX, and TXT files to be attached to a chat session under the stated guardrails
+    type: feature
+    status: todo
+    priority: high
+    dependencies:
+      - ITEM-0001
+      - ITEM-0002
+    notes:
+      - Enforce max file count, per-file size, and MIME validation server-side
+      - Store metadata for subsequent Bedrock reference in-session
+  - id: ITEM-0004
+    title: Provision shared and tenant AWS infrastructure with CDK
+    goal: Define SharedStack, TenantStack, and UIStack for deployable PoC infrastructure
+    type: feature
+    status: todo
+    priority: high
+    dependencies:
+      - ITEM-0001
+    notes:
+      - Must include Aurora, ECS/Fargate, Secrets Manager, tenant S3 buckets, and Bedrock resources
+      - cdk deploy --all should be the intended deployment path
+  - id: ITEM-0005
+    title: Validate tenant isolation, grounding behavior, and end-to-end acceptance
+    goal: Prove the platform meets the stated PoC success criteria and key guardrails
+    type: validation
+    status: todo
+    priority: medium
+    dependencies:
+      - ITEM-0002
+      - ITEM-0003
+      - ITEM-0004
+    notes:
+      - Include no-relevant-content behavior and cross-tenant isolation checks
 # Example format — PLANNER creates and curates concrete items from ai/goal.yaml:
 #  - id: ITEM-0001
 #    title: Build user authentication
@@ -169,23 +229,47 @@ items: []
 [35m[3mexec[0m[0m
 [1m/bin/bash -lc "sed -n '1,220p' ai/active_item.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
-id: null
-title: null
-goal: null
-status: idle
-owner_role: null
-related_files: []
-acceptance_criteria: []
-done_definition: []
+id: ITEM-0001
+title: Scaffold the Nuxt and CDK baseline for the multi-tenant RAG platform
+goal: Establish a lean monorepo baseline with apps/web for Nuxt 4 and infra/cdk for AWS CDK so feature implementation can start on a real codebase
+status: ready_for_judgment
+owner_role: SENIOR_JUDGMENTAL_ENGINEER
+related_files:
+  - ai/goal.yaml
+  - ai/prd.yaml
+  - ai/backlog.yaml
+  - ai/decision-lock.yaml
+  - ai/next_agent.md
+acceptance_criteria:
+  - The active item scope is confirmed to use Nuxt 4 plus Nitro server routes and TypeScript CDK on AWS, overriding generic template defaults
+  - Repo layout is explicitly normalized to apps/web for the application and infra/cdk for infrastructure, with a root workspace package manager setup
+  - The first engineering slice is limited to workspace scaffolding, shared TypeScript/config setup, minimal Nuxt entrypoints, and placeholder CDK stack wiring only
+  - No separate backend service, Lambda-based app logic, chat implementation, upload flow, Aurora integration, or Bedrock integration is included in this item
+  - Handoff guidance is specific enough for ENGINEER to scaffold the baseline with no further planning ambiguity
+done_definition:
+  - Decision locks capture the approved stack, repo layout, and first-slice boundaries from ai/goal.yaml and ai/prd.yaml
+  - Backlog keeps ITEM-0001 in progress and preserves sequenced follow-on items for chat, uploads, infrastructure, and validation
+  - ai/next_agent.md tells the next role exactly what to validate and simplify before implementation
 
 [35m[3mexec[0m[0m
 [1m/bin/bash -lc "sed -n '1,220p' ai/decision-lock.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
-confirmed_by_user: false
+confirmed_by_user: true
 blocked_on_user: false
-last_user_decision: null
-approved_exceptions: []
-approved_decisions: []
+last_user_decision: "Project goal and PRD established on 2026-04-01 as the authoritative stack and scope source"
+approved_exceptions:
+  - "Direct Aurora access is allowed only in dev/PoC environments under DEC-009 guardrails"
+  - "Browser UUID may be used as a temporary userId fallback only if Google OAuth is deferred during PoC setup"
+approved_decisions:
+  - "Use a full TypeScript stack: Nuxt 4 for UI plus server routes and AWS CDK in TypeScript"
+  - "Do not introduce a separate API service; backend logic stays in Nuxt server/api routes"
+  - "Deploy the same application image per tenant with TENANT_ID injected by environment configuration"
+  - "Use Aurora PostgreSQL Serverless v2 as the shared cluster with separate tenant vector schemas"
+  - "Provision one Bedrock Agent and one Bedrock Knowledge Base per tenant for hard isolation"
+  - "Target AWS deployment on ECS Fargate with secrets stored in Secrets Manager"
+  - "PoC auth path is Google OAuth, with no-auth/browser UUID only as a fallback if explicitly deferred"
+  - "Normalize the repo layout to a root workspace with apps/web for the Nuxt application and infra/cdk for the CDK application"
+  - "ITEM-0001 is scaffold-only: create minimal workspace/config/runtime entrypoints and placeholder stack wiring, but defer chat, uploads, Aurora integration, and Bedrock integration"
 
 [35m[3mexec[0m[0m
 [1m/bin/bash -lc "sed -n '1,220p' ai/user-questions.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
@@ -195,7 +279,7 @@ return_to_role: null
 questions: []
 
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,240p' ai/constitution.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc "sed -n '1,260p' ai/constitution.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 core_rules:
   - state lives in files, not chat memory
@@ -229,100 +313,34 @@ Use this file for reviewer outcomes:
 - **ESCALATE**: WAITING FOR USER only for approved escalation categories.
 
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "if [ -f ai/iterations/ITER-0001.md ]; then sed -n '1,220p' ai/iterations/ITER-0001.md; fi"[0m in /home/sundaram/code/multi-tenant-rag-demo
-[35m[3mexec[0m[0m
 [1m/bin/bash -lc "sed -n '1,220p' ai/next_agent.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[32m succeeded in 0ms:[0m
+# Next Agent
+
+Active item: `ITEM-0001` is the repo baseline scaffold.
+
+What needs judgment now:
+- Treat `ai/goal.yaml` and `ai/prd.yaml` as authoritative over the generic template defaults in `ai/judgment.yaml`.
+- Confirm the repo layout should be normalized to `apps/web` for Nuxt 4 and `infra/cdk` for the TypeScript CDK app.
+- Confirm the first slice stays narrow: root workspace setup, shared TypeScript/configuration, minimal Nuxt entrypoints, and placeholder CDK app/stack wiring only.
+- Verify that introducing a separate backend service, real API feature work, Aurora wiring, upload handling, or Bedrock integration in this item would be scope creep.
+
+What the following ENGINEER handoff should enable:
+- Create the baseline files and scripts needed for later session/chat/upload/CDK work without re-deciding stack or layout.
+- Preserve the modular-monolith constraint and avoid any separate backend service or unnecessary abstraction layers.
+
+[35m[3mexec[0m[0m
+[1m/bin/bash -lc "if [ -f ai/iterations/ITER-0001.md ]; then sed -n '1,240p' ai/iterations/ITER-0001.md; else echo '__MISSING__'; fi"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 # ITER-0001 Decision Log
 
 | Timestamp | Role | Decision | Why |
 |-----------|------|----------|-----|
-
-[32m succeeded in 0ms:[0m
-# Next Agent
-
-This file is optional narrative context only.
-Execution routing is determined by:
-- ai/active_agent.txt (current role)
-- scripts/run-baton.sh static role->prompt mapping
+| 2026-04-01T18:48:06-05:00 | PLANNER | Created the initial backlog, selected ITEM-0001 as the active item, and locked the Nuxt 4 + TypeScript CDK architecture from the goal/PRD. | The repo has only baton scaffolding, so the highest-leverage next step is a constrained baseline scaffold with explicit stack guidance before engineering starts. |
+| 2026-04-01T18:52:00-05:00 | PLANNER | Clarified ITEM-0001 as a scaffold-only slice, normalized the repo layout to `apps/web` and `infra/cdk`, and refreshed the handoff for judgment. | The goal/PRD were clear enough to remove planning ambiguity without escalating to the user, and the next role now has a concrete boundary to validate before engineering begins. |
 
 [35m[3mcodex[0m[0m
-The backlog is empty and no item is active, so I’m checking the repo shape before defining the first concrete work item and handoff.
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc "rg --files -g '"'!node_modules'"' -g '"'!dist'"' -g '"'!coverage'"' | sed -n '1,200p'"[0m in /home/sundaram/code/multi-tenant-rag-demo
-[32m succeeded in 0ms:[0m
-init.sh
-ai/logs/baton.log
-ai/logs/step-001-PLANNER.log
-ai/next_agent.md
-ai/active_agent.txt
-scripts/check-baton.sh
-scripts/validate_baton.py
-scripts/run-baton.sh
-scripts/check-goal.sh
-scripts/resume-baton.sh
-scripts/generate-next-agent.sh
-scripts/bootstrap.sh
-ai/defaults/logs/baton.log
-ai/defaults/backlog.yaml
-ai/defaults/goal.yaml
-ai/defaults/requirements.md
-ai/templates/active-item-template.yaml
-ai/constitution.yaml
-ai/templates/one-pager-requirements-template.md
-ai/templates/decision-lock-template.yaml
-ai/templates/next-agent-template.yaml
-ai/templates/backlog-item-template.yaml
-ai/active_item.yaml
-ai/decision-lock.yaml
-ai/judgment.yaml
-ai/user-questions.yaml
-ai/defaults/templates/active-item-template.yaml
-ai/defaults/templates/one-pager-requirements-template.md
-ai/defaults/templates/decision-lock-template.yaml
-ai/defaults/templates/next-agent-template.yaml
-ai/defaults/templates/backlog-item-template.yaml
-ai/defaults/decision-lock.yaml
-ai/prompts/02-engineer.md
-ai/prompts/00-planner.md
-ai/prompts/01-senior-judgmental-engineer.md
-ai/prompts/03-validator.md
-ai/prompts/human.md
-ai/defaults/simplification.md
-ai/defaults/review.md
-ai/next_agent.yaml
-ai/backlog.yaml
-ai/goal.yaml
-ai/requirements.md
-ai/defaults/judgment.yaml
-ai/defaults/user-questions.yaml
-ai/defaults/prompts/02-engineer.md
-ai/defaults/prompts/00-planner.md
-ai/defaults/prompts/01-senior-judgmental-engineer.md
-ai/defaults/prompts/03-validator.md
-ai/defaults/prompts/human.md
-ai/defaults/constitution.yaml
-ai/defaults/active_item.yaml
-ai/defaults/iterations/ITER-0001.md
-ai/prd.yaml
-ai/review.md
-ai/simplification.md
-ai/iterations/ITER-0001.md
-
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc 'ls -la'[0m in /home/sundaram/code/multi-tenant-rag-demo
-[32m succeeded in 0ms:[0m
-total 28
-drwxrwxr-x  6 sundaram sundaram 4096 Apr  1 18:33 .
-drwxrwxr-x 21 sundaram sundaram 4096 Apr  1 18:29 ..
-drwxrwxr-x  8 sundaram sundaram 4096 Apr  1 18:38 .git
-drwxrwxr-x  2 sundaram sundaram 4096 Apr  1 18:42 .idea
-drwxrwxr-x  7 sundaram sundaram 4096 Apr  1 18:42 ai
--rw-rw-r--  1 sundaram sundaram 1158 Apr  1 18:29 init.sh
-drwxrwxr-x  2 sundaram sundaram 4096 Apr  1 18:29 scripts
-
-[35m[3mcodex[0m[0m
-The repo currently contains only the baton/planning scaffold, so the first item needs to establish the actual application workspace and baseline implementation structure.
+The planning state is coherent, but I want one pass over the PRD slice for `ITEM-0001` to make sure the handoff language matches the actual repo baseline boundaries rather than a paraphrase.
 [35m[3mexec[0m[0m
 [1m/bin/bash -lc "sed -n '1,260p' ai/prd.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
@@ -587,634 +605,135 @@ architecture:
 
 frontend:
 
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,220p' ai/prompts/01-senior-judgmental-engineer.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
-[32m succeeded in 0ms:[0m
-# ROLE: SENIOR_JUDGMENTAL_ENGINEER
-
-## 1) Baton check
-- Read `ai/active_agent.txt`.
-- If value is not exactly `SENIOR_JUDGMENTAL_ENGINEER`, output exactly:
-`WAITING FOR BATON`
-- Stop.
-
-## 2) Required reads
-- `ai/goal.yaml`
-- `ai/requirements.md`
-- `ai/simplification.md`
-- `ai/judgment.yaml`
-- `ai/active_item.yaml`
-- `ai/decision-lock.yaml`
-- `ai/user-questions.yaml`
-- `ai/constitution.yaml`
-- `ai/next_agent.md`
-
-## 3) Allowed edits (only)
-- `ai/simplification.md`
-- `ai/review.md` (judgment/tradeoff notes)
-- `ai/decision-lock.yaml`
-- `ai/user-questions.yaml`
-- `ai/next_agent.md` (optional)
-- `ai/iterations/ITER-0001.md`
-
-## 4) Required actions
-- Apply practical judgment, constraints, and architecture principles.
-- Resolve escalations from ENGINEER/VALIDATOR where possible.
-- Escalate to HUMAN only when unresolved ambiguity, conflicting constraints, or missing business context remains:
-  - Write questions to `ai/user-questions.yaml` with `status: waiting` and `return_to_role: SENIOR_JUDGMENTAL_ENGINEER`.
-  - Output exactly `WAITING FOR USER` and stop.
-
-## 5) End-of-turn required steps
-- Append iteration log line.
-- Write `ai/next_agent.md` with concise handoff notes.
-- Default happy-path handoff:
-`FINISHED: HANDING TO ENGINEER`
-- Stop.
-
 [35m[3mcodex[0m[0m
-I’m checking downstream role constraints once so the active item and handoff match what the next role can actually do.
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,260p' ai/prompts/02-engineer.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
-[32m succeeded in 0ms:[0m
-# ROLE: ENGINEER
-
-## 1) Baton check
-- Read `ai/active_agent.txt`.
-- If value is not exactly `ENGINEER`, output exactly:
-`WAITING FOR BATON`
-- Stop.
-
-## 2) Required reads
-- `ai/goal.yaml`
-- `ai/active_item.yaml`
-- `ai/requirements.md`
-- `ai/judgment.yaml`
-- `ai/simplification.md`
-- `ai/decision-lock.yaml`
-- `ai/user-questions.yaml`
-- `ai/constitution.yaml`
-- `ai/next_agent.md`
-- relevant files in `apps/`, `infra/`, `context/repo/`
-
-## 3) Allowed edits (only)
-- `apps/**`
-- `infra/**`
-- related tests/docs for active item
-- `ai/review.md` (implementation notes)
-- `ai/decision-lock.yaml`
-- `ai/user-questions.yaml`
-- `ai/next_agent.md` (optional)
-- `ai/iterations/ITER-0001.md`
-
-## 4) Required actions
-- Implement active-item scope and keep changes proportional.
-- If blocked, conflicted, or underspecified, escalate by handing off to:
-  - `SENIOR_JUDGMENTAL_ENGINEER` (judgment/tradeoff resolution), or
-  - `PLANNER` (scope/intent decomposition).
-- Escalation should prefer those roles over direct HUMAN routing.
-
-## 5) End-of-turn required steps
-- Append iteration log line.
-- Write `ai/next_agent.md` with concise handoff notes.
-- Default happy-path handoff:
-`FINISHED: HANDING TO VALIDATOR`
-- Stop.
-
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,260p' ai/prompts/03-validator.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
-[32m succeeded in 0ms:[0m
-# ROLE: VALIDATOR
-
-## 1) Baton check
-- Read `ai/active_agent.txt`.
-- If value is not exactly `VALIDATOR`, output exactly:
-`WAITING FOR BATON`
-- Stop.
-
-## 2) Required reads
-- `ai/goal.yaml`
-- `ai/active_item.yaml`
-- `ai/review.md`
-- `ai/decision-lock.yaml`
-- `ai/user-questions.yaml`
-- `ai/constitution.yaml`
-- `ai/next_agent.md`
-- changed files under `apps/` and `infra/`
-- test/verification output
-
-## 3) Allowed edits (only)
-- `ai/review.md` (validation results)
-- `ai/decision-lock.yaml`
-- `ai/user-questions.yaml`
-- `ai/next_agent.md` (optional)
-- `ai/iterations/ITER-0001.md`
-
-## 4) Required actions
-- Verify goal and constraint alignment, correctness, and regression risk.
-- If failures reveal ambiguity or tradeoff questions, escalate by handing off to:
-  - `SENIOR_JUDGMENTAL_ENGINEER`, or
-  - `PLANNER`.
-- Prefer these escalation paths over direct HUMAN routing.
-
-## 5) End-of-turn required steps
-- Append iteration log line.
-- Write `ai/next_agent.md` with concise handoff notes.
-- Default complete-item handoff:
-`FINISHED: HANDING TO PLANNER`
-- Stop.
-
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc 'for f in ai/requirements.md ai/simplification.md ai/judgment.yaml; do echo "### $f"; sed -n '"'1,220p' \""'$f"; done'[0m in /home/sundaram/code/multi-tenant-rag-demo
-[32m succeeded in 0ms:[0m
-### ai/requirements.md
-# Requirements (One Pager)
-
-## Objective
-
-<!-- PLANNER + SENIOR_JUDGMENTAL_ENGINEER: replace with clarified objective from ai/goal.yaml -->
-<describe the product objective from the project goal>
-
-## In Scope
-
-- <scope item derived from goal>
-
-## Out of Scope
-
-- Governance loop internals (already bootstrapped)
-
-## Constraints
-
-- <constraints from ai/goal.yaml>
-
-## Acceptance Criteria
-
-- <testable condition from goal success_criteria>
-### ai/simplification.md
-# Simplification Guidance
-
-1. Prefer straightforward modular monolith structures.
-2. Keep interfaces small and explicit.
-3. Add abstractions only when repeated pain is proven.
-4. Preserve existing business behavior unless requirements say otherwise.
-5. Bias toward maintainability over novelty.
-### ai/judgment.yaml
-backend_default: aspnet_core
-frontend_default: react_nextjs
-frontend_alternative: nuxt_if_explicitly_requested
-database_default: postgresql
-architecture_default: modular_monolith
-coding_style: functional_testable_pragmatic
-preserve_business_behavior: true
-avoid_unnecessary_microservices: true
-avoid_clever_abstractions: true
-cloud_default: aws
-iac_default: cdk
-container_default: fargate
-static_assets_default: s3_cloudfront
-auth_default: cognito
-python_only_for_data_workloads: true
-nosql_only_when_justified: true
-relational_bias: true
-human_for_high_level_decisions_only: true
-
-baton_transition_owner: runner_only
-
-[35m[3mcodex[0m[0m
-I have enough context. I’m updating the planning state now: concrete backlog, first active item, explicit decision locks that override the default template bias, and a handoff note for the next role.
+The item is already scoped well enough to avoid a user escalation. I’m tightening the handoff and decision record minimally, then I’ll append the planner iteration entry and leave the baton pointed at judgment as the happy path.
 [35m[3mexec[0m[0m
 [1m/bin/bash -lc 'date --iso-8601=seconds'[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
-2026-04-01T18:48:06-05:00
+2026-04-01T18:57:38-05:00
 
 [35m[3mexec[0m[0m
 [1m/bin/bash -lc 'git status --short'[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
  M ai/logs/baton.log
- M ai/next_agent.yaml
- M scripts/bootstrap.sh
- M scripts/check-baton.sh
- M scripts/check-goal.sh
- M scripts/generate-next-agent.sh
- M scripts/resume-baton.sh
- M scripts/run-baton.sh
- M scripts/validate_baton.py
-?? .idea/
-?? ai/logs/step-001-PLANNER.log
 
 [1mapply patch[0m
 [1mpatch:[0m completed
-[2m/home/sundaram/code/multi-tenant-rag-demo/ai/active_item.yaml[0m
-[2m/home/sundaram/code/multi-tenant-rag-demo/ai/backlog.yaml[0m
 [2m/home/sundaram/code/multi-tenant-rag-demo/ai/decision-lock.yaml[0m
 [2m/home/sundaram/code/multi-tenant-rag-demo/ai/iterations/ITER-0001.md[0m
 [2m/home/sundaram/code/multi-tenant-rag-demo/ai/next_agent.md[0m
-[2m/home/sundaram/code/multi-tenant-rag-demo/ai/user-questions.yaml[0m
-diff --git a/ai/active_item.yaml b/ai/active_item.yaml
-index f50375925215d783106fa27fc1a0a02ccc471b07..4c834be94ad9178631b1ab4e0c3121f5668de8bc
---- a/ai/active_item.yaml
-+++ b/ai/active_item.yaml
-@@ -1,8 +1,20 @@
--id: null
--title: null
--goal: null
--status: idle
--owner_role: null
--related_files: []
--acceptance_criteria: []
--done_definition: []
-+id: ITEM-0001
-+title: Scaffold the Nuxt and CDK baseline for the multi-tenant RAG platform
-+goal: Establish the initial apps/ and infra/ structure for the PoC using the explicit goal stack so implementation can start on a real codebase
-+status: ready_for_judgment
-+owner_role: SENIOR_JUDGMENTAL_ENGINEER
-+related_files:
-+  - ai/goal.yaml
-+  - ai/prd.yaml
-+  - ai/judgment.yaml
-+  - ai/requirements.md
-+  - apps/
-+  - infra/
-+acceptance_criteria:
-+  - The active item scope is confirmed to use Nuxt 4 plus Nitro server routes and TypeScript CDK on AWS, overriding generic template defaults
-+  - The next engineering step is a lean scaffold that creates the repo structure needed for app and infra implementation without introducing extra services
-+  - Handoff guidance is specific enough for ENGINEER to create the baseline in apps/ and infra/ with no further planning ambiguity
-+done_definition:
-+  - Decision locks capture the approved stack and architecture assumptions from ai/goal.yaml and ai/prd.yaml
-+  - Backlog contains sequenced follow-on items for chat, uploads, infrastructure, and validation
-+  - ai/next_agent.md tells the next role exactly what to validate and simplify before implementation
-diff --git a/ai/backlog.yaml b/ai/backlog.yaml
-index 7b4472080e50fa2249583eb127b13b0ad140087b..a221ed2cdb6c5009560a7c3488cb4c73e50bcbdd
---- a/ai/backlog.yaml
-+++ b/ai/backlog.yaml
-@@ -1,4 +1,61 @@
--items: []
-+items:
-+  - id: ITEM-0001
-+    title: Scaffold the Nuxt and CDK baseline for the multi-tenant RAG platform
-+    goal: Establish the application and infrastructure workspace so feature work can proceed in-repo
-+    type: feature
-+    status: in_progress
-+    priority: high
-+    dependencies: []
-+    notes:
-+      - Repo currently contains only baton/planning assets; no apps/ or infra/ implementation exists yet
-+      - Baseline must follow the explicit goal stack, not the generic defaults in ai/judgment.yaml
-+      - Keep initial scaffold lean but production-shaped enough for follow-on API, chat, upload, and CDK work
-+  - id: ITEM-0002
-+    title: Implement tenant-scoped chat sessions and streaming response route
-+    goal: Provide the core chat experience with persisted sessions/messages and streamed assistant responses
-+    type: feature
-+    status: todo
-+    priority: high
-+    dependencies:
-+      - ITEM-0001
-+    notes:
-+      - Implement in Nuxt server routes only
-+      - Session history must load from Aurora-compatible persistence contracts
-+  - id: ITEM-0003
-+    title: Add session file upload flow with S3-backed metadata and limits
-+    goal: Allow PDF, DOCX, and TXT files to be attached to a chat session under the stated guardrails
-+    type: feature
-+    status: todo
-+    priority: high
-+    dependencies:
-+      - ITEM-0001
-+      - ITEM-0002
-+    notes:
-+      - Enforce max file count, per-file size, and MIME validation server-side
-+      - Store metadata for subsequent Bedrock reference in-session
-+  - id: ITEM-0004
-+    title: Provision shared and tenant AWS infrastructure with CDK
-+    goal: Define SharedStack, TenantStack, and UIStack for deployable PoC infrastructure
-+    type: feature
-+    status: todo
-+    priority: high
-+    dependencies:
-+      - ITEM-0001
-+    notes:
-+      - Must include Aurora, ECS/Fargate, Secrets Manager, tenant S3 buckets, and Bedrock resources
-+      - cdk deploy --all should be the intended deployment path
-+  - id: ITEM-0005
-+    title: Validate tenant isolation, grounding behavior, and end-to-end acceptance
-+    goal: Prove the platform meets the stated PoC success criteria and key guardrails
-+    type: validation
-+    status: todo
-+    priority: medium
-+    dependencies:
-+      - ITEM-0002
-+      - ITEM-0003
-+      - ITEM-0004
-+    notes:
-+      - Include no-relevant-content behavior and cross-tenant isolation checks
- # Example format — PLANNER creates and curates concrete items from ai/goal.yaml:
- #  - id: ITEM-0001
- #    title: Build user authentication
 diff --git a/ai/decision-lock.yaml b/ai/decision-lock.yaml
-index 00acde3ef3e63fa3e3b6427a9dd4b5ebf5cb7a58..ffd74e08ebb01ee9769cc5942cddcb6acebf1e0e
+index 84315dda23c3400a46128732f123b20af3d98fde..d15f4c08cc708a29762e9e30796d03a6428dfac8
 --- a/ai/decision-lock.yaml
 +++ b/ai/decision-lock.yaml
-@@ -1,5 +1,14 @@
--confirmed_by_user: false
-+confirmed_by_user: true
- blocked_on_user: false
--last_user_decision: null
--approved_exceptions: []
--approved_decisions: []
-+last_user_decision: "Project goal and PRD established on 2026-04-01 as the authoritative stack and scope source"
-+approved_exceptions:
-+  - "Direct Aurora access is allowed only in dev/PoC environments under DEC-009 guardrails"
-+  - "Browser UUID may be used as a temporary userId fallback only if Google OAuth is deferred during PoC setup"
-+approved_decisions:
-+  - "Use a full TypeScript stack: Nuxt 4 for UI plus server routes and AWS CDK in TypeScript"
-+  - "Do not introduce a separate API service; backend logic stays in Nuxt server/api routes"
-+  - "Deploy the same application image per tenant with TENANT_ID injected by environment configuration"
-+  - "Use Aurora PostgreSQL Serverless v2 as the shared cluster with separate tenant vector schemas"
-+  - "Provision one Bedrock Agent and one Bedrock Knowledge Base per tenant for hard isolation"
-+  - "Target AWS deployment on ECS Fargate with secrets stored in Secrets Manager"
-+  - "PoC auth path is Google OAuth, with no-auth/browser UUID only as a fallback if explicitly deferred"
+@@ -6,6 +6,7 @@
+   - "Browser UUID may be used as a temporary userId fallback only if Google OAuth is deferred during PoC setup"
+ approved_decisions:
+   - "Use a full TypeScript stack: Nuxt 4 for UI plus server routes and AWS CDK in TypeScript"
++  - "Target a monorepo baseline with a root workspace package manager setup, shared TypeScript config, and app code rooted at apps/web plus infra/cdk"
+   - "Do not introduce a separate API service; backend logic stays in Nuxt server/api routes"
+   - "Deploy the same application image per tenant with TENANT_ID injected by environment configuration"
+   - "Use Aurora PostgreSQL Serverless v2 as the shared cluster with separate tenant vector schemas"
+@@ -13,4 +14,4 @@
+   - "Target AWS deployment on ECS Fargate with secrets stored in Secrets Manager"
+   - "PoC auth path is Google OAuth, with no-auth/browser UUID only as a fallback if explicitly deferred"
+   - "Normalize the repo layout to a root workspace with apps/web for the Nuxt application and infra/cdk for the CDK application"
+-  - "ITEM-0001 is scaffold-only: create minimal workspace/config/runtime entrypoints and placeholder stack wiring, but defer chat, uploads, Aurora integration, and Bedrock integration"
++  - "ITEM-0001 is scaffold-only: create minimal workspace/config/runtime entrypoints and placeholder stack wiring, but defer chat, uploads, Aurora integration, Bedrock integration, and any production-grade infra implementation details"
 diff --git a/ai/iterations/ITER-0001.md b/ai/iterations/ITER-0001.md
-index ba5bc4fd6c9080033dbd01b5cb7df4e8d7203085..08c376243a0dcedccdaf062e010fe6ba780e3bf3
+index ed8b432e111d80077f5f28fe3ea7ca93a7d69b79..311c1ee974dec365bd352aa452a8ad8b7ee3b859
 --- a/ai/iterations/ITER-0001.md
 +++ b/ai/iterations/ITER-0001.md
-@@ -2,3 +2,4 @@
- 
- | Timestamp | Role | Decision | Why |
+@@ -4,3 +4,4 @@
  |-----------|------|----------|-----|
-+| 2026-04-01T18:48:06-05:00 | PLANNER | Created the initial backlog, selected ITEM-0001 as the active item, and locked the Nuxt 4 + TypeScript CDK architecture from the goal/PRD. | The repo has only baton scaffolding, so the highest-leverage next step is a constrained baseline scaffold with explicit stack guidance before engineering starts. |
+ | 2026-04-01T18:48:06-05:00 | PLANNER | Created the initial backlog, selected ITEM-0001 as the active item, and locked the Nuxt 4 + TypeScript CDK architecture from the goal/PRD. | The repo has only baton scaffolding, so the highest-leverage next step is a constrained baseline scaffold with explicit stack guidance before engineering starts. |
+ | 2026-04-01T18:52:00-05:00 | PLANNER | Clarified ITEM-0001 as a scaffold-only slice, normalized the repo layout to `apps/web` and `infra/cdk`, and refreshed the handoff for judgment. | The goal/PRD were clear enough to remove planning ambiguity without escalating to the user, and the next role now has a concrete boundary to validate before engineering begins. |
++| 2026-04-01T18:57:38-05:00 | PLANNER | Reconfirmed that ITEM-0001 needs no user clarification, tightened the scaffold boundary in the decision lock, and refreshed the judgment handoff. | The existing planning state already aligned with the goal and PRD, so the correct move was to preserve momentum and send a sharper validation brief rather than reopen scope. |
 diff --git a/ai/next_agent.md b/ai/next_agent.md
-index 4c7758476ad41127d45b72281b4be04f7eab2aa4..1896b872665e61119a0b767bc0a35f919a0ec7dc
+index c5304c00427f62bb0167c6af92559b2de24ac737..c26b18bf88347fc46677f0f3555248b437ac8eb9
 --- a/ai/next_agent.md
 +++ b/ai/next_agent.md
-@@ -1,6 +1,12 @@
+@@ -1,13 +1,13 @@
  # Next Agent
  
--This file is optional narrative context only.
--Execution routing is determined by:
--- ai/active_agent.txt (current role)
--- scripts/run-baton.sh static role->prompt mapping
-+Active item: `ITEM-0001` is the repo baseline scaffold.
-+
-+What needs judgment now:
-+- Treat `ai/goal.yaml` and `ai/prd.yaml` as authoritative over the generic template defaults in `ai/judgment.yaml`.
-+- Confirm the implementation should start with a lean Nuxt 4 app workspace plus TypeScript CDK workspace under `apps/` and `infra/`.
-+- Keep the first slice narrow: baseline structure, shared configuration, and minimal app/infra entrypoints only. Do not jump ahead to full chat, upload, or Bedrock integration in this item.
-+
-+What the following ENGINEER handoff should enable:
-+- Create the repo structure and baseline files needed for later session/chat/upload/CDK work.
-+- Preserve the modular-monolith constraint and avoid any separate backend service or unnecessary abstraction layers.
+-Active item: `ITEM-0001` is the repo baseline scaffold.
++Active item: `ITEM-0001` remains the repo baseline scaffold and is ready for judgment.
+ 
+-What needs judgment now:
+-- Treat `ai/goal.yaml` and `ai/prd.yaml` as authoritative over the generic template defaults in `ai/judgment.yaml`.
+-- Confirm the repo layout should be normalized to `apps/web` for Nuxt 4 and `infra/cdk` for the TypeScript CDK app.
+-- Confirm the first slice stays narrow: root workspace setup, shared TypeScript/configuration, minimal Nuxt entrypoints, and placeholder CDK app/stack wiring only.
+-- Verify that introducing a separate backend service, real API feature work, Aurora wiring, upload handling, or Bedrock integration in this item would be scope creep.
++Judgment focus:
++- Use `ai/goal.yaml` and `ai/prd.yaml` as the source of truth for stack and scope.
++- Confirm the repo should be a root workspace with `apps/web` for Nuxt 4 and `infra/cdk` for the TypeScript CDK app.
++- Confirm this slice is limited to shared workspace/config setup, minimal Nuxt runtime entrypoints, and placeholder CDK app/stack wiring.
++- Reject scope creep in this item: no separate backend service, no real chat or upload routes, no Aurora wiring, no Bedrock integration, and no detailed production infra buildout.
+ 
+-What the following ENGINEER handoff should enable:
+-- Create the baseline files and scripts needed for later session/chat/upload/CDK work without re-deciding stack or layout.
+-- Preserve the modular-monolith constraint and avoid any separate backend service or unnecessary abstraction layers.
++What ENGINEER should receive after judgment:
++- A narrow implementation brief to scaffold the monorepo baseline only.
++- Clear permission to create placeholder runtime and infra entrypoints that future items can extend without revisiting core architecture decisions.
 
-diff --git a/ai/active_item.yaml b/ai/active_item.yaml
-index f50375925215d783106fa27fc1a0a02ccc471b07..4c834be94ad9178631b1ab4e0c3121f5668de8bc
---- a/ai/active_item.yaml
-+++ b/ai/active_item.yaml
-@@ -1,8 +1,20 @@
--id: null
--title: null
--goal: null
--status: idle
--owner_role: null
--related_files: []
--acceptance_criteria: []
--done_definition: []
-+id: ITEM-0001
-+title: Scaffold the Nuxt and CDK baseline for the multi-tenant RAG platform
-+goal: Establish the initial apps/ and infra/ structure for the PoC using the explicit goal stack so implementation can start on a real codebase
-+status: ready_for_judgment
-+owner_role: SENIOR_JUDGMENTAL_ENGINEER
-+related_files:
-+  - ai/goal.yaml
-+  - ai/prd.yaml
-+  - ai/judgment.yaml
-+  - ai/requirements.md
-+  - apps/
-+  - infra/
-+acceptance_criteria:
-+  - The active item scope is confirmed to use Nuxt 4 plus Nitro server routes and TypeScript CDK on AWS, overriding generic template defaults
-+  - The next engineering step is a lean scaffold that creates the repo structure needed for app and infra implementation without introducing extra services
-+  - Handoff guidance is specific enough for ENGINEER to create the baseline in apps/ and infra/ with no further planning ambiguity
-+done_definition:
-+  - Decision locks capture the approved stack and architecture assumptions from ai/goal.yaml and ai/prd.yaml
-+  - Backlog contains sequenced follow-on items for chat, uploads, infrastructure, and validation
-+  - ai/next_agent.md tells the next role exactly what to validate and simplify before implementation
-diff --git a/ai/backlog.yaml b/ai/backlog.yaml
-index 7b4472080e50fa2249583eb127b13b0ad140087b..a221ed2cdb6c5009560a7c3488cb4c73e50bcbdd
---- a/ai/backlog.yaml
-+++ b/ai/backlog.yaml
-@@ -1,4 +1,61 @@
--items: []
-+items:
-+  - id: ITEM-0001
-+    title: Scaffold the Nuxt and CDK baseline for the multi-tenant RAG platform
-+    goal: Establish the application and infrastructure workspace so feature work can proceed in-repo
-+    type: feature
-+    status: in_progress
-+    priority: high
-+    dependencies: []
-+    notes:
-+      - Repo currently contains only baton/planning assets; no apps/ or infra/ implementation exists yet
-+      - Baseline must follow the explicit goal stack, not the generic defaults in ai/judgment.yaml
-+      - Keep initial scaffold lean but production-shaped enough for follow-on API, chat, upload, and CDK work
-+  - id: ITEM-0002
-+    title: Implement tenant-scoped chat sessions and streaming response route
-+    goal: Provide the core chat experience with persisted sessions/messages and streamed assistant responses
-+    type: feature
-+    status: todo
-+    priority: high
-+    dependencies:
-+      - ITEM-0001
-+    notes:
-+      - Implement in Nuxt server routes only
-+      - Session history must load from Aurora-compatible persistence contracts
-+  - id: ITEM-0003
-+    title: Add session file upload flow with S3-backed metadata and limits
-+    goal: Allow PDF, DOCX, and TXT files to be attached to a chat session under the stated guardrails
-+    type: feature
-+    status: todo
-+    priority: high
-+    dependencies:
-+      - ITEM-0001
-+      - ITEM-0002
-+    notes:
-+      - Enforce max file count, per-file size, and MIME validation server-side
-+      - Store metadata for subsequent Bedrock reference in-session
-+  - id: ITEM-0004
-+    title: Provision shared and tenant AWS infrastructure with CDK
-+    goal: Define SharedStack, TenantStack, and UIStack for deployable PoC infrastructure
-+    type: feature
-+    status: todo
-+    priority: high
-+    dependencies:
-+      - ITEM-0001
-+    notes:
-+      - Must include Aurora, ECS/Fargate, Secrets Manager, tenant S3 buckets, and Bedrock resources
-+      - cdk deploy --all should be the intended deployment path
-+  - id: ITEM-0005
-+    title: Validate tenant isolation, grounding behavior, and end-to-end acceptance
-+    goal: Prove the platform meets the stated PoC success criteria and key guardrails
-+    type: validation
-+    status: todo
-+    priority: medium
-+    dependencies:
-+      - ITEM-0002
-+      - ITEM-0003
-+      - ITEM-0004
-+    notes:
-+      - Include no-relevant-content behavior and cross-tenant isolation checks
- # Example format — PLANNER creates and curates concrete items from ai/goal.yaml:
- #  - id: ITEM-0001
- #    title: Build user authentication
 diff --git a/ai/decision-lock.yaml b/ai/decision-lock.yaml
-index 00acde3ef3e63fa3e3b6427a9dd4b5ebf5cb7a58..ffd74e08ebb01ee9769cc5942cddcb6acebf1e0e
+index 84315dda23c3400a46128732f123b20af3d98fde..d15f4c08cc708a29762e9e30796d03a6428dfac8
 --- a/ai/decision-lock.yaml
 +++ b/ai/decision-lock.yaml
-@@ -1,5 +1,14 @@
--confirmed_by_user: false
-+confirmed_by_user: true
- blocked_on_user: false
--last_user_decision: null
--approved_exceptions: []
--approved_decisions: []
-+last_user_decision: "Project goal and PRD established on 2026-04-01 as the authoritative stack and scope source"
-+approved_exceptions:
-+  - "Direct Aurora access is allowed only in dev/PoC environments under DEC-009 guardrails"
-+  - "Browser UUID may be used as a temporary userId fallback only if Google OAuth is deferred during PoC setup"
-+approved_decisions:
-+  - "Use a full TypeScript stack: Nuxt 4 for UI plus server routes and AWS CDK in TypeScript"
-+  - "Do not introduce a separate API service; backend logic stays in Nuxt server/api routes"
-+  - "Deploy the same application image per tenant with TENANT_ID injected by environment configuration"
-+  - "Use Aurora PostgreSQL Serverless v2 as the shared cluster with separate tenant vector schemas"
-+  - "Provision one Bedrock Agent and one Bedrock Knowledge Base per tenant for hard isolation"
-+  - "Target AWS deployment on ECS Fargate with secrets stored in Secrets Manager"
-+  - "PoC auth path is Google OAuth, with no-auth/browser UUID only as a fallback if explicitly deferred"
+@@ -6,6 +6,7 @@
+   - "Browser UUID may be used as a temporary userId fallback only if Google OAuth is deferred during PoC setup"
+ approved_decisions:
+   - "Use a full TypeScript stack: Nuxt 4 for UI plus server routes and AWS CDK in TypeScript"
++  - "Target a monorepo baseline with a root workspace package manager setup, shared TypeScript config, and app code rooted at apps/web plus infra/cdk"
+   - "Do not introduce a separate API service; backend logic stays in Nuxt server/api routes"
+   - "Deploy the same application image per tenant with TENANT_ID injected by environment configuration"
+   - "Use Aurora PostgreSQL Serverless v2 as the shared cluster with separate tenant vector schemas"
+@@ -13,4 +14,4 @@
+   - "Target AWS deployment on ECS Fargate with secrets stored in Secrets Manager"
+   - "PoC auth path is Google OAuth, with no-auth/browser UUID only as a fallback if explicitly deferred"
+   - "Normalize the repo layout to a root workspace with apps/web for the Nuxt application and infra/cdk for the CDK application"
+-  - "ITEM-0001 is scaffold-only: create minimal workspace/config/runtime entrypoints and placeholder stack wiring, but defer chat, uploads, Aurora integration, and Bedrock integration"
++  - "ITEM-0001 is scaffold-only: create minimal workspace/config/runtime entrypoints and placeholder stack wiring, but defer chat, uploads, Aurora integration, Bedrock integration, and any production-grade infra implementation details"
 diff --git a/ai/iterations/ITER-0001.md b/ai/iterations/ITER-0001.md
-index ba5bc4fd6c9080033dbd01b5cb7df4e8d7203085..08c376243a0dcedccdaf062e010fe6ba780e3bf3
+index ed8b432e111d80077f5f28fe3ea7ca93a7d69b79..311c1ee974dec365bd352aa452a8ad8b7ee3b859
 --- a/ai/iterations/ITER-0001.md
 +++ b/ai/iterations/ITER-0001.md
-@@ -2,3 +2,4 @@
- 
- | Timestamp | Role | Decision | Why |
+@@ -4,3 +4,4 @@
  |-----------|------|----------|-----|
-+| 2026-04-01T18:48:06-05:00 | PLANNER | Created the initial backlog, selected ITEM-0001 as the active item, and locked the Nuxt 4 + TypeScript CDK architecture from the goal/PRD. | The repo has only baton scaffolding, so the highest-leverage next step is a constrained baseline scaffold with explicit stack guidance before engineering starts. |
+ | 2026-04-01T18:48:06-05:00 | PLANNER | Created the initial backlog, selected ITEM-0001 as the active item, and locked the Nuxt 4 + TypeScript CDK architecture from the goal/PRD. | The repo has only baton scaffolding, so the highest-leverage next step is a constrained baseline scaffold with explicit stack guidance before engineering starts. |
+ | 2026-04-01T18:52:00-05:00 | PLANNER | Clarified ITEM-0001 as a scaffold-only slice, normalized the repo layout to `apps/web` and `infra/cdk`, and refreshed the handoff for judgment. | The goal/PRD were clear enough to remove planning ambiguity without escalating to the user, and the next role now has a concrete boundary to validate before engineering begins. |
++| 2026-04-01T18:57:38-05:00 | PLANNER | Reconfirmed that ITEM-0001 needs no user clarification, tightened the scaffold boundary in the decision lock, and refreshed the judgment handoff. | The existing planning state already aligned with the goal and PRD, so the correct move was to preserve momentum and send a sharper validation brief rather than reopen scope. |
 diff --git a/ai/next_agent.md b/ai/next_agent.md
-index 4c7758476ad41127d45b72281b4be04f7eab2aa4..1896b872665e61119a0b767bc0a35f919a0ec7dc
+index c5304c00427f62bb0167c6af92559b2de24ac737..c26b18bf88347fc46677f0f3555248b437ac8eb9
 --- a/ai/next_agent.md
 +++ b/ai/next_agent.md
-@@ -1,6 +1,12 @@
+@@ -1,13 +1,13 @@
  # Next Agent
  
--This file is optional narrative context only.
--Execution routing is determined by:
--- ai/active_agent.txt (current role)
--- scripts/run-baton.sh static role->prompt mapping
-+Active item: `ITEM-0001` is the repo baseline scaffold.
-+
-+What needs judgment now:
-+- Treat `ai/goal.yaml` and `ai/prd.yaml` as authoritative over the generic template defaults in `ai/judgment.yaml`.
-+- Confirm the implementation should start with a lean Nuxt 4 app workspace plus TypeScript CDK workspace under `apps/` and `infra/`.
-+- Keep the first slice narrow: baseline structure, shared configuration, and minimal app/infra entrypoints only. Do not jump ahead to full chat, upload, or Bedrock integration in this item.
-+
-+What the following ENGINEER handoff should enable:
-+- Create the repo structure and baseline files needed for later session/chat/upload/CDK work.
-+- Preserve the modular-monolith constraint and avoid any separate backend service or unnecessary abstraction layers.
+-Active item: `ITEM-0001` is the repo baseline scaffold.
++Active item: `ITEM-0001` remains the repo baseline scaffold and is ready for judgment.
+ 
+-What needs judgment now:
+-- Treat `ai/goal.yaml` and `ai/prd.yaml` as authoritative over the generic template defaults in `ai/judgment.yaml`.
+-- Confirm the repo layout should be normalized to `apps/web` for Nuxt 4 and `infra/cdk` for the TypeScript CDK app.
+-- Confirm the first slice stays narrow: root workspace setup, shared TypeScript/configuration, minimal Nuxt entrypoints, and placeholder CDK app/stack wiring only.
+-- Verify that introducing a separate backend service, real API feature work, Aurora wiring, upload handling, or Bedrock integration in this item would be scope creep.
++Judgment focus:
++- Use `ai/goal.yaml` and `ai/prd.yaml` as the source of truth for stack and scope.
++- Confirm the repo should be a root workspace with `apps/web` for Nuxt 4 and `infra/cdk` for the TypeScript CDK app.
++- Confirm this slice is limited to shared workspace/config setup, minimal Nuxt runtime entrypoints, and placeholder CDK app/stack wiring.
++- Reject scope creep in this item: no separate backend service, no real chat or upload routes, no Aurora wiring, no Bedrock integration, and no detailed production infra buildout.
+ 
+-What the following ENGINEER handoff should enable:
+-- Create the baseline files and scripts needed for later session/chat/upload/CDK work without re-deciding stack or layout.
+-- Preserve the modular-monolith constraint and avoid any separate backend service or unnecessary abstraction layers.
++What ENGINEER should receive after judgment:
++- A narrow implementation brief to scaffold the monorepo baseline only.
++- Clear permission to create placeholder runtime and infra entrypoints that future items can extend without revisiting core architecture decisions.
 
 [35m[3mcodex[0m[0m
-The planning state is written. I’m doing a quick verification pass on the allowed files, then I’ll end with the required baton line only.
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,260p' ai/backlog.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
-[32m succeeded in 0ms:[0m
-items:
-  - id: ITEM-0001
-    title: Scaffold the Nuxt and CDK baseline for the multi-tenant RAG platform
-    goal: Establish the application and infrastructure workspace so feature work can proceed in-repo
-    type: feature
-    status: in_progress
-    priority: high
-    dependencies: []
-    notes:
-      - Repo currently contains only baton/planning assets; no apps/ or infra/ implementation exists yet
-      - Baseline must follow the explicit goal stack, not the generic defaults in ai/judgment.yaml
-      - Keep initial scaffold lean but production-shaped enough for follow-on API, chat, upload, and CDK work
-  - id: ITEM-0002
-    title: Implement tenant-scoped chat sessions and streaming response route
-    goal: Provide the core chat experience with persisted sessions/messages and streamed assistant responses
-    type: feature
-    status: todo
-    priority: high
-    dependencies:
-      - ITEM-0001
-    notes:
-      - Implement in Nuxt server routes only
-      - Session history must load from Aurora-compatible persistence contracts
-  - id: ITEM-0003
-    title: Add session file upload flow with S3-backed metadata and limits
-    goal: Allow PDF, DOCX, and TXT files to be attached to a chat session under the stated guardrails
-    type: feature
-    status: todo
-    priority: high
-    dependencies:
-      - ITEM-0001
-      - ITEM-0002
-    notes:
-      - Enforce max file count, per-file size, and MIME validation server-side
-      - Store metadata for subsequent Bedrock reference in-session
-  - id: ITEM-0004
-    title: Provision shared and tenant AWS infrastructure with CDK
-    goal: Define SharedStack, TenantStack, and UIStack for deployable PoC infrastructure
-    type: feature
-    status: todo
-    priority: high
-    dependencies:
-      - ITEM-0001
-    notes:
-      - Must include Aurora, ECS/Fargate, Secrets Manager, tenant S3 buckets, and Bedrock resources
-      - cdk deploy --all should be the intended deployment path
-  - id: ITEM-0005
-    title: Validate tenant isolation, grounding behavior, and end-to-end acceptance
-    goal: Prove the platform meets the stated PoC success criteria and key guardrails
-    type: validation
-    status: todo
-    priority: medium
-    dependencies:
-      - ITEM-0002
-      - ITEM-0003
-      - ITEM-0004
-    notes:
-      - Include no-relevant-content behavior and cross-tenant isolation checks
-# Example format — PLANNER creates and curates concrete items from ai/goal.yaml:
-#  - id: ITEM-0001
-#    title: Build user authentication
-#    goal: Allow users to sign in with email and password
-#    type: feature
-#    status: todo
-#    priority: high
-#    dependencies: []
-#    notes:
-#      - Python 3 only, no external dependencies
-
-[35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,220p' ai/active_item.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
-[32m succeeded in 0ms:[0m
-id: ITEM-0001
-title: Scaffold the Nuxt and CDK baseline for the multi-tenant RAG platform
-goal: Establish the initial apps/ and infra/ structure for the PoC using the explicit goal stack so implementation can start on a real codebase
-status: ready_for_judgment
-owner_role: SENIOR_JUDGMENTAL_ENGINEER
-related_files:
-  - ai/goal.yaml
-  - ai/prd.yaml
-  - ai/judgment.yaml
-  - ai/requirements.md
-  - apps/
-  - infra/
-acceptance_criteria:
-  - The active item scope is confirmed to use Nuxt 4 plus Nitro server routes and TypeScript CDK on AWS, overriding generic template defaults
-  - The next engineering step is a lean scaffold that creates the repo structure needed for app and infra implementation without introducing extra services
-  - Handoff guidance is specific enough for ENGINEER to create the baseline in apps/ and infra/ with no further planning ambiguity
-done_definition:
-  - Decision locks capture the approved stack and architecture assumptions from ai/goal.yaml and ai/prd.yaml
-  - Backlog contains sequenced follow-on items for chat, uploads, infrastructure, and validation
-  - ai/next_agent.md tells the next role exactly what to validate and simplify before implementation
-
+I’ve written the planner-side updates. One quick verification pass remains to ensure the handoff file, decision lock, and iteration log all say the same thing before I end with the exact contract line.
 [35m[3mexec[0m[0m
 [1m/bin/bash -lc "sed -n '1,220p' ai/decision-lock.yaml"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
@@ -1226,349 +745,155 @@ approved_exceptions:
   - "Browser UUID may be used as a temporary userId fallback only if Google OAuth is deferred during PoC setup"
 approved_decisions:
   - "Use a full TypeScript stack: Nuxt 4 for UI plus server routes and AWS CDK in TypeScript"
+  - "Target a monorepo baseline with a root workspace package manager setup, shared TypeScript config, and app code rooted at apps/web plus infra/cdk"
   - "Do not introduce a separate API service; backend logic stays in Nuxt server/api routes"
   - "Deploy the same application image per tenant with TENANT_ID injected by environment configuration"
   - "Use Aurora PostgreSQL Serverless v2 as the shared cluster with separate tenant vector schemas"
   - "Provision one Bedrock Agent and one Bedrock Knowledge Base per tenant for hard isolation"
   - "Target AWS deployment on ECS Fargate with secrets stored in Secrets Manager"
   - "PoC auth path is Google OAuth, with no-auth/browser UUID only as a fallback if explicitly deferred"
+  - "Normalize the repo layout to a root workspace with apps/web for the Nuxt application and infra/cdk for the CDK application"
+  - "ITEM-0001 is scaffold-only: create minimal workspace/config/runtime entrypoints and placeholder stack wiring, but defer chat, uploads, Aurora integration, Bedrock integration, and any production-grade infra implementation details"
 
 [35m[3mexec[0m[0m
 [1m/bin/bash -lc "sed -n '1,220p' ai/next_agent.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
 # Next Agent
 
-Active item: `ITEM-0001` is the repo baseline scaffold.
+Active item: `ITEM-0001` remains the repo baseline scaffold and is ready for judgment.
 
-What needs judgment now:
-- Treat `ai/goal.yaml` and `ai/prd.yaml` as authoritative over the generic template defaults in `ai/judgment.yaml`.
-- Confirm the implementation should start with a lean Nuxt 4 app workspace plus TypeScript CDK workspace under `apps/` and `infra/`.
-- Keep the first slice narrow: baseline structure, shared configuration, and minimal app/infra entrypoints only. Do not jump ahead to full chat, upload, or Bedrock integration in this item.
+Judgment focus:
+- Use `ai/goal.yaml` and `ai/prd.yaml` as the source of truth for stack and scope.
+- Confirm the repo should be a root workspace with `apps/web` for Nuxt 4 and `infra/cdk` for the TypeScript CDK app.
+- Confirm this slice is limited to shared workspace/config setup, minimal Nuxt runtime entrypoints, and placeholder CDK app/stack wiring.
+- Reject scope creep in this item: no separate backend service, no real chat or upload routes, no Aurora wiring, no Bedrock integration, and no detailed production infra buildout.
 
-What the following ENGINEER handoff should enable:
-- Create the repo structure and baseline files needed for later session/chat/upload/CDK work.
-- Preserve the modular-monolith constraint and avoid any separate backend service or unnecessary abstraction layers.
+What ENGINEER should receive after judgment:
+- A narrow implementation brief to scaffold the monorepo baseline only.
+- Clear permission to create placeholder runtime and infra entrypoints that future items can extend without revisiting core architecture decisions.
 
 [35m[3mexec[0m[0m
-[1m/bin/bash -lc "sed -n '1,120p' ai/iterations/ITER-0001.md"[0m in /home/sundaram/code/multi-tenant-rag-demo
+[1m/bin/bash -lc 'tail -n 5 ai/iterations/ITER-0001.md'[0m in /home/sundaram/code/multi-tenant-rag-demo
 [32m succeeded in 0ms:[0m
-# ITER-0001 Decision Log
-
 | Timestamp | Role | Decision | Why |
 |-----------|------|----------|-----|
 | 2026-04-01T18:48:06-05:00 | PLANNER | Created the initial backlog, selected ITEM-0001 as the active item, and locked the Nuxt 4 + TypeScript CDK architecture from the goal/PRD. | The repo has only baton scaffolding, so the highest-leverage next step is a constrained baseline scaffold with explicit stack guidance before engineering starts. |
+| 2026-04-01T18:52:00-05:00 | PLANNER | Clarified ITEM-0001 as a scaffold-only slice, normalized the repo layout to `apps/web` and `infra/cdk`, and refreshed the handoff for judgment. | The goal/PRD were clear enough to remove planning ambiguity without escalating to the user, and the next role now has a concrete boundary to validate before engineering begins. |
+| 2026-04-01T18:57:38-05:00 | PLANNER | Reconfirmed that ITEM-0001 needs no user clarification, tightened the scaffold boundary in the decision lock, and refreshed the judgment handoff. | The existing planning state already aligned with the goal and PRD, so the correct move was to preserve momentum and send a sharper validation brief rather than reopen scope. |
 
-diff --git a/ai/active_item.yaml b/ai/active_item.yaml
-index f50375925215d783106fa27fc1a0a02ccc471b07..4c834be94ad9178631b1ab4e0c3121f5668de8bc
---- a/ai/active_item.yaml
-+++ b/ai/active_item.yaml
-@@ -1,8 +1,20 @@
--id: null
--title: null
--goal: null
--status: idle
--owner_role: null
--related_files: []
--acceptance_criteria: []
--done_definition: []
-+id: ITEM-0001
-+title: Scaffold the Nuxt and CDK baseline for the multi-tenant RAG platform
-+goal: Establish the initial apps/ and infra/ structure for the PoC using the explicit goal stack so implementation can start on a real codebase
-+status: ready_for_judgment
-+owner_role: SENIOR_JUDGMENTAL_ENGINEER
-+related_files:
-+  - ai/goal.yaml
-+  - ai/prd.yaml
-+  - ai/judgment.yaml
-+  - ai/requirements.md
-+  - apps/
-+  - infra/
-+acceptance_criteria:
-+  - The active item scope is confirmed to use Nuxt 4 plus Nitro server routes and TypeScript CDK on AWS, overriding generic template defaults
-+  - The next engineering step is a lean scaffold that creates the repo structure needed for app and infra implementation without introducing extra services
-+  - Handoff guidance is specific enough for ENGINEER to create the baseline in apps/ and infra/ with no further planning ambiguity
-+done_definition:
-+  - Decision locks capture the approved stack and architecture assumptions from ai/goal.yaml and ai/prd.yaml
-+  - Backlog contains sequenced follow-on items for chat, uploads, infrastructure, and validation
-+  - ai/next_agent.md tells the next role exactly what to validate and simplify before implementation
-diff --git a/ai/backlog.yaml b/ai/backlog.yaml
-index 7b4472080e50fa2249583eb127b13b0ad140087b..a221ed2cdb6c5009560a7c3488cb4c73e50bcbdd
---- a/ai/backlog.yaml
-+++ b/ai/backlog.yaml
-@@ -1,4 +1,61 @@
--items: []
-+items:
-+  - id: ITEM-0001
-+    title: Scaffold the Nuxt and CDK baseline for the multi-tenant RAG platform
-+    goal: Establish the application and infrastructure workspace so feature work can proceed in-repo
-+    type: feature
-+    status: in_progress
-+    priority: high
-+    dependencies: []
-+    notes:
-+      - Repo currently contains only baton/planning assets; no apps/ or infra/ implementation exists yet
-+      - Baseline must follow the explicit goal stack, not the generic defaults in ai/judgment.yaml
-+      - Keep initial scaffold lean but production-shaped enough for follow-on API, chat, upload, and CDK work
-+  - id: ITEM-0002
-+    title: Implement tenant-scoped chat sessions and streaming response route
-+    goal: Provide the core chat experience with persisted sessions/messages and streamed assistant responses
-+    type: feature
-+    status: todo
-+    priority: high
-+    dependencies:
-+      - ITEM-0001
-+    notes:
-+      - Implement in Nuxt server routes only
-+      - Session history must load from Aurora-compatible persistence contracts
-+  - id: ITEM-0003
-+    title: Add session file upload flow with S3-backed metadata and limits
-+    goal: Allow PDF, DOCX, and TXT files to be attached to a chat session under the stated guardrails
-+    type: feature
-+    status: todo
-+    priority: high
-+    dependencies:
-+      - ITEM-0001
-+      - ITEM-0002
-+    notes:
-+      - Enforce max file count, per-file size, and MIME validation server-side
-+      - Store metadata for subsequent Bedrock reference in-session
-+  - id: ITEM-0004
-+    title: Provision shared and tenant AWS infrastructure with CDK
-+    goal: Define SharedStack, TenantStack, and UIStack for deployable PoC infrastructure
-+    type: feature
-+    status: todo
-+    priority: high
-+    dependencies:
-+      - ITEM-0001
-+    notes:
-+      - Must include Aurora, ECS/Fargate, Secrets Manager, tenant S3 buckets, and Bedrock resources
-+      - cdk deploy --all should be the intended deployment path
-+  - id: ITEM-0005
-+    title: Validate tenant isolation, grounding behavior, and end-to-end acceptance
-+    goal: Prove the platform meets the stated PoC success criteria and key guardrails
-+    type: validation
-+    status: todo
-+    priority: medium
-+    dependencies:
-+      - ITEM-0002
-+      - ITEM-0003
-+      - ITEM-0004
-+    notes:
-+      - Include no-relevant-content behavior and cross-tenant isolation checks
- # Example format — PLANNER creates and curates concrete items from ai/goal.yaml:
- #  - id: ITEM-0001
- #    title: Build user authentication
 diff --git a/ai/decision-lock.yaml b/ai/decision-lock.yaml
-index 00acde3ef3e63fa3e3b6427a9dd4b5ebf5cb7a58..ffd74e08ebb01ee9769cc5942cddcb6acebf1e0e
+index 84315dda23c3400a46128732f123b20af3d98fde..d15f4c08cc708a29762e9e30796d03a6428dfac8
 --- a/ai/decision-lock.yaml
 +++ b/ai/decision-lock.yaml
-@@ -1,5 +1,14 @@
--confirmed_by_user: false
-+confirmed_by_user: true
- blocked_on_user: false
--last_user_decision: null
--approved_exceptions: []
--approved_decisions: []
-+last_user_decision: "Project goal and PRD established on 2026-04-01 as the authoritative stack and scope source"
-+approved_exceptions:
-+  - "Direct Aurora access is allowed only in dev/PoC environments under DEC-009 guardrails"
-+  - "Browser UUID may be used as a temporary userId fallback only if Google OAuth is deferred during PoC setup"
-+approved_decisions:
-+  - "Use a full TypeScript stack: Nuxt 4 for UI plus server routes and AWS CDK in TypeScript"
-+  - "Do not introduce a separate API service; backend logic stays in Nuxt server/api routes"
-+  - "Deploy the same application image per tenant with TENANT_ID injected by environment configuration"
-+  - "Use Aurora PostgreSQL Serverless v2 as the shared cluster with separate tenant vector schemas"
-+  - "Provision one Bedrock Agent and one Bedrock Knowledge Base per tenant for hard isolation"
-+  - "Target AWS deployment on ECS Fargate with secrets stored in Secrets Manager"
-+  - "PoC auth path is Google OAuth, with no-auth/browser UUID only as a fallback if explicitly deferred"
+@@ -6,6 +6,7 @@
+   - "Browser UUID may be used as a temporary userId fallback only if Google OAuth is deferred during PoC setup"
+ approved_decisions:
+   - "Use a full TypeScript stack: Nuxt 4 for UI plus server routes and AWS CDK in TypeScript"
++  - "Target a monorepo baseline with a root workspace package manager setup, shared TypeScript config, and app code rooted at apps/web plus infra/cdk"
+   - "Do not introduce a separate API service; backend logic stays in Nuxt server/api routes"
+   - "Deploy the same application image per tenant with TENANT_ID injected by environment configuration"
+   - "Use Aurora PostgreSQL Serverless v2 as the shared cluster with separate tenant vector schemas"
+@@ -13,4 +14,4 @@
+   - "Target AWS deployment on ECS Fargate with secrets stored in Secrets Manager"
+   - "PoC auth path is Google OAuth, with no-auth/browser UUID only as a fallback if explicitly deferred"
+   - "Normalize the repo layout to a root workspace with apps/web for the Nuxt application and infra/cdk for the CDK application"
+-  - "ITEM-0001 is scaffold-only: create minimal workspace/config/runtime entrypoints and placeholder stack wiring, but defer chat, uploads, Aurora integration, and Bedrock integration"
++  - "ITEM-0001 is scaffold-only: create minimal workspace/config/runtime entrypoints and placeholder stack wiring, but defer chat, uploads, Aurora integration, Bedrock integration, and any production-grade infra implementation details"
 diff --git a/ai/iterations/ITER-0001.md b/ai/iterations/ITER-0001.md
-index ba5bc4fd6c9080033dbd01b5cb7df4e8d7203085..08c376243a0dcedccdaf062e010fe6ba780e3bf3
+index ed8b432e111d80077f5f28fe3ea7ca93a7d69b79..311c1ee974dec365bd352aa452a8ad8b7ee3b859
 --- a/ai/iterations/ITER-0001.md
 +++ b/ai/iterations/ITER-0001.md
-@@ -2,3 +2,4 @@
- 
- | Timestamp | Role | Decision | Why |
+@@ -4,3 +4,4 @@
  |-----------|------|----------|-----|
-+| 2026-04-01T18:48:06-05:00 | PLANNER | Created the initial backlog, selected ITEM-0001 as the active item, and locked the Nuxt 4 + TypeScript CDK architecture from the goal/PRD. | The repo has only baton scaffolding, so the highest-leverage next step is a constrained baseline scaffold with explicit stack guidance before engineering starts. |
+ | 2026-04-01T18:48:06-05:00 | PLANNER | Created the initial backlog, selected ITEM-0001 as the active item, and locked the Nuxt 4 + TypeScript CDK architecture from the goal/PRD. | The repo has only baton scaffolding, so the highest-leverage next step is a constrained baseline scaffold with explicit stack guidance before engineering starts. |
+ | 2026-04-01T18:52:00-05:00 | PLANNER | Clarified ITEM-0001 as a scaffold-only slice, normalized the repo layout to `apps/web` and `infra/cdk`, and refreshed the handoff for judgment. | The goal/PRD were clear enough to remove planning ambiguity without escalating to the user, and the next role now has a concrete boundary to validate before engineering begins. |
++| 2026-04-01T18:57:38-05:00 | PLANNER | Reconfirmed that ITEM-0001 needs no user clarification, tightened the scaffold boundary in the decision lock, and refreshed the judgment handoff. | The existing planning state already aligned with the goal and PRD, so the correct move was to preserve momentum and send a sharper validation brief rather than reopen scope. |
 diff --git a/ai/next_agent.md b/ai/next_agent.md
-index 4c7758476ad41127d45b72281b4be04f7eab2aa4..1896b872665e61119a0b767bc0a35f919a0ec7dc
+index c5304c00427f62bb0167c6af92559b2de24ac737..c26b18bf88347fc46677f0f3555248b437ac8eb9
 --- a/ai/next_agent.md
 +++ b/ai/next_agent.md
-@@ -1,6 +1,12 @@
+@@ -1,13 +1,13 @@
  # Next Agent
  
--This file is optional narrative context only.
--Execution routing is determined by:
--- ai/active_agent.txt (current role)
--- scripts/run-baton.sh static role->prompt mapping
-+Active item: `ITEM-0001` is the repo baseline scaffold.
-+
-+What needs judgment now:
-+- Treat `ai/goal.yaml` and `ai/prd.yaml` as authoritative over the generic template defaults in `ai/judgment.yaml`.
-+- Confirm the implementation should start with a lean Nuxt 4 app workspace plus TypeScript CDK workspace under `apps/` and `infra/`.
-+- Keep the first slice narrow: baseline structure, shared configuration, and minimal app/infra entrypoints only. Do not jump ahead to full chat, upload, or Bedrock integration in this item.
-+
-+What the following ENGINEER handoff should enable:
-+- Create the repo structure and baseline files needed for later session/chat/upload/CDK work.
-+- Preserve the modular-monolith constraint and avoid any separate backend service or unnecessary abstraction layers.
+-Active item: `ITEM-0001` is the repo baseline scaffold.
++Active item: `ITEM-0001` remains the repo baseline scaffold and is ready for judgment.
+ 
+-What needs judgment now:
+-- Treat `ai/goal.yaml` and `ai/prd.yaml` as authoritative over the generic template defaults in `ai/judgment.yaml`.
+-- Confirm the repo layout should be normalized to `apps/web` for Nuxt 4 and `infra/cdk` for the TypeScript CDK app.
+-- Confirm the first slice stays narrow: root workspace setup, shared TypeScript/configuration, minimal Nuxt entrypoints, and placeholder CDK app/stack wiring only.
+-- Verify that introducing a separate backend service, real API feature work, Aurora wiring, upload handling, or Bedrock integration in this item would be scope creep.
++Judgment focus:
++- Use `ai/goal.yaml` and `ai/prd.yaml` as the source of truth for stack and scope.
++- Confirm the repo should be a root workspace with `apps/web` for Nuxt 4 and `infra/cdk` for the TypeScript CDK app.
++- Confirm this slice is limited to shared workspace/config setup, minimal Nuxt runtime entrypoints, and placeholder CDK app/stack wiring.
++- Reject scope creep in this item: no separate backend service, no real chat or upload routes, no Aurora wiring, no Bedrock integration, and no detailed production infra buildout.
+ 
+-What the following ENGINEER handoff should enable:
+-- Create the baseline files and scripts needed for later session/chat/upload/CDK work without re-deciding stack or layout.
+-- Preserve the modular-monolith constraint and avoid any separate backend service or unnecessary abstraction layers.
++What ENGINEER should receive after judgment:
++- A narrow implementation brief to scaffold the monorepo baseline only.
++- Clear permission to create placeholder runtime and infra entrypoints that future items can extend without revisiting core architecture decisions.
 
 [35m[3mcodex[0m[0m
 FINISHED: HANDING TO SENIOR_JUDGMENTAL_ENGINEER
-diff --git a/ai/active_item.yaml b/ai/active_item.yaml
-index f50375925215d783106fa27fc1a0a02ccc471b07..4c834be94ad9178631b1ab4e0c3121f5668de8bc
---- a/ai/active_item.yaml
-+++ b/ai/active_item.yaml
-@@ -1,8 +1,20 @@
--id: null
--title: null
--goal: null
--status: idle
--owner_role: null
--related_files: []
--acceptance_criteria: []
--done_definition: []
-+id: ITEM-0001
-+title: Scaffold the Nuxt and CDK baseline for the multi-tenant RAG platform
-+goal: Establish the initial apps/ and infra/ structure for the PoC using the explicit goal stack so implementation can start on a real codebase
-+status: ready_for_judgment
-+owner_role: SENIOR_JUDGMENTAL_ENGINEER
-+related_files:
-+  - ai/goal.yaml
-+  - ai/prd.yaml
-+  - ai/judgment.yaml
-+  - ai/requirements.md
-+  - apps/
-+  - infra/
-+acceptance_criteria:
-+  - The active item scope is confirmed to use Nuxt 4 plus Nitro server routes and TypeScript CDK on AWS, overriding generic template defaults
-+  - The next engineering step is a lean scaffold that creates the repo structure needed for app and infra implementation without introducing extra services
-+  - Handoff guidance is specific enough for ENGINEER to create the baseline in apps/ and infra/ with no further planning ambiguity
-+done_definition:
-+  - Decision locks capture the approved stack and architecture assumptions from ai/goal.yaml and ai/prd.yaml
-+  - Backlog contains sequenced follow-on items for chat, uploads, infrastructure, and validation
-+  - ai/next_agent.md tells the next role exactly what to validate and simplify before implementation
-diff --git a/ai/backlog.yaml b/ai/backlog.yaml
-index 7b4472080e50fa2249583eb127b13b0ad140087b..a221ed2cdb6c5009560a7c3488cb4c73e50bcbdd
---- a/ai/backlog.yaml
-+++ b/ai/backlog.yaml
-@@ -1,4 +1,61 @@
--items: []
-+items:
-+  - id: ITEM-0001
-+    title: Scaffold the Nuxt and CDK baseline for the multi-tenant RAG platform
-+    goal: Establish the application and infrastructure workspace so feature work can proceed in-repo
-+    type: feature
-+    status: in_progress
-+    priority: high
-+    dependencies: []
-+    notes:
-+      - Repo currently contains only baton/planning assets; no apps/ or infra/ implementation exists yet
-+      - Baseline must follow the explicit goal stack, not the generic defaults in ai/judgment.yaml
-+      - Keep initial scaffold lean but production-shaped enough for follow-on API, chat, upload, and CDK work
-+  - id: ITEM-0002
-+    title: Implement tenant-scoped chat sessions and streaming response route
-+    goal: Provide the core chat experience with persisted sessions/messages and streamed assistant responses
-+    type: feature
-+    status: todo
-+    priority: high
-+    dependencies:
-+      - ITEM-0001
-+    notes:
-+      - Implement in Nuxt server routes only
-+      - Session history must load from Aurora-compatible persistence contracts
-+  - id: ITEM-0003
-+    title: Add session file upload flow with S3-backed metadata and limits
-+    goal: Allow PDF, DOCX, and TXT files to be attached to a chat session under the stated guardrails
-+    type: feature
-+    status: todo
-+    priority: high
-+    dependencies:
-+      - ITEM-0001
-+      - ITEM-0002
-+    notes:
-+      - Enforce max file count, per-file size, and MIME validation server-side
-+      - Store metadata for subsequent Bedrock reference in-session
-+  - id: ITEM-0004
-+    title: Provision shared and tenant AWS infrastructure with CDK
-+    goal: Define SharedStack, TenantStack, and UIStack for deployable PoC infrastructure
-+    type: feature
-+    status: todo
-+    priority: high
-+    dependencies:
-+      - ITEM-0001
-+    notes:
-+      - Must include Aurora, ECS/Fargate, Secrets Manager, tenant S3 buckets, and Bedrock resources
-+      - cdk deploy --all should be the intended deployment path
-+  - id: ITEM-0005
-+    title: Validate tenant isolation, grounding behavior, and end-to-end acceptance
-+    goal: Prove the platform meets the stated PoC success criteria and key guardrails
-+    type: validation
-+    status: todo
-+    priority: medium
-+    dependencies:
-+      - ITEM-0002
-+      - ITEM-0003
-+      - ITEM-0004
-+    notes:
-+      - Include no-relevant-content behavior and cross-tenant isolation checks
- # Example format — PLANNER creates and curates concrete items from ai/goal.yaml:
- #  - id: ITEM-0001
- #    title: Build user authentication
 diff --git a/ai/decision-lock.yaml b/ai/decision-lock.yaml
-index 00acde3ef3e63fa3e3b6427a9dd4b5ebf5cb7a58..ffd74e08ebb01ee9769cc5942cddcb6acebf1e0e
+index 84315dda23c3400a46128732f123b20af3d98fde..d15f4c08cc708a29762e9e30796d03a6428dfac8
 --- a/ai/decision-lock.yaml
 +++ b/ai/decision-lock.yaml
-@@ -1,5 +1,14 @@
--confirmed_by_user: false
-+confirmed_by_user: true
- blocked_on_user: false
--last_user_decision: null
--approved_exceptions: []
--approved_decisions: []
-+last_user_decision: "Project goal and PRD established on 2026-04-01 as the authoritative stack and scope source"
-+approved_exceptions:
-+  - "Direct Aurora access is allowed only in dev/PoC environments under DEC-009 guardrails"
-+  - "Browser UUID may be used as a temporary userId fallback only if Google OAuth is deferred during PoC setup"
-+approved_decisions:
-+  - "Use a full TypeScript stack: Nuxt 4 for UI plus server routes and AWS CDK in TypeScript"
-+  - "Do not introduce a separate API service; backend logic stays in Nuxt server/api routes"
-+  - "Deploy the same application image per tenant with TENANT_ID injected by environment configuration"
-+  - "Use Aurora PostgreSQL Serverless v2 as the shared cluster with separate tenant vector schemas"
-+  - "Provision one Bedrock Agent and one Bedrock Knowledge Base per tenant for hard isolation"
-+  - "Target AWS deployment on ECS Fargate with secrets stored in Secrets Manager"
-+  - "PoC auth path is Google OAuth, with no-auth/browser UUID only as a fallback if explicitly deferred"
+@@ -6,6 +6,7 @@
+   - "Browser UUID may be used as a temporary userId fallback only if Google OAuth is deferred during PoC setup"
+ approved_decisions:
+   - "Use a full TypeScript stack: Nuxt 4 for UI plus server routes and AWS CDK in TypeScript"
++  - "Target a monorepo baseline with a root workspace package manager setup, shared TypeScript config, and app code rooted at apps/web plus infra/cdk"
+   - "Do not introduce a separate API service; backend logic stays in Nuxt server/api routes"
+   - "Deploy the same application image per tenant with TENANT_ID injected by environment configuration"
+   - "Use Aurora PostgreSQL Serverless v2 as the shared cluster with separate tenant vector schemas"
+@@ -13,4 +14,4 @@
+   - "Target AWS deployment on ECS Fargate with secrets stored in Secrets Manager"
+   - "PoC auth path is Google OAuth, with no-auth/browser UUID only as a fallback if explicitly deferred"
+   - "Normalize the repo layout to a root workspace with apps/web for the Nuxt application and infra/cdk for the CDK application"
+-  - "ITEM-0001 is scaffold-only: create minimal workspace/config/runtime entrypoints and placeholder stack wiring, but defer chat, uploads, Aurora integration, and Bedrock integration"
++  - "ITEM-0001 is scaffold-only: create minimal workspace/config/runtime entrypoints and placeholder stack wiring, but defer chat, uploads, Aurora integration, Bedrock integration, and any production-grade infra implementation details"
 diff --git a/ai/iterations/ITER-0001.md b/ai/iterations/ITER-0001.md
-index ba5bc4fd6c9080033dbd01b5cb7df4e8d7203085..08c376243a0dcedccdaf062e010fe6ba780e3bf3
+index ed8b432e111d80077f5f28fe3ea7ca93a7d69b79..311c1ee974dec365bd352aa452a8ad8b7ee3b859
 --- a/ai/iterations/ITER-0001.md
 +++ b/ai/iterations/ITER-0001.md
-@@ -2,3 +2,4 @@
- 
- | Timestamp | Role | Decision | Why |
+@@ -4,3 +4,4 @@
  |-----------|------|----------|-----|
-+| 2026-04-01T18:48:06-05:00 | PLANNER | Created the initial backlog, selected ITEM-0001 as the active item, and locked the Nuxt 4 + TypeScript CDK architecture from the goal/PRD. | The repo has only baton scaffolding, so the highest-leverage next step is a constrained baseline scaffold with explicit stack guidance before engineering starts. |
+ | 2026-04-01T18:48:06-05:00 | PLANNER | Created the initial backlog, selected ITEM-0001 as the active item, and locked the Nuxt 4 + TypeScript CDK architecture from the goal/PRD. | The repo has only baton scaffolding, so the highest-leverage next step is a constrained baseline scaffold with explicit stack guidance before engineering starts. |
+ | 2026-04-01T18:52:00-05:00 | PLANNER | Clarified ITEM-0001 as a scaffold-only slice, normalized the repo layout to `apps/web` and `infra/cdk`, and refreshed the handoff for judgment. | The goal/PRD were clear enough to remove planning ambiguity without escalating to the user, and the next role now has a concrete boundary to validate before engineering begins. |
++| 2026-04-01T18:57:38-05:00 | PLANNER | Reconfirmed that ITEM-0001 needs no user clarification, tightened the scaffold boundary in the decision lock, and refreshed the judgment handoff. | The existing planning state already aligned with the goal and PRD, so the correct move was to preserve momentum and send a sharper validation brief rather than reopen scope. |
 diff --git a/ai/next_agent.md b/ai/next_agent.md
-index 4c7758476ad41127d45b72281b4be04f7eab2aa4..1896b872665e61119a0b767bc0a35f919a0ec7dc
+index c5304c00427f62bb0167c6af92559b2de24ac737..c26b18bf88347fc46677f0f3555248b437ac8eb9
 --- a/ai/next_agent.md
 +++ b/ai/next_agent.md
-@@ -1,6 +1,12 @@
+@@ -1,13 +1,13 @@
  # Next Agent
  
--This file is optional narrative context only.
--Execution routing is determined by:
--- ai/active_agent.txt (current role)
--- scripts/run-baton.sh static role->prompt mapping
-+Active item: `ITEM-0001` is the repo baseline scaffold.
-+
-+What needs judgment now:
-+- Treat `ai/goal.yaml` and `ai/prd.yaml` as authoritative over the generic template defaults in `ai/judgment.yaml`.
-+- Confirm the implementation should start with a lean Nuxt 4 app workspace plus TypeScript CDK workspace under `apps/` and `infra/`.
-+- Keep the first slice narrow: baseline structure, shared configuration, and minimal app/infra entrypoints only. Do not jump ahead to full chat, upload, or Bedrock integration in this item.
-+
-+What the following ENGINEER handoff should enable:
-+- Create the repo structure and baseline files needed for later session/chat/upload/CDK work.
-+- Preserve the modular-monolith constraint and avoid any separate backend service or unnecessary abstraction layers.
+-Active item: `ITEM-0001` is the repo baseline scaffold.
++Active item: `ITEM-0001` remains the repo baseline scaffold and is ready for judgment.
+ 
+-What needs judgment now:
+-- Treat `ai/goal.yaml` and `ai/prd.yaml` as authoritative over the generic template defaults in `ai/judgment.yaml`.
+-- Confirm the repo layout should be normalized to `apps/web` for Nuxt 4 and `infra/cdk` for the TypeScript CDK app.
+-- Confirm the first slice stays narrow: root workspace setup, shared TypeScript/configuration, minimal Nuxt entrypoints, and placeholder CDK app/stack wiring only.
+-- Verify that introducing a separate backend service, real API feature work, Aurora wiring, upload handling, or Bedrock integration in this item would be scope creep.
++Judgment focus:
++- Use `ai/goal.yaml` and `ai/prd.yaml` as the source of truth for stack and scope.
++- Confirm the repo should be a root workspace with `apps/web` for Nuxt 4 and `infra/cdk` for the TypeScript CDK app.
++- Confirm this slice is limited to shared workspace/config setup, minimal Nuxt runtime entrypoints, and placeholder CDK app/stack wiring.
++- Reject scope creep in this item: no separate backend service, no real chat or upload routes, no Aurora wiring, no Bedrock integration, and no detailed production infra buildout.
+ 
+-What the following ENGINEER handoff should enable:
+-- Create the baseline files and scripts needed for later session/chat/upload/CDK work without re-deciding stack or layout.
+-- Preserve the modular-monolith constraint and avoid any separate backend service or unnecessary abstraction layers.
++What ENGINEER should receive after judgment:
++- A narrow implementation brief to scaffold the monorepo baseline only.
++- Clear permission to create placeholder runtime and infra entrypoints that future items can extend without revisiting core architecture decisions.
 
 [2mtokens used[0m
-17,904
+14,184
 
-Script done on 2026-04-01 18:48:50-05:00 [COMMAND_EXIT_CODE="0"]
+Script done on 2026-04-01 18:58:07-05:00 [COMMAND_EXIT_CODE="0"]

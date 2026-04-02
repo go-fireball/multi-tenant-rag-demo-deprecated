@@ -1,20 +1,25 @@
-id: ITEM-0001
-title: Scaffold the Nuxt and CDK baseline for the multi-tenant RAG platform
-goal: Establish the initial apps/ and infra/ structure for the PoC using the explicit goal stack so implementation can start on a real codebase
+id: ITEM-0005
+title: Validate tenant isolation, grounding behavior, and end-to-end acceptance
+goal: Prove the implemented PoC meets the stated success criteria and guardrails across the accepted Nuxt application slices and CDK infrastructure definitions
 status: ready_for_judgment
 owner_role: SENIOR_JUDGMENTAL_ENGINEER
 related_files:
   - ai/goal.yaml
-  - ai/prd.yaml
-  - ai/judgment.yaml
-  - ai/requirements.md
-  - apps/
-  - infra/
+  - ai/backlog.yaml
+  - ai/decision-lock.yaml
+  - ai/review.md
+  - ai/next_agent.md
+  - apps/web
+  - infra/cdk
 acceptance_criteria:
-  - The active item scope is confirmed to use Nuxt 4 plus Nitro server routes and TypeScript CDK on AWS, overriding generic template defaults
-  - The next engineering step is a lean scaffold that creates the repo structure needed for app and infra implementation without introducing extra services
-  - Handoff guidance is specific enough for ENGINEER to create the baseline in apps/ and infra/ with no further planning ambiguity
+  - "Judgment treats `ITEM-0005` as locally evidence-complete and does not reopen engineering scope unless a concrete contradiction exists in the accepted validator evidence"
+  - "Judgment confirms the locally proven acceptance surface: runtime-tenant isolation, cross-user/session/file ownership enforcement, limitation-response fallback with `citations: []` when no KB grounding exists, attachment-aware follow-up chat turns, `apps/web` build success, and `infra/cdk` synth success"
+  - "Judgment explicitly distinguishes these locally proven behaviors from still-unproven external success criteria that require deployed AWS and Bedrock resources, including real multi-tenant deployments, real KB grounding/citations, `cdk deploy --all`, and Secrets Manager-backed live infrastructure"
+  - "The next review must report any remaining gaps as external proof gaps rather than as hidden implementation defects, unless the written evidence itself shows a local contract mismatch"
 done_definition:
-  - Decision locks capture the approved stack and architecture assumptions from ai/goal.yaml and ai/prd.yaml
-  - Backlog contains sequenced follow-on items for chat, uploads, infrastructure, and validation
-  - ai/next_agent.md tells the next role exactly what to validate and simplify before implementation
+  - "Backlog marks `ITEM-0005` done and does not introduce a new implementation slice without fresh reviewer evidence"
+  - "Decision locks preserve the accepted app and infra contracts while clarifying that the next loop is closeout judgment, not more engineering by default"
+  - "ai/next_agent.md tells `SENIOR_JUDGMENTAL_ENGINEER` to close out the backlog against the validated local evidence and call out external AWS/Bedrock proof gaps precisely"
+notes:
+  - "This active record remains open only for closeout continuity; the backlog is already complete through ITEM-0005."
+  - "Planner should not reopen engineering or introduce a new item unless a reviewer produces a concrete contradiction in the accepted local evidence."

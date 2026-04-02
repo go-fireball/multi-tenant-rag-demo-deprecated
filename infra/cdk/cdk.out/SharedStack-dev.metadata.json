@@ -1,0 +1,512 @@
+{
+  "/SharedStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider": [
+    {
+      "type": "aws:cdk:is-custom-resource-handler-customResourceProvider",
+      "data": true
+    }
+  ],
+  "/SharedStack-dev/Guardrail": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Guardrail"
+    }
+  ],
+  "/SharedStack-dev/GuardrailVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "GuardrailVersion"
+    }
+  ],
+  "/SharedStack-dev/EnvironmentName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EnvironmentName"
+    }
+  ],
+  "/SharedStack-dev/LoadBalancerDnsName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LoadBalancerDnsName"
+    }
+  ],
+  "/SharedStack-dev/SharedAssetsBucketName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SharedAssetsBucketName"
+    }
+  ],
+  "/SharedStack-dev/DatabaseClusterArn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DatabaseClusterArn"
+    }
+  ],
+  "/SharedStack-dev/DatabaseSecretArn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DatabaseSecretArn"
+    }
+  ],
+  "/SharedStack-dev/RepositoryUri": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "RepositoryUri"
+    }
+  ],
+  "/SharedStack-dev/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    }
+  ],
+  "/SharedStack-dev/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    }
+  ],
+  "/SharedStack-dev/Vpc/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Vpc8378EB38"
+    }
+  ],
+  "/SharedStack-dev/Vpc/IGW": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcIGWD7BA715C"
+    }
+  ],
+  "/SharedStack-dev/Vpc/VPCGW": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcVPCGWBF912B6E"
+    }
+  ],
+  "/SharedStack-dev/SharedLogGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SharedLogGroup74BE6F74"
+    }
+  ],
+  "/SharedStack-dev/Cluster/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ClusterEB0386A7"
+    }
+  ],
+  "/SharedStack-dev/AlbSecurityGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AlbSecurityGroup86A59E99"
+    }
+  ],
+  "/SharedStack-dev/LoadBalancer/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LoadBalancerBE9EEC3A"
+    }
+  ],
+  "/SharedStack-dev/DatabaseSecurityGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DatabaseSecurityGroup7319C0F6"
+    }
+  ],
+  "/SharedStack-dev/DatabaseCluster/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DatabaseCluster68FC2945"
+    }
+  ],
+  "/SharedStack-dev/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A"
+    }
+  ],
+  "/SharedStack-dev/Repository/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Repository22E53BBD"
+    }
+  ],
+  "/SharedStack-dev/AttachmentsBucket/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AttachmentsBucket8E14A36F"
+    },
+    {
+      "type": "aws:cdk:analytics:mixin",
+      "data": {
+        "mixin": "aws-cdk-lib.aws_s3.mixins.BucketAutoDeleteObjects"
+      }
+    }
+  ],
+  "/SharedStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+    }
+  ],
+  "/SharedStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F"
+    }
+  ],
+  "/SharedStack-dev/AlbDnsParameter/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AlbDnsParameter54A8FA44"
+    }
+  ],
+  "/SharedStack-dev/RepositoryUriParameter/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "RepositoryUriParameter1BC59063"
+    }
+  ],
+  "/SharedStack-dev/AttachmentsBucketParameter/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AttachmentsBucketParameterC651D29F"
+    }
+  ],
+  "/SharedStack-dev/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ],
+  "/SharedStack-dev/CDKMetadata/Condition": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadataAvailable"
+    }
+  ],
+  "/SharedStack-dev/Exports/Output{\"Ref\":\"DatabaseCluster68FC2945\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefDatabaseCluster68FC2945E5E605EC"
+    }
+  ],
+  "/SharedStack-dev/Exports/Output{\"Ref\":\"DatabaseClusterSecretAttachmentB8BF2F7B\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefDatabaseClusterSecretAttachmentB8BF2F7B4B65CA6B"
+    }
+  ],
+  "/SharedStack-dev/Exports/Output{\"Fn::GetAtt\":[\"AttachmentsBucket8E14A36F\",\"Arn\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttAttachmentsBucket8E14A36FArn9D712AB8"
+    }
+  ],
+  "/SharedStack-dev/Exports/Output{\"Fn::GetAtt\":[\"Guardrail\",\"GuardrailId\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttGuardrailGuardrailId78EA463E"
+    }
+  ],
+  "/SharedStack-dev/Exports/Output{\"Fn::GetAtt\":[\"GuardrailVersion\",\"Version\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttGuardrailVersionVersion928F5BEA"
+    }
+  ],
+  "/SharedStack-dev/Exports/Output{\"Ref\":\"Vpc8378EB38\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefVpc8378EB38272D6E3A"
+    }
+  ],
+  "/SharedStack-dev/Exports/Output{\"Fn::GetAtt\":[\"AlbSecurityGroup86A59E99\",\"GroupId\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttAlbSecurityGroup86A59E99GroupIdE3A37BC7"
+    }
+  ],
+  "/SharedStack-dev/Exports/Output{\"Fn::GetAtt\":[\"Repository22E53BBD\",\"Arn\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttRepository22E53BBDArn3AD4E30B"
+    }
+  ],
+  "/SharedStack-dev/Exports/Output{\"Ref\":\"ClusterEB0386A7\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefClusterEB0386A796A0E3FE"
+    }
+  ],
+  "/SharedStack-dev/Exports/Output{\"Ref\":\"LoadBalancerHttpListenerTenantTraffictenantaGroupB10E595B\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefLoadBalancerHttpListenerTenantTraffictenantaGroupB10E595B34C9F1F8"
+    }
+  ],
+  "/SharedStack-dev/Exports/Output{\"Ref\":\"VpcprivateSubnet1SubnetCEAD3716\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373"
+    }
+  ],
+  "/SharedStack-dev/Exports/Output{\"Ref\":\"VpcprivateSubnet2Subnet2DE7549C\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D"
+    }
+  ],
+  "/SharedStack-dev/Exports/Output{\"Ref\":\"LoadBalancerHttpListenerTenantTraffictenantbGroupB20507E6\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefLoadBalancerHttpListenerTenantTraffictenantbGroupB20507E641BD79D7"
+    }
+  ],
+  "/SharedStack-dev/Vpc/publicSubnet1/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcpublicSubnet1Subnet2BB74ED7"
+    }
+  ],
+  "/SharedStack-dev/Vpc/publicSubnet1/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcpublicSubnet1RouteTable15C15F8E"
+    }
+  ],
+  "/SharedStack-dev/Vpc/publicSubnet1/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcpublicSubnet1RouteTableAssociation4E83B6E4"
+    }
+  ],
+  "/SharedStack-dev/Vpc/publicSubnet1/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcpublicSubnet1DefaultRouteB88F9E93"
+    }
+  ],
+  "/SharedStack-dev/Vpc/publicSubnet1/EIP": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcpublicSubnet1EIP411541E6"
+    }
+  ],
+  "/SharedStack-dev/Vpc/publicSubnet1/NATGateway": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcpublicSubnet1NATGatewayA036E8A6"
+    }
+  ],
+  "/SharedStack-dev/Vpc/publicSubnet2/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcpublicSubnet2SubnetE34B022A"
+    }
+  ],
+  "/SharedStack-dev/Vpc/publicSubnet2/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcpublicSubnet2RouteTableC5A6DF77"
+    }
+  ],
+  "/SharedStack-dev/Vpc/publicSubnet2/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcpublicSubnet2RouteTableAssociationCCE257FF"
+    }
+  ],
+  "/SharedStack-dev/Vpc/publicSubnet2/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcpublicSubnet2DefaultRoute732F0BEB"
+    }
+  ],
+  "/SharedStack-dev/Vpc/privateSubnet1/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcprivateSubnet1SubnetCEAD3716"
+    }
+  ],
+  "/SharedStack-dev/Vpc/privateSubnet1/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcprivateSubnet1RouteTable1979EACB"
+    }
+  ],
+  "/SharedStack-dev/Vpc/privateSubnet1/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcprivateSubnet1RouteTableAssociationEEBD93CE"
+    }
+  ],
+  "/SharedStack-dev/Vpc/privateSubnet1/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcprivateSubnet1DefaultRouteB506891A"
+    }
+  ],
+  "/SharedStack-dev/Vpc/privateSubnet2/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcprivateSubnet2Subnet2DE7549C"
+    }
+  ],
+  "/SharedStack-dev/Vpc/privateSubnet2/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcprivateSubnet2RouteTable4D0FFC8C"
+    }
+  ],
+  "/SharedStack-dev/Vpc/privateSubnet2/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcprivateSubnet2RouteTableAssociationB691E645"
+    }
+  ],
+  "/SharedStack-dev/Vpc/privateSubnet2/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcprivateSubnet2DefaultRouteBAC3C1C3"
+    }
+  ],
+  "/SharedStack-dev/LoadBalancer/HttpListener/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LoadBalancerHttpListener22970844"
+    }
+  ],
+  "/SharedStack-dev/DatabaseCluster/Subnets/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DatabaseClusterSubnets7FAE1846"
+    }
+  ],
+  "/SharedStack-dev/DatabaseCluster/Secret/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SharedStackdevDatabaseClusterSecretC43BE4D13fdaad7efa858a3daf9490cf0a702aeb"
+    }
+  ],
+  "/SharedStack-dev/DatabaseCluster/LogRetentionpostgresql/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DatabaseClusterLogRetentionpostgresql6A93C1EB"
+    }
+  ],
+  "/SharedStack-dev/DatabaseCluster/writer/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DatabaseClusterwriterBFB14A66"
+    }
+  ],
+  "/SharedStack-dev/DatabaseCluster/reader/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DatabaseClusterreader5C259C82"
+    }
+  ],
+  "/SharedStack-dev/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+    }
+  ],
+  "/SharedStack-dev/SharedSchema/Handler/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SharedSchemaHandler3FC80F8D"
+    }
+  ],
+  "/SharedStack-dev/SharedSchema/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SharedSchemaA73CBC9C"
+    }
+  ],
+  "/SharedStack-dev/AttachmentsBucket/Policy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AttachmentsBucketPolicy66DD7E0A"
+    },
+    {
+      "type": "aws:cdk:analytics:mixin",
+      "data": {
+        "mixin": "aws-cdk-lib.aws_s3.mixins.BucketPolicyStatements"
+      }
+    }
+  ],
+  "/SharedStack-dev/AttachmentsBucket/AutoDeleteObjectsCustomResource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AttachmentsBucketAutoDeleteObjectsCustomResourceB9032B7E"
+    }
+  ],
+  "/SharedStack-dev/LoadBalancer/HttpListener/TenantTraffictenant-aGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LoadBalancerHttpListenerTenantTraffictenantaGroupB10E595B"
+    }
+  ],
+  "/SharedStack-dev/LoadBalancer/HttpListener/TenantTraffictenant-aRule/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LoadBalancerHttpListenerTenantTraffictenantaRule2AA9CE4E"
+    }
+  ],
+  "/SharedStack-dev/LoadBalancer/HttpListener/TenantTraffictenant-bGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LoadBalancerHttpListenerTenantTraffictenantbGroupB20507E6"
+    }
+  ],
+  "/SharedStack-dev/LoadBalancer/HttpListener/TenantTraffictenant-bRule/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LoadBalancerHttpListenerTenantTraffictenantbRuleAD37BBDB"
+    }
+  ],
+  "/SharedStack-dev/DatabaseCluster/Secret/Attachment/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DatabaseClusterSecretAttachmentB8BF2F7B"
+    }
+  ],
+  "/SharedStack-dev/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB"
+    }
+  ],
+  "/SharedStack-dev/SharedSchema/Handler/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SharedSchemaHandlerServiceRole7E7F3B16"
+    }
+  ],
+  "/SharedStack-dev/SharedSchema/Provider/framework-onEvent/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SharedSchemaProviderframeworkonEvent74EBE10C"
+    }
+  ],
+  "/SharedStack-dev/SharedSchema/Handler/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SharedSchemaHandlerServiceRoleDefaultPolicy5DE05DCA"
+    }
+  ],
+  "/SharedStack-dev/SharedSchema/Provider/framework-onEvent/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SharedSchemaProviderframeworkonEventServiceRole263581DE"
+    }
+  ],
+  "/SharedStack-dev/SharedSchema/Provider/framework-onEvent/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SharedSchemaProviderframeworkonEventServiceRoleDefaultPolicyD6C85138"
+    }
+  ]
+}
