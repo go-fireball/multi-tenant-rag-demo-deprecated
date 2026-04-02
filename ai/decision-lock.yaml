@@ -77,3 +77,4 @@ approved_decisions:
   - "SENIOR_JUDGMENTAL_ENGINEER should either acknowledge backlog completion with explicit external AWS/Bedrock proof gaps or identify a concrete contradiction in the accepted local validation record"
   - "Closeout judgment accepts the current repository state as locally complete through ITEM-0005 and does not justify more engineering without a new scoped item or real-environment proof work"
   - "Any remaining gaps after ITEM-0005 are external proof gaps only: real AWS deployment, real Bedrock grounding/citations, and live managed-service behavior"
+  - "Validator re-ran the current closeout proof on 2026-04-02 and found no contradiction in the accepted local evidence: apps/web still builds, infra/cdk still synthesizes, runtime tenant isolation still holds, ungrounded replies still persist citations: [], and follow-up turns may omit fileIds without reopening attachment ownership risk"

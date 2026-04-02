@@ -163,6 +163,24 @@ Use this file for reviewer outcomes:
 
 ## 2026-04-02 ENGINEER
 
+## 2026-04-02 VALIDATOR
+
+- **DONE**: the repository still satisfies the locally accepted `ITEM-0005` closeout boundary and should return to `PLANNER`.
+- There is no new `apps/` or `infra/` worktree diff to review; validation therefore re-checked the current accepted tree directly against the active-item contract and decision locks.
+- Fresh verification performed:
+  - `cd apps/web && npm run build`
+  - `cd infra/cdk && npm run synth`
+  - Ran the built Nuxt server with `TENANT_ID=tenant-alpha` and confirmed `GET /api/health` reported `tenantId: "tenant-alpha"`.
+  - Created a tenant/user-scoped session, uploaded a TXT file through `POST /api/files`, and confirmed the session retained one owned attachment record.
+  - Called `POST /api/chat` with that `fileId` and confirmed the persisted assistant reply used the limitation-response path with `citations: []` rather than synthetic grounding.
+  - Called a follow-up `POST /api/chat` in the same session with no `fileIds` and confirmed it succeeded while still reflecting bounded prior attachment metadata instead of failing closed.
+  - Confirmed `GET /api/sessions/:id/messages?userId=user-b` returned `404` for the foreign user and a stolen `fileId` on `POST /api/chat` returned `400`.
+- Static contract checks still match the accepted evidence:
+  - [chat-assistant.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-assistant.ts) returns limitation text with `citations: []`.
+  - [chat.post.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/api/chat.post.ts) treats omitted `fileIds` as no new attachments for that turn while preserving explicit invalid-file rejection.
+  - [shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) still aligns the shared Aurora `app` schema with the current Nuxt persistence record shape.
+- Remaining gaps are still external proof gaps only: real `cdk deploy --all`, real per-tenant AWS deployments, real Bedrock grounding/citations, and live Aurora/S3/Secrets Manager/Google OAuth integrations.
+
 - Implemented `ITEM-0003` inside `apps/web` plus allowed baton files only.
 - Extended `apps/web/server/utils/chat-store.ts` with Aurora-shaped `session_files` records plus message-level `attached_files` metadata so uploads and chat turns share the same tenant/user/session-scoped persistence seam.
 - Added `apps/web/server/utils/file-storage.ts` as a replaceable local/dev object-storage adapter. It stores bytes in process memory but returns S3-shaped metadata (`storage_bucket`, ownership-hierarchical `storage_key`, size) for the current slice.
