@@ -258,6 +258,23 @@ Use this file for reviewer outcomes:
 ## 2026-04-02 SENIOR_JUDGMENTAL_ENGINEER
 
 - **REVISE**: `ITEM-0004` stays in engineering as a narrow shared-schema alignment fix. There is no product ambiguity and no reason to escalate to the user.
+
+## 2026-04-02 SENIOR_JUDGMENTAL_ENGINEER
+
+- **DONE**: closeout judgment accepts the current local repo state as evidence-complete for `ITEM-0005`; no additional engineering is justified from the written record.
+- The accepted validator evidence is coherent with the locked scope and does not show a concrete contradiction:
+  - `cd apps/web && npm run build` succeeded.
+  - `cd infra/cdk && npm run synth` succeeded.
+  - Runtime tenant derivation from server config/env was rechecked on the built artifact.
+  - Session/message/file ownership checks fail closed across user and tenant boundaries.
+  - Upload plus attachment-aware follow-up chat works, including a later turn with no `fileIds`.
+  - The no-relevant-content path now persists `citations: []` instead of synthetic grounded citations.
+- Treat this acceptance honestly as local evidence only, not full success-criteria completion. The following remain external proof gaps until exercised against real AWS and Bedrock resources:
+  - `cdk deploy --all` from scratch against AWS.
+  - Real per-tenant Bedrock Agent and Knowledge Base isolation.
+  - Real grounded KB retrieval with tenant document citations.
+  - Real Aurora, S3, Secrets Manager, and Google OAuth behavior in deployed infrastructure.
+- `ai/requirements.md` is still template residue and should not be used to reopen scope or override the accepted goal, active-item, and decision-lock contracts.
 - The validator’s concern is real and concrete in the current code: [infra/cdk/lib/shared-stack.ts](/home/sundaram/code/multi-tenant-rag-demo/infra/cdk/lib/shared-stack.ts) still defines `app.sessions.session_id`, `app.messages.message_id`, `app.messages.attachment_ids`, and omits `app.messages.user_id` plus `app.session_files.storage_bucket`, while [apps/web/server/utils/chat-store.ts](/home/sundaram/code/multi-tenant-rag-demo/apps/web/server/utils/chat-store.ts) persists the Aurora-shaped contract with `id`, `user_id`, `attached_files`, and both storage location fields.
 - Do not solve this by rewriting the app contract. The locked decision is to align the shared Aurora bootstrap DDL to the existing Nuxt persistence seam, not the other way around.
 - Preserve the accepted infra architecture and deploy-path decisions: keep the SharedStack/TenantStack/UIStack split, keep the ordered-statement Aurora custom resource, keep the EventBridge scheduler approach, and keep the CDK container-asset image path. This pass is a schema correction, not a redesign opportunity.

@@ -75,3 +75,5 @@ approved_decisions:
   - "Planner should treat ITEM-0005 as evidence-complete for local validation only; AWS deploy-time and Bedrock-grounding success criteria remain external proof gaps unless exercised against real infrastructure"
   - "Planner has now closed ITEM-0005 in the backlog; the next loop is closeout judgment on the accepted local evidence, not a new implementation slice"
   - "SENIOR_JUDGMENTAL_ENGINEER should either acknowledge backlog completion with explicit external AWS/Bedrock proof gaps or identify a concrete contradiction in the accepted local validation record"
+  - "Closeout judgment accepts the current repository state as locally complete through ITEM-0005 and does not justify more engineering without a new scoped item or real-environment proof work"
+  - "Any remaining gaps after ITEM-0005 are external proof gaps only: real AWS deployment, real Bedrock grounding/citations, and live managed-service behavior"
