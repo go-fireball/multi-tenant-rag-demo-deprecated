@@ -28,6 +28,18 @@ success_criteria:
     its own KB — no cross-tenant content appears in any response
   - A user can upload a file (PDF, DOCX, TXT) in a chat session and the assistant
     references its content in subsequent turns within the same session
+  - Uploaded files are ingested into the tenant Bedrock KB with metadata tags
+    (userId, visibility) so they are retrievable in future sessions via vector
+    search — the AI returns citations with S3 source paths
+  - Chat sessions default to private visibility; users can toggle to shared when
+    starting a new chat via the UI
+  - Private sessions: chat history and uploaded files are visible only to the
+    owning user; files are tagged visibility=private in the KB and filtered out
+    of other users' retrieval results via Bedrock KB metadata filters
+  - Shared sessions: chat history is browsable by other tenant users; uploaded
+    files are tagged visibility=shared and retrievable by all tenant users
+  - A user in a private session can still retrieve documents uploaded in shared
+    sessions (their own or other users') for the same tenant
   - Session history persists across browser refreshes — messages reload correctly
     from Aurora via GET /api/sessions/:id/messages
   - CDK deploy (cdk deploy --all) provisions SharedStack, TenantStack, and UIStack
@@ -49,10 +61,16 @@ context_notes:
     (vectors_{tenantId}) and shared app schema (sessions, messages, session_files)
   - Bedrock KB uses Aurora pgvector as vector store via RDS Data API (semantic only,
     no hybrid retrieval for PoC)
-  - Files are uploaded via POST /api/files → stored in S3 with key pattern
-    tenant-files-{env}/{tenantId}/{userId}/{sessionId}/{fileId}/{filename},
-    metadata in app.session_files; chat passes S3 source reference to Bedrock
-    (not byte content) — avoids server-side byte download on every turn
+  - Files are uploaded via POST /api/files → stored in S3, then ingested into the
+    tenant Bedrock KB with metadata tags (userId, sessionId, visibility). Files are
+    also passed as session-state S3 references on the current turn for immediate use.
+    Metadata in app.session_files tracks ownership and visibility.
+  - Retrieval applies Bedrock KB metadata filters at query time:
+    return docs where (visibility=shared) OR (visibility=private AND userId=caller).
+    This ensures private uploads are only retrievable by their owner while shared
+    uploads are available to all tenant users.
+  - Session visibility (private|shared) is set at creation and is immutable for the
+    session lifetime. Default is private. UI provides a toggle at session start.
   - Streaming uses fetch() POST + ReadableStream reader — NOT EventSource
     (EventSource is GET-only and cannot carry a request body)
   - tenantId is baked into the ECS task at deploy time via NUXT_PUBLIC_TENANT_ID

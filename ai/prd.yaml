@@ -29,6 +29,9 @@ overview:
     - Per-tenant knowledge base isolation — agents cannot cross tenant boundaries
     - Persistent session and conversation history in Aurora PostgreSQL
     - File upload support within a conversation session (multi-turn)
+    - Chat-uploaded files ingested into tenant KB for cross-session search with citations
+    - Private-by-default sessions — users opt into shared visibility at session creation
+    - Privacy-aware retrieval — private uploads searchable only by owner, shared uploads by all tenant users
     - Guardrails enforce KB-scoped answers only (no hallucination from training data)
     - Fully automated infrastructure provisioning via AWS CDK (TypeScript)
     - Streaming responses for real-time chat UX
@@ -144,6 +147,49 @@ decisions:
       - "Tenant resolved via subdomain (acme.platform.example.com) + ALB listener rules in future"
       - "tenantId injected server-side from subdomain match — eliminates N ECS services"
       - "Bedrock Agent isolation and Aurora schema isolation are unaffected by this change"
+
+  - id: DEC-010
+    question: "Should chat sessions be private or shared within a tenant?"
+    decision: "Private by default, with opt-in shared visibility at session creation"
+    rationale: >
+      Users may discuss sensitive topics or upload confidential documents in chat.
+      Defaulting to private protects user privacy. Users can opt into shared
+      visibility when starting a session — shared sessions make their chat history
+      browsable by other tenant users, and uploaded files are tagged as shared in
+      the Bedrock KB so all tenant users can retrieve them via vector search.
+      Private session files are also ingested into the KB but tagged with
+      visibility=private + userId — retrieval filters ensure only the owner can
+      find them. This lets users search their own uploaded documents in future
+      sessions while keeping them hidden from other users.
+    visibility_model:
+      default: "private"
+      options: ["private", "shared"]
+      immutability: "Visibility is set at session creation and cannot be changed"
+      immutability_rationale: >
+        Changing from shared to private after files are KB-indexed would require
+        re-tagging metadata in the KB — complex and error-prone. Keeping it
+        immutable simplifies the data model.
+    private_session:
+      chat_history: "Visible only to the owning user"
+      uploaded_files: "Ingested into tenant KB with metadata {userId, visibility=private}"
+      retrieval_scope: "Owner can retrieve their private docs + all shared docs in the tenant"
+    shared_session:
+      chat_history: "Browsable by all authenticated users in the same tenant"
+      uploaded_files: "Ingested into tenant KB with metadata {userId, visibility=shared}"
+      retrieval_scope: "All tenant users can retrieve shared docs via KB search"
+    retrieval_filter:
+      description: "Applied at query time on every Bedrock KB Retrieve call"
+      filter_logic: "(visibility = 'shared') OR (visibility = 'private' AND userId = callerUserId)"
+      mechanism: "Bedrock KB metadata filter on RetrieveAndGenerate / Retrieve API"
+    ui:
+      toggle_location: "New session creation — toggle or dropdown before first message"
+      default_state: "Private (pre-selected)"
+      indicator: "Session list shows a badge/icon distinguishing private vs shared sessions"
+    admin_override: "Out of scope for PoC — future: tenant admin can view all sessions for audit"
+    trade_offs:
+      - "KB ingestion adds latency after file upload (async ingestion job)"
+      - "Metadata filtering adds slight overhead to retrieval queries"
+      - "Shared session browsing UI adds frontend scope"
 
   - id: DEC-009
     question: "Is direct database access acceptable during development?"
@@ -323,10 +369,12 @@ frontend:
     SessionSidebar:
       description: "Session/conversation list"
       features:
-        - "List of sessions for current userId"
+        - "List of sessions for current userId (own sessions tab)"
+        - "Shared sessions tab — browse shared sessions from other tenant users (read-only)"
         - "Session title (first question, truncated)"
-        - "New conversation button"
-        - "Delete session"
+        - "Visibility badge (lock icon for private, globe icon for shared)"
+        - "New conversation button — opens with visibility toggle (default: private)"
+        - "Delete session (own sessions only)"
     FileUpload:
       description: "Attach files to current message — uploaded separately, referenced by fileId"
       upload_flow:
@@ -348,11 +396,21 @@ frontend:
           - "Ownership validated: fileId must belong to same tenantId + userId before use"
           - "Reject with 400 if any constraint violated — do not partially process"
       storage:
-        strategy: "Persistent session attachments — S3 + Aurora metadata"
+        strategy: "Persistent session attachments — S3 + Aurora metadata + KB ingestion"
         s3_key_pattern: "s3://tenant-files-{env}/{tenantId}/{userId}/{sessionId}/{fileId}/{sanitizedFileName}"
         s3_bucket: "Single shared bucket per environment (tenant-files-prod, tenant-files-dev)"
+        s3_object_metadata: "userId, sessionId, visibility, fileId — used by KB ingestion for metadata tagging"
         aurora_table: "app.session_files (see database schema)"
-        lifecycle: "S3 lifecycle rule expires objects after 90 days; Aurora CASCADE deletes on session delete"
+        kb_ingestion: >
+          After upload, files are asynchronously ingested into the tenant Bedrock KB.
+          KB metadata includes userId, sessionId, visibility, and fileId.
+          This enables cross-session vector search with visibility-based access control.
+          Files are immediately usable in the current session via S3 session-state references
+          (before KB ingestion completes).
+        lifecycle: >
+          S3 lifecycle rule expires objects after 90 days. Aurora CASCADE deletes on
+          session delete. On S3 expiry, corresponding KB entries should be cleaned up
+          (re-sync KB data source or manual cleanup job).
         iam: "ECS task role scoped to s3:PutObject + s3:GetObject on own tenantId prefix only"
       session_limits:
         max_files_per_session: 20
@@ -548,9 +606,12 @@ server_routes:
         13. Close response stream
       retrieval_context_note:
         - "KB retrieval follows rag_strategy settings: semantic retrieval (top_k=12) → Bedrock reranking → top 5 chunks"
-        - "User-attached files passed via sessionState.files are supplemental session-scoped evidence"
+        - "KB retrieval applies metadata filter: (visibility='shared') OR (visibility='private' AND userId=callerUserId)"
+        - "This ensures users can search their own private uploads + all shared uploads across sessions"
+        - "User-attached files passed via sessionState.files are supplemental session-scoped evidence (immediate, pre-ingestion)"
         - "Final answer must remain grounded in retrieved KB content and/or attached file evidence — no external knowledge"
         - "Both evidence channels are governed by the same strict grounding policy (guardrail grounding_threshold=0.75)"
+        - "AI returns citations with S3 source paths for KB-retrieved documents — users can trace answers to source files"
       implementation_sketch: |
         // server/api/chat.post.ts
         import { BedrockAgentRuntimeClient, InvokeAgentCommand }
@@ -622,10 +683,17 @@ server_routes:
         userId: "string"
         limit: "integer (default 20)"
         offset: "integer (default 0)"
+        filter: "string (optional) — 'own' (default), 'shared', 'all'"
+      description: >
+        Returns sessions for the current user. filter='own' returns only the user's
+        sessions (private + shared). filter='shared' returns all shared sessions in
+        the tenant (from any user). filter='all' returns own + shared from others.
       response:
         sessions:
           - sessionId: "UUID"
             title: "string"
+            visibility: "string — 'private' or 'shared'"
+            userId: "string — session owner (useful when viewing shared sessions)"
             createdAt: "ISO 8601"
             lastActive: "ISO 8601"
             messageCount: "integer"
@@ -634,8 +702,10 @@ server_routes:
       path: "/api/sessions"
       request_body:
         userId: "string"
+        visibility: "string (optional, default 'private') — 'private' or 'shared'"
       response:
         sessionId: "UUID"
+        visibility: "string — 'private' or 'shared'"
 
     - method: GET
       path: "/api/sessions/:id/messages"
@@ -661,12 +731,24 @@ server_routes:
         files: "multipart file(s) — max 5, each ≤ 10MB"
       flow: |
         1. Validate each file: MIME type, size ≤ 10MB, count ≤ 5
-        2. For each file:
+        2. Look up session visibility from app.sessions WHERE session_id = sessionId
+        3. For each file:
            a. Generate fileId = UUID
            b. Sanitize filename
            c. Upload to S3: tenant-files-{env}/{tenantId}/{userId}/{sessionId}/{fileId}/{sanitizedName}
-           d. INSERT into app.session_files (status='ready', s3_key, metadata, expires_at=NOW()+90d)
-        3. Return array of fileIds
+              — include S3 object metadata tags: userId, sessionId, visibility (from session)
+           d. INSERT into app.session_files (status='ready', visibility=session.visibility,
+              kb_ingestion_status='pending', s3_key, metadata, expires_at=NOW()+90d)
+        4. Trigger async KB ingestion: add file's S3 location to tenant KB data source
+           and call StartIngestionJob (or queue for batch ingestion)
+           — KB metadata includes: userId, sessionId, visibility, fileId
+           — On ingestion complete: UPDATE session_files SET kb_ingestion_status='ingested'
+        5. Return array of fileIds
+      kb_ingestion_note: >
+        Files are immediately usable in the current session via session-state S3 references
+        (step is unchanged from current flow). KB ingestion runs asynchronously so the file
+        becomes searchable in future sessions once ingestion completes. The AI can cite
+        KB-ingested files by their S3 source path in the citation.
       response:
         files:
           - fileId: "UUID"
@@ -733,10 +815,12 @@ database:
             tenant_id:    "VARCHAR(50) NOT NULL"
             user_id:      "VARCHAR(255) NOT NULL"
             title:        "VARCHAR(500)"
+            visibility:   "VARCHAR(10) NOT NULL DEFAULT 'private' CHECK (visibility IN ('private','shared'))"
             created_at:   "TIMESTAMPTZ NOT NULL DEFAULT NOW()"
             last_active:  "TIMESTAMPTZ NOT NULL DEFAULT NOW()"
           indexes:
             - "idx_sessions_tenant_user ON (tenant_id, user_id, last_active DESC)"
+            - "idx_sessions_tenant_shared ON (tenant_id, visibility, last_active DESC) WHERE visibility = 'shared'"
 
         messages:
           columns:
@@ -763,11 +847,14 @@ database:
             s3_bucket:      "VARCHAR(255) NOT NULL"
             s3_key:         "TEXT NOT NULL  -- {tenantId}/{userId}/{sessionId}/{fileId}/{sanitizedFileName}"
             status:         "VARCHAR(20) NOT NULL DEFAULT 'ready' CHECK (status IN ('uploading','ready','expired'))"
+            visibility:     "VARCHAR(10) NOT NULL DEFAULT 'private' CHECK (visibility IN ('private','shared'))  -- inherited from session at upload time"
+            kb_ingestion_status: "VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (kb_ingestion_status IN ('pending','ingesting','ingested','failed'))"
             created_at:     "TIMESTAMPTZ NOT NULL DEFAULT NOW()"
             expires_at:     "TIMESTAMPTZ  -- set to NOW() + 90 days on insert"
           indexes:
             - "idx_session_files_session ON (session_id, created_at ASC)"
             - "idx_session_files_tenant_user ON (tenant_id, user_id)"
+            - "idx_session_files_kb_pending ON (tenant_id, kb_ingestion_status) WHERE kb_ingestion_status = 'pending'"
 
     vectors_per_tenant:
       description: >
@@ -836,6 +923,10 @@ bedrock:
       - "Hybrid lexical + semantic retrieval is not enabled — GIN index exists but is unused"
       - "Bedrock-managed reranking is enabled to improve precision after semantic retrieval"
       - "Retrieval quality is governed explicitly by the RAG Retrieval & Relevance Strategy section"
+      - "Chat-uploaded files are ingested into the KB with metadata: userId, sessionId, visibility, fileId"
+      - "Retrieval applies metadata filter: (visibility='shared') OR (visibility='private' AND userId=caller)"
+      - "This enables cross-session document search — users can find their own private uploads and all shared uploads"
+      - "Citations include S3 source paths so users can trace answers to the original uploaded file"
 
   guardrails:
     description: "Shared guardrail — applied to all agents"
@@ -1320,11 +1411,15 @@ open_questions:
     question: "Should document upload in chat trigger KB ingestion or stay ephemeral?"
     status: RESOLVED
     answer: >
-      Persistent session attachments: files uploaded in chat are stored in
-      S3 (tenant-files-{env}/{tenantId}/{userId}/{sessionId}/...) with metadata
-      in Aurora app.session_files. They are re-fetched on every turn for the session
-      lifetime (multi-turn file context). They are NOT ingested into the KB —
-      that remains a separate admin action. S3 lifecycle expires files after 90 days.
+      Chat-uploaded files are stored in S3 and ALSO ingested into the tenant
+      Bedrock KB with metadata tags (userId, sessionId, visibility). This allows
+      users to search their own uploaded documents in future sessions via vector
+      search, and the AI returns citations with S3 source paths. Visibility
+      metadata controls who can retrieve what: private files are only retrievable
+      by the uploader; shared files are retrievable by all tenant users. Files
+      are also passed as session-state S3 references on the current turn for
+      immediate use (before KB ingestion completes). S3 lifecycle expires files
+      after 90 days; corresponding KB entries should be cleaned up on expiry.
 
   - id: OQ-003
     question: "Single ALB shared between UI and API, or separate?"
